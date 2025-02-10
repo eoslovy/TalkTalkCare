@@ -1,0 +1,126 @@
+/* 페이지 컨테이너의 전체적인 스타일 설정 */
+.page-container {
+  /* Flexbox를 사용하여 내부 요소들을 정렬 */
+  display: flex;
+  /* 세로 방향으로 요소들을 배치 */
+  flex-direction: column;
+  /* 가로축 중앙 정렬 */
+  align-items: center;
+  /* 세로축 중앙 정렬 */
+  justify-content: baseline;
+  /* 뷰포트 높이의 100%로 설정하여 전체 화면 높이를 차지 */
+  height: 100vh;
+  /* 배경색을 흰색으로 설정 */
+  background-color: white;
+  padding-top: 3%;
+}
+
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-display-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #e8ffe0;
+  width: 330px;
+  height: 40px;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.input-display {
+  font-size: 24px;
+  font-weight: bold;
+  flex-grow: 1;
+}
+
+.clear-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: black;
+}
+
+.bottom-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background-color: #e8ffe0;
+  padding: 15px;
+  border-radius: 15px;
+}
+
+.keypad-button {
+  width: 60px;
+  height: 60px;
+  font-size: 22px;
+  font-weight: bold;
+  background-color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.keypad-button:hover {
+  background-color: #b3e59f;
+}
+
+.phone-icon, .contacts-icon {
+  width: 40px;
+  height: 45px;
+}
+
+.side-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.call-button, .contacts-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 140px;
+  background-color: #e8ffe0;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.call-button:hover, .contacts-button:hover {
+  background-color: #b3e59f;
+}
+
+.phone-icon, .contacts-icon {
+  font-size: 24px;
+  margin-bottom: 5px;
+  color: black;
+}

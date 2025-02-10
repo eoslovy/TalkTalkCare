@@ -1,0 +1,74 @@
+/* SMD.css */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f8fff8;
+  }
+  
+  .smd-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    box-sizing: border-box;
+  }
+  
+  .logo-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  
+  .logo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .title-section {
+    background-color: #c8e6c9;
+    padding: 20px 60px;
+    border-radius: 25px;
+    margin: 40px 0;
+    width: fit-content;
+  }
+  
+  .test-section {
+    background-color: #c8e6c9;
+    padding: 50px;
+    border-radius: 25px;
+    width: 800px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .test-box {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 80%;
+    margin-top: 30px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  
+  h1, h2, h3 {
+    margin: 0;
+  }
+  
+  h2 {
+    font-size: 28px;
+  }
+  
+  h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  

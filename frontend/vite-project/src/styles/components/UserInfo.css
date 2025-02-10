@@ -1,0 +1,120 @@
+.user-info-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #F5FFEA;
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  margin-bottom: 1rem;
+  object-fit: cover;
+  background-color: #e5e7eb;
+}
+
+.profile-title {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.info-card {
+  background-color: #B6F3AA;
+  padding: 2rem;
+  border-radius: 15px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.info-rows {
+  flex: 1;
+}
+.info-row {
+  display: flex;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.info-label {
+  width: 100px;
+  font-weight: 500;
+}
+
+.info-value {
+  flex: 1;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;  /* 여기 값을 줄이거나 제거 */
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.edit-button,
+.signout-button {
+  background-color: #F5FFEA;
+  color: black;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-button:hover,
+.signout-button:hover {
+  background-color: #45a049;
+}
+
+.profile-image-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 60px;
+  object-fit: cover;
+}
+
+.profile-image-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 60px;
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-icon {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background-color: #B6F3AA;
+  border-radius: 50%;
+  padding: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-image-container:hover .camera-icon {
+  background-color: #9FE895;
+}
