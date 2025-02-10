@@ -4,7 +4,6 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.talktalkcare.domain.users.config.AWSS3Properties;
-import com.talktalkcare.domain.users.dto.ProfileImageResp;
 import com.talktalkcare.domain.users.error.UserErrorCode;
 import com.talktalkcare.domain.users.exception.UserException;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,7 @@ public class S3Service {
     public String uploadFile(MultipartFile file, String oldFileName) throws IOException {
 
         if (oldFileName != null && !oldFileName.isEmpty()) {
-            deleteFile(oldFileName);
+            deleteFile(oldFileName.substring(oldFileName.lastIndexOf('/') + 1));
         }
 
         String newFileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
@@ -45,9 +44,9 @@ public class S3Service {
         return newFileName;
     }
 
-    public ProfileImageResp getFileUrl(String fileName) {
-        return new ProfileImageResp("https://talktalkcare.s3.ap-southeast-2.amazonaws.com"+amazonS3Client.getUrl(s3Properties.getBucket(), fileName).toString());
-    }
+//    public ProfileImageResp getFileUrl(String fileName) {
+//        return new ProfileImageResp(amazonS3Client.getUrl(s3Properties.getBucket(), fileName).toString());
+//    }
 
     public void deleteFile(String fileName) {
         try {

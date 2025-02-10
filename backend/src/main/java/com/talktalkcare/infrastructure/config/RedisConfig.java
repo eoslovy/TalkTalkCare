@@ -26,14 +26,4 @@ public class RedisConfig {
         return template;
     }
 
-    // 사용자 상태 관리를 위한 별도의 RedisTemplate (선택사항)
-    @Bean
-    public RedisTemplate<String, String> userStatusRedisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
-        return template;
-    }
-
 }

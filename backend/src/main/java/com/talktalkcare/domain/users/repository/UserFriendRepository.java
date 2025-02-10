@@ -14,10 +14,7 @@ public interface UserFriendRepository extends JpaRepository<UserFriend, Long> {
     @Query("SELECT f.friendId FROM UserFriend f WHERE f.userId = :userId")
     List<Integer> findFriendIdsByUserId(Integer userId);
 
-    List<UserFriend> findAllByUserId(Integer userId);
-
-    boolean existsByUserIdAndFriendId(Integer userId, Integer friendId);
-
     @Modifying
     void deleteByUserIdAndFriendId(Integer userId, Integer friendId);
+
 }

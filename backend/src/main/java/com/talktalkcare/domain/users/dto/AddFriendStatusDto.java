@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResp {
+public class AddFriendStatusDto {
 
-    private Integer userId;
+    private Integer receiverId;
 
-    private String username;
+    private Integer senderId;
 
-    private String s3Filename;
+    private String status = "WAITING";
 
 }

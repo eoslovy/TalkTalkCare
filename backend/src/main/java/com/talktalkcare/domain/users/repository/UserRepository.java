@@ -21,8 +21,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     void setUserLoginedAt(Integer userId);
 
     Optional<User> findByPhone(@NotNull String phone);
-
-    @Query(value = "insert into friends values (:userId, :friendId, :friendName)", nativeQuery = true)
-    void addFriend(Integer userId, Integer friendId, String friendName);
 }
 
