@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { UserSignupRequest, SignupApiResponse, SmsVerificationRequest, LoginRequest } from '../types/user';
 
-const BASE_URL = 'http://localhost:8443/api'; // 백엔드 API 기본 URL
+const BASE_URL = 'http://localhost:8080/api'; // 백엔드 API 기본 URL
 
 export const authService = {
   // 아이디 중복 확인 메서드 추가

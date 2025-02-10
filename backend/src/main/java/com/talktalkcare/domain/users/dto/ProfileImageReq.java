@@ -3,14 +3,17 @@ package com.talktalkcare.domain.users.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmsDto {
+public class ProfileImageReq {
 
-    String phoneNumber;
+    private Integer userId;
 
-    String verificationCode;
+    private MultipartFile file;
 
 }

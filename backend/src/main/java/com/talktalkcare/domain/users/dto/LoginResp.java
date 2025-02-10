@@ -7,10 +7,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmsDto {
+public class LoginResp {
 
-    String phoneNumber;
+    private Integer userId;
 
-    String verificationCode;
+    private String username;
+
+    private String s3Filename;
 
 }

@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmsDto {
+public class DeleteFriendReq {
 
-    String phoneNumber;
+    private Integer userId;
 
-    String verificationCode;
+    private Integer friendId;
 
 }

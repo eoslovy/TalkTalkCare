@@ -16,8 +16,7 @@ public class UserConverter {
                 encryptedPassword,
                 userDto.getName(),
                 LocalDate.parse(userDto.getBirth(), DATE_FORMATTER),
-                userDto.getPhone(),
-                userDto.getS3Filename()
+                userDto.getPhone()
         );
     }
 

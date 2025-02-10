@@ -7,10 +7,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmsDto {
+public class ProfileImageResp {
 
-    String phoneNumber;
-
-    String verificationCode;
+    private String imageUrl;
 
 }

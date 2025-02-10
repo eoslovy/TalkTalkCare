@@ -7,10 +7,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginDto {
+public class AddFriendStatusDto {
 
-    private String userLoginId;
-    private String password;
-    private boolean autoLogin;
+    private Integer receiverId;
+
+    private Integer senderId;
+
+    private String status = "WAITING";
 
 }

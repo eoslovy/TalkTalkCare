@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmsDto {
+public class LoginReq {
 
-    String phoneNumber;
-
-    String verificationCode;
+    private String userLoginId;
+    private String password;
+    private boolean autoLogin;
 
 }
