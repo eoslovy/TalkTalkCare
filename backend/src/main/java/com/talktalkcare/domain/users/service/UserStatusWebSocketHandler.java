@@ -17,40 +17,40 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class UserStatusWebSocketHandler extends TextWebSocketHandler {
 
-    private final UserStatusService userStatusService;
+    private final UserFriendService userFriendService;
     private final ObjectMapper objectMapper;
-    private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+    private final Map<Integer, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        String userId = extractUserId(session);
+        Integer userId = extractUserId(session);
         sessions.put(userId, session);
-        userStatusService.setUserOnline(Integer.parseInt(userId));
-        broadcastStatusChange(Integer.parseInt(userId), true);
+        userFriendService.setUserOnline(userId);
+        broadcastStatusChange(userId, true);
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String userId = extractUserId(session);
-        List<FriendDto> friendsStatus = userStatusService.getFriendsStatus(Integer.parseInt(userId));
+        Integer userId = extractUserId(session);
+        List<FriendDto> friendsStatus = userFriendService.getFriendsStatus(userId);
         session.sendMessage(new TextMessage(objectMapper.writeValueAsString(friendsStatus)));
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        String userId = extractUserId(session);
+        Integer userId = extractUserId(session);
         sessions.remove(userId);
-        userStatusService.setUserOffline(Integer.parseInt(userId));
-        broadcastStatusChange(Integer.parseInt(userId), false);
+        userFriendService.setUserOffline(userId);
+        broadcastStatusChange(userId, false);
     }
 
     private void broadcastStatusChange(Integer userId, boolean isOnline) {
-        List<Integer> friendIds = userStatusService.getFriendIds(userId);
+        List<Integer> friendIds = userFriendService.getFriendIds(userId);
         for (Integer friendId : friendIds) {
-            WebSocketSession friendSession = sessions.get(friendId.toString());
+            WebSocketSession friendSession = sessions.get(friendId);
             if (friendSession != null && friendSession.isOpen()) {
                 try {
-                    FriendDto statusUpdate = userStatusService.getFriendStatus(userId);
+                    FriendDto statusUpdate = userFriendService.getFriendStatus(userId);
                     friendSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(statusUpdate)));
                 } catch (Exception e) {
                     // 로그 처리
@@ -59,7 +59,8 @@ public class UserStatusWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private String extractUserId(WebSocketSession session) {
-        return session.getAttributes().get("userId").toString();
+    private Integer extractUserId(WebSocketSession session) {
+        String query = session.getUri().getQuery();
+        return Integer.parseInt(query.split("=")[1]);
     }
 }

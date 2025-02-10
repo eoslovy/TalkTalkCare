@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -35,6 +33,12 @@ public class UserController {
         return Api.OK(userService.login(loginReq, response));
     }
 
+    @PostMapping("/logout")
+    public Api<Void> logout(HttpServletResponse response) {
+        userService.deleteCookies(response);
+        return Api.OK();
+    }
+
     @GetMapping("/auto-login")
     public Api<LoginResp> handleAutoLogin(HttpServletRequest request, HttpServletResponse response) {
         return Api.OK(userService.autoLogin(request,response));
@@ -45,19 +49,9 @@ public class UserController {
         return Api.OK(userService.updateProfileImage(profileImageReq));
     }
 
-    @GetMapping("/profile-image")
-    public Api<ProfileImageResp> getProfileImageUrl(@RequestParam(name = "userId") Integer userId) {
-        return Api.OK(userService.getProfileImage(userId));
-    }
+//    @GetMapping("/profile-image")
+//    public Api<ProfileImageResp> getProfileImageUrl(@RequestParam(name = "userId") Integer userId) {
+//        return Api.OK(userService.getProfileImage(userId));
+//    }
 
-    @PostMapping("/add-friend")
-    public Api<Void> addFriend(@RequestBody AddFriendReq addFriendReq) {
-        userService.addFriend(addFriendReq);
-        return Api.OK();
-    }
-
-    @GetMapping("/friends")
-    public Api<List<FriendDto>> getFriends(@RequestParam(name = "userId") Integer userId) {
-        return Api.OK(userService.getFriends(userId));
-    }
 }

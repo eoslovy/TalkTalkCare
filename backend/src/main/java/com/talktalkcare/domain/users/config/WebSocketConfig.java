@@ -16,7 +16,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(userStatusWebSocketHandler, "/ws/status")
-                .setAllowedOrigins("*");
+        registry
+                .addHandler(userStatusWebSocketHandler, "/talktalkcare")
+                .setAllowedOrigins("http://localhost:5173", "http://localhost:3000");
     }
+
 }

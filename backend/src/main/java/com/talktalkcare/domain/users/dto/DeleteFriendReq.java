@@ -7,12 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResp {
+public class DeleteFriendReq {
 
     private Integer userId;
 
-    private String username;
-
-    private String s3Filename;
+    private Integer friendId;
 
 }
