@@ -72,8 +72,6 @@ public class OpenAiClient {
     private String extractSummary(Map<String, Object> response) {
         try {
             JsonNode root = objectMapper.valueToTree(response);
-            System.out.println("==============");
-            System.out.println(response);
             return root.path("choices").get(0).path("message").path("content").asText();
         } catch (Exception e) {
             throw new AiException(AiErrorCode.API_INVALID_RESPONSE);

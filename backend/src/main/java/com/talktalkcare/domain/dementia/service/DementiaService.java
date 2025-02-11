@@ -38,7 +38,7 @@ public class DementiaService {
         if(testResults.size() < 2)
             throw new DementiaTestException(DementiaTestErrorCode.NOT_ENOUGH_TEST_RESULTS);
 
-        return handler.analyzeTestResults(userId, testResults);
+        return handler.analyzeTestResults(testResults);
     }
 
 }

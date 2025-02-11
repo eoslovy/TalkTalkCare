@@ -10,9 +10,7 @@ public interface TestTypeHandler {
 
     List<DementiaTestResult> handleRequest(Integer userId);
 
-    String analyzeTestResults(Integer userId, List<DementiaTestResult> testResults);
-
-    String generatePrompt();
+    String analyzeTestResults(List<DementiaTestResult> testResults);
 
     String generateAnlaysisInput(List<DementiaTestResult> testResults);
 }
