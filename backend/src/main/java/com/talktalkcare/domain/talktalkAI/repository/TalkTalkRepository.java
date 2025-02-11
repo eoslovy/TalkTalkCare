@@ -28,7 +28,4 @@ public interface TalkTalkRepository extends JpaRepository<TalkTalk, Long> {
     // login_id를 이용하여 user_id와 name을 반환하는 쿼리
     @Query("SELECT u.userId FROM User u WHERE u.loginId = :loginId")
     Integer findUserId(@Param("loginId") String loginId);
-//    @Query("SELECT new com.talktalkcare.domain.talktalkAI.dto.UserInfoDto(u.userId) " +
-//            "FROM User u WHERE u.loginId = :loginId")
-//    UserInfoDto findUserInfo(@Param("loginId") String loginId);
 }

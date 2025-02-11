@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TalkTalkController {
 
     private final TalkTalkService talkTalkService;
-    // 🔹 유저별 Summary + 대화 기록을 저장하는 Map
+    //유저별 Summary + 대화 기록을 저장하는 Map
     private final Map<Integer, StringBuilder> userConversations = new ConcurrentHashMap<>();
 
     /**
@@ -24,16 +24,12 @@ public class TalkTalkController {
     @PostMapping("/start")
     public Api startChat(@RequestParam int userId) {
         // 해당 유저의 summary 가져와서 conversation 초기화
-//        int userId = talkTalkService.getUserInfo(loginId);
-//        String name = userInfo.getName();
         String summary = talkTalkService.getSummary(userId);
 
         userConversations.put(userId, new StringBuilder("이전 대화 요약: " + summary + "\n"));
 
-//        System.out.println(userId + ":" + summary);
         return Api.OK();
     }
-
     /**
      * 대화할 때 이전 대화 내용 + 새로운 response를 누적하여 유지
      */
@@ -58,7 +54,8 @@ public class TalkTalkController {
 
         String conversation = userConversations.get(userId).toString();
         String summary = talkTalkService.summarizeConversation(conversation);
-
+        System.out.println(summary);
+        System.out.println(userId);
         talkTalkService.saveTalkTalk(new TalkTalkDto(userId, summary));
 
         return Api.OK();
