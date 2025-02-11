@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface FriendRepository extends JpaRepository<Friend, Long> {
 
-    @Query("SELECT f.friendId FROM Friend f WHERE f.userId = :userId")
+    @Query("SELECT f.userId FROM Friend f WHERE f.friendId = :userId")
     List<Integer> findFriendIdsByUserId(Integer userId);
 
     @Modifying

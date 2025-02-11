@@ -1,16 +1,12 @@
 package com.talktalkcare.domain.users.service;
 
-import com.talktalkcare.domain.users.converter.AddFriendStatusConverter;
 import com.talktalkcare.domain.users.dto.AddFriendReq;
-import com.talktalkcare.domain.users.dto.AddFriendStatusDto;
 import com.talktalkcare.domain.users.dto.DeleteFriendReq;
 import com.talktalkcare.domain.users.dto.FriendDto;
-import com.talktalkcare.domain.users.entity.AddFriendStatus;
 import com.talktalkcare.domain.users.entity.Friend;
 import com.talktalkcare.domain.users.entity.User;
 import com.talktalkcare.domain.users.error.UserErrorCode;
 import com.talktalkcare.domain.users.exception.UserException;
-import com.talktalkcare.domain.users.repository.AddFriendStatusRepository;
 import com.talktalkcare.domain.users.repository.FriendRepository;
 import com.talktalkcare.domain.users.repository.UserRepository;
 import com.talktalkcare.infrastructure.repository.RedisRepository;
@@ -30,7 +26,6 @@ public class FriendService {
     private final RedisRepository redisRepository;
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
-    private final AddFriendStatusRepository addFriendStatusRepository;
 
     private static final String USER_STATUS_PREFIX = "user:status:";
     private static final String USER_LAST_ACTIVE_PREFIX = "user:lastActive:";
@@ -116,26 +111,6 @@ public class FriendService {
     @Transactional(readOnly = true)
     public List<Integer> getFriendIds(Integer userId) {
         return friendRepository.findFriendIdsByUserId(userId);
-    }
-
-    public void addFriendRequsetSend(AddFriendStatusDto addFriendStatusDto) {
-        AddFriendStatus addFriendStatus = AddFriendStatusConverter.toEntity(addFriendStatusDto);
-        addFriendStatusRepository.save(addFriendStatus);
-    }
-
-    public void rejectFriendRequsetSend(AddFriendStatusDto addFriendStatusDto) {
-        AddFriendStatus addFriendStatus = addFriendStatusRepository.findByReceiverId(addFriendStatusDto.getReceiverId());
-        addFriendStatusRepository.delete(addFriendStatus);
-    }
-
-    @Transactional(readOnly = true)
-    public List<AddFriendStatusDto> getReceiveFriendRequests(Integer userId) {
-        return addFriendStatusRepository.findAddRequestsByReceiverId(userId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<AddFriendStatusDto> getSendAddFriendRequests(Integer userId) {
-        return addFriendStatusRepository.findAddRequestsBySenderId(userId);
     }
 
     public void addFriend(AddFriendReq addFriendReq) {

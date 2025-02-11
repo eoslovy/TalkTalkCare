@@ -125,7 +125,8 @@ public class UserService {
         return user;
     }
 
-    private void handleAutoLogin(String loginId, HttpServletResponse response) {
+    @Transactional
+    public void handleAutoLogin(String loginId, HttpServletResponse response) {
         String token = createAutoLoginToken(loginId);
         storeTokenInDatabase(loginId, token);
 
