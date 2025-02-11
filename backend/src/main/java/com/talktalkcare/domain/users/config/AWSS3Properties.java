@@ -8,8 +8,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 public class AWSS3Properties {
+
     private String accessKey;
+
     private String secretKey;
+
     private String region;
+
     private String bucket;
+
 }
