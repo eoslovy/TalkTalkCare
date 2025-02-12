@@ -13,21 +13,19 @@ public class Api<T> {
         this.result = result;
     }
 
-    public Api(Result result, T body) {
-        this.result = result;
-        this.body = body;
-    }
-
     public static Api<Void> OK() {
         return SUCCESS;
     }
 
     public static <T> Api<T> OK(T body) {
-        return new Api<>(Result.OK(), body);
+        Api<T> api = new Api<>();
+        api.result = Result.OK();
+        api.body = body;
+        return api;
     }
 
-    public static Api<Void> ERROR(String msg,Integer errorCode) {
-        return new Api<>(Result.ERROR(msg,errorCode));
+    public static Api<Void> ERROR(String msg) {
+        return new Api<>(Result.ERROR(msg));
     }
 
     public Result getResult() {
