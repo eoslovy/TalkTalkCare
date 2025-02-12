@@ -128,9 +128,27 @@ services:
       - OPENVIDU_URL=${OPENVIDU_URL}
       - OPENVIDU_SECRET=${OPENVIDU_SECRET}
       - CERTIFICATE_TYPE=${CERTIFICATE_TYPE}
+      - HTTPS_PORT=${HTTPS_PORT}
+      - KMS_URIS=${KMS_URIS}
+      
+      - OPENAI_API_URL=${OPENAI_API_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - SMS_API_KEY=${SMS_API_KEY}
+      - SMS_API_SECRET=${SMS_API_SECRET}
+      - SMS_SENDER=${SMS_SENDER}
+      - CONTEXT_PATH=${CONTEXT_PATH}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
     depends_on:
       mysql:
         condition: service_healthy
+
       redis:
         condition: service_started
       openvidu:

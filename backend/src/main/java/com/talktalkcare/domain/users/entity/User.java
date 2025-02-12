@@ -1,11 +1,18 @@
 package com.talktalkcare.domain.users.entity;
 
 import jakarta.persistence.*;
-import org.antlr.v4.runtime.misc.NotNull;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name="users")
 public class User {
 
@@ -24,7 +31,7 @@ public class User {
     private String name;
 
     @NotNull
-    private Date birth;
+    private LocalDate birth;
 
     @NotNull
     private String phone;
@@ -34,5 +41,13 @@ public class User {
     @NotNull
     @Column(name="s3_filename")
     private String s3FileName;
+
+    public User(String loginId, String password, String name, LocalDate birth, String phone) {
+        this.loginId = loginId;
+        this.password = password;
+        this.name = name;
+        this.birth = birth;
+        this.phone = phone;
+    }
 
 }

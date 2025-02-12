@@ -1,16 +1,25 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(), tailwindcss(),
+  ],
   server: {
     proxy: {
-      '/openvidu': {
-        target: 'https://openvidu:4443',
+      '/api': {
+        target: 'http://localhost:8443',
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '')
       },
-    },
-  },
-})
+      '/tts-api': {
+        target: 'https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/tts-api/, '/tts-premium/v1/tts')
+      }
+    }
+    
+  }
+});
