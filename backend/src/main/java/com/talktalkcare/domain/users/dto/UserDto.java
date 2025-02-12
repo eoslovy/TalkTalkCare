@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -28,6 +27,6 @@ public class UserDto {
 
     private Date loginedAt;
 
-    private MultipartFile s3Filename;
+    private String s3Filename;
 
 }
