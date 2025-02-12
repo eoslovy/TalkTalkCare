@@ -66,10 +66,6 @@ const Result: React.FC = () => {
 
     return (
         <div className="result-container">
-            <div className="logo-section">
-                <img src="/logo.png" alt="톡톡케어" className="logo" />
-                <h1>톡톡케어</h1>
-            </div>
             
             <div className="content-section">
                 <h2>치매진단<br />테스트 결과</h2>

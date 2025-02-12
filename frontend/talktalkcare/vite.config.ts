@@ -18,6 +18,11 @@ export default defineConfig({
         target: 'https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/tts-api/, '/tts-premium/v1/tts')
+      },
+      '/talktalkcare': {
+        target: 'ws://localhost:8080',
+        ws: true,
+        changeOrigin: true
       }
     }
     

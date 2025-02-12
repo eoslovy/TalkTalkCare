@@ -143,7 +143,7 @@
 
 .user-message {
   background-color: #fee500;
-  color: #000;
+  color: #214005;
   margin-left: auto;
   float: right;
   border-bottom-right-radius: 0;
@@ -151,7 +151,7 @@
 
 .ai-message {
   background-color: #ffffff;
-  color: #000;
+  color: #214005;
   margin-right: auto;
   float: left;
   border-bottom-left-radius: 0;
@@ -169,7 +169,7 @@
 
 .control-button {
   background-color: #fee500;
-  color: #000;
+  color: #214005;
   border: none;
   border-radius: 5px;
   padding: 10px 15px;
@@ -189,7 +189,7 @@
 }
 
 .transcript-box p {
-  color: #333;
+  color: #214005;
   font-size: 14px;
 }
 
@@ -254,7 +254,7 @@
   transform: translate(-50%, -50%);
   font-size: 18px;
   font-weight: bold;
-  color: black;
+  color: #214005;
   white-space: nowrap;
 }
 
@@ -266,7 +266,7 @@
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
   text-align: center;
-  border: 1px solid black;
+  border: 1px solid #214005;
 }
 
 /* 기존 chat-container도 중앙 정렬을 위해 수정 */

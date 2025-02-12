@@ -68,7 +68,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
+  color: rgba(241, 241, 237, 0.901);
   font-size: 0.8rem;
 }
 
@@ -78,7 +78,7 @@
   background-color: #B6F3AA;
   border: none;
   border-radius: 0.5rem;
-  color: black;
+  color: #214005;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -105,7 +105,7 @@
 }
 
 .bottom-links span:hover {
-  color: #333;
+  color: #214005;
   text-decoration: underline;
 }
 

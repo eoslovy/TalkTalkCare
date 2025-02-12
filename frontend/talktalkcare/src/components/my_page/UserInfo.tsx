@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { User, Camera } from 'lucide-react';
 import '../../styles/components/UserInfo.css';
-import Header from '../../pages/Header';
+
 interface UserInfoProps {
   userInfo: {
     name: string;
@@ -38,7 +38,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ userInfo, onEdit }) => {
 
   return (
     <div className="user-info-container">
-      <Header />
       <div className="profile-header">
         <div 
           className="profile-image-container" 
@@ -67,12 +66,9 @@ const UserInfo: React.FC<UserInfoProps> = ({ userInfo, onEdit }) => {
           accept="image/*"
           style={{ display: 'none' }}
         />
-        <h2 className="profile-title">사진 업로드</h2>
       </div>
 
-
       <div className="info-card">
-        {/* 정보 행들 먼저 배치 */}
         <div className="info-rows">
           <div className="info-row">
             <span className="info-label">이름:</span>
@@ -94,21 +90,24 @@ const UserInfo: React.FC<UserInfoProps> = ({ userInfo, onEdit }) => {
             <span className="info-label">비밀번호:</span>
             <span className="info-value">***********</span>
           </div>
-          <div className="info-row" style={{ marginBottom: '0' }}>  {/* 마지막 info-row의 margin-bottom 제거 */}
+          <div className="info-row" style={{ marginBottom: '0' }}>
             <span className="info-label">전화번호:</span>
             <span className="info-value">{userInfo.phone}</span>
           </div>
-        {/* 버튼들을 마지막에 배치 */}
+        </div>
+        
         <div className="button-container">
           <button className="edit-button" onClick={onEdit}>
             정보 수정
           </button>
-          <button className="signout-button" onClick={handleSignOut}>
-            회원탈퇴
-          </button>
         </div>
-        </div>
+      </div>
 
+      {/* 회원 탈퇴 버튼을 info-card 아래 오른쪽 정렬 */}
+      <div className="signout-container">
+        <button className="signout-button" onClick={handleSignOut}>
+          회원 탈퇴
+        </button>
       </div>
     </div>
   );

@@ -5,10 +5,14 @@ import MainMenu from '../components/main_page/MainMenu'
 import Analytics from '../components/main_page/Analytics';
 import FriendList from '../components/main_page/FriendList';
 import '../styles/components/MainPage.css';
+import CardNews from '../components/main_page/Cardnews';
 
 const MainPage: React.FC = () => {
   const [showFriendList, setShowFriendList] = useState(false);
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
+  const wsUrl = "ws://localhost:8080/ws";
+  const apiUrl = "http://localhost:8080/api";
 
   return (
     <div className="main-page-container">
@@ -25,14 +29,19 @@ const MainPage: React.FC = () => {
         {/* 메뉴 카드 (일렬 정렬) */}
         <div className="menu-card">
           <MainMenu />
-          <Analytics />
+          {/* <Analytics /> */}
+          <CardNews/>
         </div>
       </div>
 
-      {/* 친구 목록 표시 */}
       {showFriendList && (
         <div className="friend-list-container">
-          <FriendList onClose={() => setShowFriendList(false)} />
+          <FriendList
+            userId={parseInt(userId)}
+            onClose={() => setShowFriendList(false)}
+            wsUrl={wsUrl}
+            apiUrl={apiUrl}
+            />
         </div>
       )}
     </div>

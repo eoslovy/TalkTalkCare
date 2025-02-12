@@ -1,6 +1,6 @@
 .main-page-container {
   display: flex;
-  min-height: 100vh;
+  min-height: 80vh;
   background-color: white;
   justify-content: center;
   align-items: center;
@@ -17,18 +17,36 @@
   position: relative;
 }
 
-/* 친구 목록 버튼을 우측 상단에 배치 */
+.menu-card {
+  width: 730px;
+  height: 800px;
+  justify-content: center;
+  align-items: center;
+  padding-top: 55px;
+}
+
+.friend-list-container {
+  position: fixed;
+  right: 0;
+  top: 70px; /* 헤더바의 높이를 고려하여 위치 설정 */
+  width: 20rem;
+  height: calc(100vh - 70px); /* 헤더바 높이를 제외한 화면 높이 */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  background-color: white;
+  box-sizing: border-box;
+}
 .friend-list-toggle {
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 10px; /* 버튼을 오른쪽 상단에 배치 */
+  z-index: 10; /* 다른 콘텐츠보다 위로 오도록 설정 */
 }
 
-/* 친구 목록 열기 버튼 스타일 */
 .friend-list-toggle button {
   width: 50px;
   height: 50px;
-  background-color: #A1E55A; /* 밝은 녹색 */
+  background-color: #c8e6c9;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -40,6 +58,6 @@
 }
 
 .friend-list-toggle button:hover {
-  background-color: #85D44C;
+  background-color: #b2ccb3;
   transform: scale(1.1);
 }

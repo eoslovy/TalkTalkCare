@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../styles/components/smcq.css';
+import CustomModal from '../../../components/CustomModal';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 console.log(import.meta.env.VITE_API_BASE_URL);
 
@@ -27,7 +28,7 @@ const submitSurvey = async (userId: number | null, testId: number, testResult: s
     console.log('userId:', userId);
     console.log('testId:', testId);
     console.log('testResult:', testResult); 
-    const response = await fetch(`http://localhost:8443/api/dementia-test/result`,{ 
+    const response = await fetch(`${BASE_URL}/dementia-test/result`,{ 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -50,6 +51,8 @@ const SMCQ: React.FC = () => {
   const [answers, setAnswers] = useState<Array<string | null>>(new Array(questions.length).fill(null));
   const [userId, setUserId] = useState<number | null>(null);
   const [testId, setTestId] = useState<number>(1);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalMessage, setModalMessage] = useState<string>("");
 
   useEffect(() => {
     // 로컬 스토리지에서 userId 가져오기
@@ -69,9 +72,11 @@ const SMCQ: React.FC = () => {
     setAnswers(newAnswers);
   };
 
+  // 문항 답변 안할 때때
   const handleSubmit = async () => {
     if (answers.includes(null)) {
-      alert('모든 문항에 답변해 주세요.');
+      setModalMessage('모든 문항에 답변해 주세요.');
+      setIsModalOpen(true);
       return;
     }
 
@@ -85,21 +90,20 @@ const SMCQ: React.FC = () => {
       navigate('/result', { state: { answers, testType: 'SMCQ' } });
     } catch (error) {
       console.error('Error:', error);
-      alert('설문조사 제출에 실패했습니다. 다시 시도해 주세요.');
+      setModalMessage('설문조사 제출에 실패했습니다. 다시 시도해 주세요.');
+      setIsModalOpen(true);
     }
   };
 
   return (
     <div className="smcq-container">
-      <div className="logo-section">
-        <img src="/logo.png" alt="톡톡케어" className="logo" />
-        <h1>톡톡케어</h1>
-      </div>
+      
       <div className="content-section">
-        <h2>치매진단 테스트</h2>
+        <h2>이용자용 테스트</h2>
         <div className="instruction">
-          다음 문항을 읽고 최근 6개월 간의 해당 사항에<br />
-          "예" 또는 "아니오"를 선택하시오
+          이 테스트는 <span className='font-bold'>이용자용 테스트</span>입니다. <br />
+          다음 문항을 읽고 최근 <span className='font-bold'>6개월 간의</span> 해당 사항에
+          "예" 또는 "아니오"를 선택해주세요.
         </div>
         <div className="questions">
           {questions.map((question, index) => (
@@ -109,13 +113,13 @@ const SMCQ: React.FC = () => {
               </div>
               <div className="answer-buttons">
                 <button 
-                  className={`answer-btn ${answers[index] === '예' ? 'selected' : ''}`}
+                  className={`answer-btn-yes ${answers[index] === '예' ? 'selected' : ''}`}
                   onClick={() => handleAnswer(index, '예')}
                 >
                   예
                 </button>
                 <button 
-                  className={`answer-btn ${answers[index] === '아니오' ? 'selected' : ''}`}
+                  className={`answer-btn-no ${answers[index] === '아니오' ? 'selected' : ''}`}
                   onClick={() => handleAnswer(index, '아니오')}
                 >
                   아니오
@@ -131,6 +135,12 @@ const SMCQ: React.FC = () => {
           >
             제출하기
           </button>
+          <CustomModal
+              title="알림"
+              message={modalMessage} // 상황에 따라 다른 메시지 전달
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+            />
         </div>
       </div>
     </div>

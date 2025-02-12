@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { User } from 'lucide-react';
 import PentagonGraph from '../../components/my_page/graph/PentagonGraph';
 import '../../styles/components/MyPage.css';
-import Header from '../Header';
 const MyPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('game');
@@ -24,7 +23,6 @@ const MyPage = () => {
 
   return (
     <div className="my-page-container">
-      <Header />
       <div className="profile-section">
         <div 
           className="profile-image-container" 

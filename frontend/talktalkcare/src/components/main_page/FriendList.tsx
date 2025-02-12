@@ -1,85 +1,147 @@
-import React, { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import UserListItem from './UserListItem';
+// FriendList.tsx
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, UserPlus } from 'lucide-react';
+import AddFriendModal from './AddFriendModal';
+import FriendItem from './UserListItem';
 import '../../styles/components/FriendList.css';
+import { useWebSocket } from './hooks/useWebSocket';
 
-interface Friend {
-  id: string;
+export interface Friend {
+  userId: number;
   name: string;
-  status: string;
-  time: string;
-  image: string;
+  phone: string;
+  s3Filename?: string;
+  status: 'ONLINE' | 'OFFLINE';
+  lastActiveTime: string;
+  displayStatus: string;
 }
 
 interface FriendListProps {
+  userId: number;
   onClose: () => void;
 }
 
-const FriendList: React.FC<FriendListProps> = ({ onClose }) => {
-  const [friends, setFriends] = useState([
-    { id: '1', name: '노진구', status: '', time: '', image: '/api/placeholder/40/40' },
-    { id: '2', name: '윤덕총', status: '', time: '', image: '/api/placeholder/40/40' },
-    { id: '3', name: '오주일', status: '', time: '', image: '/api/placeholder/40/40' },
-    { id: '4', name: '전패현', status: '', time: '', image: '/api/placeholder/40/40' },
-    { id: '5', name: '기임윤', status: '마지막 접속시간', time: '50분 전', image: '/api/placeholder/40/40' },
-    { id: '6', name: '황다바', status: '마지막 접속시간', time: '24시간 전', image: '/api/placeholder/40/40' }
-  ]);
-
+const FriendList: React.FC<FriendListProps> = ({ userId, onClose }): JSX.Element => {
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
+  const handleStatusUpdate = (updatedFriend: Friend) => {
+    console.log('친구 상태 업데이트:', updatedFriend);
+    setFriends((prevFriends) =>
+      prevFriends.map((friend) =>
+        friend.userId === updatedFriend.userId
+          ? { ...friend, ...updatedFriend }
+          : friend
+      )
+    );
+  };
+
+  const { isConnected } = useWebSocket(handleStatusUpdate); // userId는 로컬 스토리지에서 가져옴
+
+  const loadFriends = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/friends/${userId}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Friend list response:', data);
+
+      if (data.result?.msg === 'success') {
+        setFriends(data.body || []);
+      }
+    } catch (error) {
+      console.error('Failed to load friends:', error);
+      setError('친구 목록을 불러오는데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadFriends();
+  }, [userId]);
+
   const filteredFriends = friends.filter(friend => 
     friend.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const renderContent = () => {
+    if (isLoading) {
+      return <div className="loading-message">로딩 중...</div>;
+    }
+
+    if (error) {
+      return <div className="error-message">{error}</div>;
+    }
+
+    if (friends.length === 0) {
+      return <div className="empty-message">현재 친구가 없습니다.</div>;
+    }
+
+    if (filteredFriends.length === 0) {
+      return <div className="empty-message">검색 결과가 없습니다</div>;
+    }
+
+    return filteredFriends.map(friend => (
+      <FriendItem key={friend.userId} friend={friend} />
+    ));
+  };
+  const username = localStorage.getItem('username');
+  console.log(username)
   return (
-    <div className="friend-container">
-      <div className="w-80 h-screen fixed right-0 top-0 shadow-lg p-4">
-        <div className="flex items-center mb-4" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-          <button 
-            onClick={onClose} 
-            className="p-2 hover:bg-gray-100 rounded-full flex items-center justify-center" 
-            style={{ 
-              width: '40px', 
-              height: '40px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center' 
-            }}
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <h2 className="text-lg font-bold flex-grow text-center">친구목록</h2>
-          <div style={{ width: '40px' }}></div>
-        </div>
-        
-        <div className="mb-4">
-          <div className="search-bar search-bar flex items-center w-full" style={{display:'flex', justifyContent:'space-between'}}>
-            <input
-              type="search"
-              placeholder="친구를 검색해보세요"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 bg-gray-100 rounded-lg"
-            />
-            <button type="submit" className="ml-2 p-2 bg-green-100 rounded-lg hover:bg-green-200" style={{width:'60px'}}>
-              <span>검색</span>
-            </button>
-          </div>
-        </div>
-        
-        <div className="friends-list-container">
-          {filteredFriends.map(friend => (
-            <div className="each-friend-container" key={friend.id}>
-              <UserListItem
-                name={friend.name}
-                image={friend.image}
-                status={friend.status}
-                time={friend.time}
-              />
-            </div>
-          ))}
-        </div>
+    <div className="friend-list-container">
+      <div className="friend-list-header">
+        <button 
+          onClick={onClose} 
+          className="friend-list-back-button"
+        >
+          <ArrowLeft size={24} />
+        </button>
+        <h2 className="friend-list-title">
+          친구목록 {isConnected ? '(온라인)' : '(오프라인)'}
+        </h2>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="friend-list-add-button"
+        >
+          <UserPlus size={24} />
+        </button>
       </div>
+
+      <div className="friend-list-search-container">
+        <input
+          type="search"
+          placeholder="친구를 검색해보세요"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="friend-list-search-input"
+        />
+      </div>
+
+      <div className="friend-list-content">
+        {renderContent()}
+      </div>
+
+      {showAddModal && (
+        <AddFriendModal
+          userId={userId}
+          onClose={() => setShowAddModal(false)}
+          onFriendAdded={loadFriends}
+        />
+      )}
     </div>
   );
 };

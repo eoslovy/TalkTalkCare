@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import '../../styles/components/Login.css';
-import Header from '../Header';
 import axios, { AxiosError } from 'axios';
 
 const Login = () => {
@@ -47,7 +46,6 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <Header />
       <div className="login-form">
         {/* 로그인 입력 폼 */}
         <form onSubmit={handleLogin}>

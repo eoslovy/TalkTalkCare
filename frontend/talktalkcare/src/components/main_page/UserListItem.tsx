@@ -1,34 +1,49 @@
-// UserListItem.tsx
+// FriendItem.tsx
 import React from 'react';
-import { Phone } from 'lucide-react';
+import '../../styles/components/UserListItem.css';
+import { Friend } from './friends';
 
-interface UserListItemProps {
-  name: string;
-  image: string;
-  status?: string;
-  time?: string;
+interface FriendItemProps {
+  friend: Friend;
+  onRemove?: () => void;
 }
 
-const UserListItem = ({ name, image, status, time }: UserListItemProps) => (
-  <div 
-    className="flex items-center w-full h-full p-2 each-friend-container"
-  >
-    {/* 왼쪽 컨테이너: 이미지와 이름 */}
-    <div className="flex items-center">
-      <img src={image} alt={name} className="w-10 h-10 rounded-full" />
-      <div className="ml-3">
-        <div className="font-medium">{name}</div>
-        {status && time && (
-          <div className="text-xs text-gray-500">{status} {time}</div>
-        )}
+const FriendItem: React.FC<FriendItemProps> = ({ friend, onRemove }): JSX.Element => {
+  return (
+    <div className="friend-item">
+      <div className="friend-item-avatar-container">
+        <img 
+          src={friend.s3Filename || 'api/placeholder/40/40'} 
+          alt={friend.name}
+          className="friend-item-avatar" 
+        />
+        <div 
+          className={`friend-item-status-dot ${
+            friend.status === 'ONLINE' 
+              ? 'online' 
+              : 'offline'
+          }`}
+        />
       </div>
+      <div className="friend-item-content">
+        <h3 className="friend-item-name">{friend.name}</h3>
+        <div className="friend-item-status">
+          {friend.status === 'ONLINE' ? '온라인' : `오프라인 · ${friend.displayStatus}`}
+        </div>
+        <div className="friend-item-details">
+          <span>{friend.phone}</span>
+        </div>
+      </div>
+      {onRemove && (
+        <button 
+          onClick={onRemove}
+          className="friend-item-remove-btn"
+        >
+          삭제
+        </button>
+      )}
     </div>
+  );
+};
 
-    {/* 오른쪽 컨테이너: 전화 아이콘 */}
-    <div className="phone-icon-container">
-      <Phone size={32} className="text-gray-700" />
-    </div>
-  </div>
-);
-
-export default UserListItem;
+export default FriendItem;

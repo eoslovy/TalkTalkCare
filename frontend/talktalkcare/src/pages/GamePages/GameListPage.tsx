@@ -37,8 +37,7 @@ const GameListPage = () => {
   return (
     <div className="game-list-container">
       <div className="game-header">
-        <h1>게임 목록</h1>
-        <div className="game-ranking">게임 랭킹</div>
+        <h1>치매 예방 게임 목록</h1>
       </div>
 
       <div className="game-content-wrapper">
@@ -71,4 +70,5 @@ const GameListPage = () => {
     </div>
   );
 };
+
 export default GameListPage;

@@ -1,72 +1,79 @@
-/* FriendList.css */
-.friend-container {
+.friend-list-container {
+  width: 20rem;
+  height: 100vh;
+  position: fixed;
+  right: 0;
+  top: 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
   background-color: white;
-  margin-right: 30px;
+}
+
+.friend-list-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.friend-list-back-button {
+  padding: 0.5rem;
+  border-radius: 9999px;
+}
+
+.friend-list-back-button:hover {
+  background-color: #f3f4f6;
+}
+
+.friend-list-title {
+  flex-grow: 1;
   text-align: center;
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.friend-list-add-button {
+  padding: 0.5rem;
+  border-radius: 9999px;
+}
+
+.friend-list-add-button:hover {
+  background-color: #f3f4f6;
+}
+
+.friend-list-search-container {
+  margin-bottom: 1rem;
+}
+
+.friend-list-search-input {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+}
+
+.friend-list-content {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.each-friend-container {
-  background-color: #B6F3AA;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 70px;
-  width: 200px;
-}
-
-.phone-icon-container {
-  margin-left: auto;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.each-friend-container:hover {
-  background-color: #9FE895;
-  cursor: pointer;
-}
-
-.search-bar {
-  background-color: #f3f4f6;
-  border-radius: 20px;
-  padding: 8px 16px;
-  margin-bottom: 16px;
-}
-
-.search-bar input {
-  border: none;
-  outline: none;
-  background: transparent;
-  width: 100%;
-}
-
-.friends-list-container {
-  height: calc(100vh - 200px);
+  gap: 0.5rem;
   overflow-y: auto;
-  padding-right: 10px;
+  height: calc(100vh - 140px);
 }
 
-.friends-list-container::-webkit-scrollbar {
-  width: 6px;
+.loading-message, 
+.error-message, 
+.empty-message {
+  text-align: center;
+  padding: 1rem;
 }
 
-.friends-list-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+.loading-message {
+  color: #6b7280;
 }
 
-.friends-list-container::-webkit-scrollbar-thumb {
-  background: #B6F3AA;
-  border-radius: 3px;
+.error-message {
+  color: #ef4444;
 }
 
-.friends-list-container::-webkit-scrollbar-thumb:hover {
-  background: #9FE895;
+.empty-message {
+  color: #6b7280;
 }

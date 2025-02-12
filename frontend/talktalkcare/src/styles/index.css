@@ -10,6 +10,7 @@
 @layer base {
   html {
     font-family: "MyFont", sans-serif;
+    color: #214005;
   }
 }
 

@@ -14,29 +14,23 @@ const Test: React.FC = () => {
 
   return (
     <div className="test-container">
-      <div className="logo-section">
-        <img src="/images/logo.png" alt="톡톡케어" className="logo" />
-        <h1 className='font-bold'>톡톡케어</h1>
-      </div>
 
       <div className="title-section">
-        <h2 className='font-bold'>치매 진단 테스트</h2>
+        <p className='test-title font-bold'>치매 진단 테스트</p>
       </div>
 
       <div className="buttons-container">
-        <div className="test-option">
-          <h3>이용자</h3>
-          <Link to="/smcq" className="test-button">
-            SMCQ
-          </Link>
-        </div>
+        
+        <Link to="/smcq" className="test-button">
+          <p className='test-option'>이용자용 테스트</p>
+          <p><br />SMCQ</p>
+        </Link>
 
-        <div className="test-option">
-          <h3>보호자</h3>
-          <Link to="/sdq" className="test-button">
-            SDQ
-          </Link>
-        </div>
+        <Link to="/sdq" className="test-button">
+          <p className='test-option'>보호자용 테스트</p>
+          <p><br />SDQ</p>
+        </Link>
+        
       </div>
     </div>
   );

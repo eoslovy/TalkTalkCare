@@ -42,22 +42,6 @@ const KeyPad: React.FC = () => {
     });
   };
 
-  // 키보드 입력 처리
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    const key = event.key;
-
-    if (!isNaN(Number(key)) && key !== ' ') {
-      // 숫자 키 입력 시
-      setInput(prev => formatPhoneNumber(prev + key));
-    } else if (key === 'Backspace') {
-      // 백스페이스 키 입력 시
-      setInput(prev => {
-        const newValue = prev.replace(/[^0-9]/g, '').slice(0, -1);
-        return formatPhoneNumber(newValue);
-      });
-    }
-  };
-
   // 화상통화로 연결
   const handleCall = () => {
     if (input.length > 0) {
@@ -73,11 +57,25 @@ const KeyPad: React.FC = () => {
     setShowFriends((prev) => !prev); // 친구 목록 표시/숨기기 토글
   };
 
+  // 키 이벤트 처리 (handleKeyDown 추가)
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key >= '0' && e.key <= '9') {
+      handleButtonClick(e.key); // 숫자키 입력 시 전화번호 추가
+    } else if (e.key === 'Backspace') {
+      handleClear(); // 백스페이스 키 입력 시 지우기
+    }
+  };
+
   return (
     <div className="page-container" tabIndex={0} onKeyDown={handleKeyDown}>
-      <div className="logo-section">
-        <img src="/images/logo.png" alt="톡톡케어" className="logo" />
-        <h1>톡톡케어</h1>
+      {/* 왼쪽 서비스 설명 텍스트 */}
+      <div className="text-section">
+        <h1>화상 전화</h1>
+        <ol>
+          <li>전화하고 싶은 사람의 번호를 입력합니다.</li>
+          <li>상대방이 톡톡케어 회원이어야 합니다.</li>
+          <li>상대방이 서비스에 접속 중일 경우 화상 전화가 연결됩니다.</li>
+        </ol>
       </div>
 
       <div className="main-container">
@@ -102,13 +100,14 @@ const KeyPad: React.FC = () => {
               </button>
             ))}
           </div>
+
           {/* 사이드 버튼 */}
           <div className="side-buttons">
             <button className="call-button" onClick={handleCall}>
               <img src={phone} alt="핸드폰" className='phone-icon'/>
               <span>전화걸기</span>
             </button>
-            {/* Custom Modal */}
+
             <CustomModal
               title="알림"
               message={modalMessage} // 상황에 따라 다른 메시지 전달
@@ -120,9 +119,9 @@ const KeyPad: React.FC = () => {
               <img src={side} alt="친구목록" className='contacts-icon'/>
               <span>친구 목록</span>
             </button>
+
             {/* 친구 목록 표시 */}
-            {showFriends && <FriendList onClose={() =>
-            setShowFriends(false)}/>}
+            {showFriends && <FriendList onClose={() => setShowFriends(false)}/>}
           </div>
         </div>
       </div>

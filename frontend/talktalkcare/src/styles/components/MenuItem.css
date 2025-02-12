@@ -19,7 +19,7 @@
 
 /* 기본 메뉴 아이템 스타일 */
 .menu-item {
-  background-color: #F6FFF1; /* 연한 녹색 */
+  background-color: #f5ffea; /* 연한 녹색 */
   border-radius: 20px;
   padding: 1.5rem;
   display: flex;
@@ -35,7 +35,7 @@
 
 /* 마우스 오버 시 효과 */
 .menu-item:hover {
-  background-color: #A1E55A; /* 진한 녹색 */
+  background-color: #b2ccb3; /* 진한 녹색 */
   transform: scale(1.1); /* 10% 확대 */
   box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2); /* 그림자 강조 */
 }
@@ -50,5 +50,5 @@
   font-size: 1rem;
   font-weight: 500;
   text-align: center;
-  color: #333;
+  color: #214005;
 }
