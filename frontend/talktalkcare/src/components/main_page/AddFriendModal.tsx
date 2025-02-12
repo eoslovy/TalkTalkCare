@@ -1,57 +1,63 @@
+// AddFriendModal.tsx
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+// import '../styles/components/AddFriendModal.css';
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface AddFriendModalProps {
-  userId: number;
   onClose: () => void;
-  onFriendAdded: () => void;
+  onFriendAdded: () => Promise<void>;
 }
 
-const AddFriendModal: React.FC<AddFriendModalProps> = ({ 
-  userId,
-  onClose, 
-  onFriendAdded 
-}): JSX.Element => {
-  const [phone, setPhone] = useState('');
+const AddFriendModal: React.FC<AddFriendModalProps> = ({ onClose, onFriendAdded }) => {
   const [name, setName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.trim()) {
-      setError('전화번호를 입력해주세요.');
+    
+    const userIdFromStorage = localStorage.getItem("userId");
+    if (!userIdFromStorage) {
+      setError('사용자 정보를 찾을 수 없습니다.');
       return;
     }
 
-    setIsLoading(true);
+    if (!name.trim() || !phone.trim()) {
+      setError('이름과 전화번호를 모두 입력해주세요.');
+      return;
+    }
+
     try {
-      const response = await fetch('http://localhost:8080/api/friends/add', {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`${BASE_URL}/friends/add`, {
         method: 'POST',
         credentials: 'include',
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId,
-          phone,
-          name
+          userId: parseInt(userIdFromStorage),
+          name: name.trim(),
+          phone: phone.trim()
         })
       });
 
       const data = await response.json();
-      console.log('Add friend response:', data);
 
       if (data.result?.msg === 'success') {
-        onFriendAdded();
+        await onFriendAdded();
         onClose();
       } else {
-        throw new Error(data.result?.msg || '친구 추가에 실패했습니다.');
+        setError(data.message || '친구 추가에 실패했습니다.');
       }
-    } catch (err) {
-      console.error('Friend add error:', err);
-      setError(err instanceof Error ? err.message : '친구 추가 중 오류가 발생했습니다.');
+    } catch (error) {
+      console.error('Failed to add friend:', error);
+      setError('친구 추가 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -69,50 +75,47 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              친구 이름
-            </label>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">이름</label>
             <input
               type="text"
+              id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded-lg"
               placeholder="친구 이름을 입력하세요"
+              disabled={isLoading}
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              전화번호
-            </label>
+          <div className="form-group">
+            <label htmlFor="phone">전화번호</label>
             <input
               type="tel"
+              id="phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full p-2 border rounded-lg"
-              placeholder="010-0000-0000"
+              placeholder="전화번호를 입력하세요"
+              disabled={isLoading}
             />
           </div>
 
-          {error && (
-            <div className="text-red-500 text-sm">{error}</div>
-          )}
+          {error && <div className="error-message">{error}</div>}
 
-          <div className="flex justify-end space-x-2">
-            <button
-              type="button"
+          <div className="modal-footer">
+            <button 
+              type="button" 
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              disabled={isLoading}
+              className="cancel-button"
             >
               취소
             </button>
-            <button
+            <button 
               type="submit"
               disabled={isLoading}
               className="px-4 py-2 text-[#214005] bg-[#F5FFEA] rounded-lg hover:bg-[#F5FFEA] disabled:bg-[#F5FFEA]"
-              >
+            >
               {isLoading ? '처리중...' : '추가'}
             </button>
           </div>

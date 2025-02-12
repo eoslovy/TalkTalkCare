@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import '../../styles/components/Result.css';
+import '../../styles/components/result.css';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 console.log(import.meta.env.VITE_API_BASE_URL);
@@ -61,42 +61,44 @@ const Result: React.FC = () => {
     
     return (
         <div className="result-container">
-            
             <div className="content-section">
                 <h2>치매진단<br />테스트 결과</h2>
                 
-                <div className="result-box">
-                    <div className="result-content">
-                        <p>총 {answers.length}문항 중 {calculateResult()}개의 항목에서 치매 위험이 감지되었습니다.</p>
-                    </div>
-                    <div className='result-notice'>
-                        <p>자가 치매 진단을 위해 시행하는 SMCQ 테스트는 6개 이상 항목에서
-                          치매 위험이 감지될 때, 주의가 필요하다고 판단합니다. 아래 버튼을
-                          누르고 게임을 시작해 보세요!
-                        </p>
+                <div className="result-box-wrapper">
+                    <div className="result-box">
+                        <div className="result-content">
+                            <p>총 {answers.length}문항 중 {calculateResult()}개의 항목에서 치매 위험이 감지되었습니다.</p>
+                        </div>
+                        <div className='result-notice'>
+                            <p className='notice'>자가 치매 진단을 위해 시행하는 SMCQ 테스트는<br /> 6개 이상 항목에서
+                            치매 위험이 감지될 때,<br /> 주의가 필요하다고 판단합니다. <br /> 아래 버튼을
+                            누르고 게임을 시작해 보세요!</p>
+                        </div>
                     </div>
                 </div>
                 
-                {isLoggedIn && (
-                    <button 
-                        className="ai-analysis-button" 
-                        onClick={fetchAiAnalysis}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? '분석 중...' : 'AI 분석 결과 보기'}
-                    </button>
-                )}
-                
+                <div className="button-group" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+                    {isLoggedIn && (
+                        <button 
+                            className="ai-analysis-button" 
+                            onClick={fetchAiAnalysis}
+                            disabled={isLoading}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '200px', height: '50px', textAlign: 'center', flex: '1 1 45%' }}
+                        >
+                            {isLoading ? '분석 중...' : 'AI 분석 보기'}
+                        </button>
+                    )}
+                    
+                    <Link to="/game" className="game-button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '200px', height: '50px', textAlign: 'center', flex: '1 1 45%' }}>
+                        게임 하러가기
+                    </Link>
+                </div>
                 {aiAnalysis && (
-                    <div className="ai-analysis-result">
+                    <div className="ai-analysis-result" style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', wordBreak: 'break-word' }}>
                         <h3>AI 분석 결과</h3>
                         <p>{aiAnalysis}</p>
                     </div>
                 )}
-                
-                <Link to="/game" className="game-button">
-                    게임 하러가기
-                </Link>
             </div>
         </div>
     );

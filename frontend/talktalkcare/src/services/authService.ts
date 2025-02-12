@@ -1,20 +1,26 @@
 // src/services/authService.ts
 import axios from 'axios';
-import { UserSignupRequest, SignupApiResponse, SmsVerificationRequest, LoginRequest } from '../types/user';
+import { UserSignupRequest, SignupApiResponse, LoginRequest } from '../types/user';
+import { AxiosResponse } from 'axios';
+import { LogoutResponse } from '../types/user';
 
-const BASE_URL = 'http://localhost:8080/api'; // 백엔드 API 기본 URL
+const BASE_URL = import.meta.env.VITE_API_BASE_URL; // 백엔드 API 기본 URL
 
 export const authService = {
-  // 아이디 중복 확인 메서드 추가
-  checkIdDuplicate: async (loginId: string): Promise<boolean> => {
+  // 아이디 중복 확인 API 호출
+  checkIdDuplicate: async (userLoginId: string): Promise<boolean> => {
     try {
       const response = await axios.get(`${BASE_URL}/users/check-id`, {
-        params: { loginId }
+        params: { userLoginId }
       });
-      return response.data.isDuplicate === false;
+
+      console.log('아이디 중복 확인 응답:', response.data);
+
+      const { msg } = response.data.result;
+      return msg === 'success'; // "success"이면 true, 아니면 false 반환
     } catch (error) {
       console.error('아이디 중복 확인 중 오류:', error);
-      throw error;
+      return false; // 예외 발생 시 false 반환 (예외 방지)
     }
   },
 
@@ -130,8 +136,24 @@ export const authService = {
           headers: error.response?.headers
         });
       }
-  
+      throw error;
+    }
+  },
+
+  logout: async (): Promise<LogoutResponse> => {
+    try {
+      const response: AxiosResponse<LogoutResponse> = await axios.post(
+        `${BASE_URL}/users/logout`, 
+        {}, 
+        { 
+          withCredentials: true 
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Logout failed:', error);
       throw error;
     }
   }
 };
+

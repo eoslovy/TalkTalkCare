@@ -1,8 +1,8 @@
 .signup-container {
-  min-height: 100vh;
+  width: 450px;              /* 고정된 너비 설정 (signup-content보다 약간 넓게) */
+  margin: 30px auto;         /* 상하 30px, 좌우 auto로 중앙 정렬 */
   background-color: #F5FFEA;
   position: relative;
-  margin-top: 30px;
 }
 
 .signup-header {
@@ -10,7 +10,7 @@
   top: 20px;
   left: 20px;
 }
-
+ 
 .signup-content {
   display: flex;
   justify-content: center;
@@ -165,8 +165,8 @@
 }
 
 /* 단계별 높이 설정 */
-.step-1 { min-height: 150px; }
+/* .step-1 { min-height: 150px; }
 .step-2 { min-height: 220px; }
 .step-3 { min-height: 280px; }
 .step-4 { min-height: 350px; }
-.step-5 { min-height: 250px; }
+.step-5 { min-height: 250px; } */

@@ -4,84 +4,137 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* 전체를 가운데 정렬 */
+    justify-content: center; /* 수직 중앙 정렬 */
     padding: 40px 20px;
     box-sizing: border-box;
     background-color: #f8fff8;
+    overflow: hidden; /* 넘치는 콘텐츠를 숨김 */
   }
   
-  .logo-section {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 40px;
-  }
-  
-  .logo {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .content-section {
-    width: 100%;
-    max-width: 800px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  h2 {
-    text-align: center;
-    font-size: 2em;
-    margin-bottom: 30px;
-    background-color: #c8e6c9;
-    padding: 20px 60px;
-    border-radius: 25px;
-    line-height: 1.4;
-  }
-  
-  .result-box {
-    background-color: #c8e6c9;
-    padding: 40px;
-    border-radius: 25px;
-    width: 100%;
-    margin-bottom: 30px;
-  }
-  
-  .result-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
-    font-size: 1.2em;
-  }
-  
-  .result-notice {
-    background-color: #c8e6c9;
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
-    font-size: 1.2em;
-  }
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
 
-  .game-button {
-    background-color: white;
-    color: #214005;
-    text-decoration: none;
-    padding: 15px 40px;
-    border-radius: 25px;
-    font-size: 1.2em;
-    transition: background-color 0.3s;
-    margin-top: 20px;
+.logo {
+  width: 50px;
+  height: 50px;
+}
+
+.content-section {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2 {
+  text-align: center;
+  font-size: 2em;
+  margin-bottom: 30px;
+  background-color: #c8e6c9;
+  padding: 20px 60px;
+  border-radius: 25px;
+  line-height: 1.4;
+}
+
+.result-box {
+  background-color: #c8e6c9;
+  border-radius: 25px;
+  width: calc(100% - 40px); /* 좌우 여백 설정 */
+  justify-content: center;
+  padding-left: 15px;
+  max-width: 100%; /* 외부 컨테이너의 너비를 초과하지 않음 */
+  box-sizing: border-box; /* 패딩과 보더를 포함한 크기 계산 */
+}
+
+.result-box-wrapper,
+.notice {
+  max-width: 100%; /* 외부 컨테이너의 너비를 초과하지 않음 */
+  box-sizing: border-box; /* 패딩과 보더를 포함한 크기 계산 */
+}
+
+.result-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  font-size: 1.2em;
+  height: 40px;
+  width: 560px;
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  overflow: hidden; /* 넘치는 텍스트 숨김 */
+  text-overflow: ellipsis; /* 생략 부호(...) 표시 */
+  max-width: 100%; /* 외부 컨테이너의 너비를 초과하지 않음 */
+  box-sizing: border-box; /* 패딩과 보더를 포함한 크기 계산 */
+}
+
+.result-notice {
+  background-color: #c8e6c9;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.ai-analysis-result {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 15px;
+  background-color: #f5ffea;
+}
+
+.button-group {
+  display: flex; /* 버튼들을 수평으로 배치 */
+  justify-content: center; /* 버튼 간격 중앙 정렬 */
+  gap: 20px; /* 버튼 간 간격 추가 */
+  flex-wrap: wrap; /* 내부 요소가 컨테이너를 넘어가지 않도록 줄바꿈 */
+}
+
+.ai-analysis-button,
+.game-button {
+  background-color: white;
+  color: #214005;
+  text-decoration: none;
+  padding: 15px 40px;
+  border-radius: 25px;
+  font-size: 1.2em;
+  transition: background-color 0.3s;
+  width: 190px;
+  height: 40px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.11);
+  transition: transform 0.2s ease;
+}
+
+.game-button:hover, .ai-analysis-button:hover {
+  background-color: #a5d6a7;
+  box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+/* 게임 버튼 크기 조정 및 글자 박스 내 정렬 */
+.game-button {
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+}
+
+@media (max-width: 768px) {
+  .result-box {
+      width: 100%; /* 작은 화면에서는 전체 너비 사용 */
+      padding: 10px; /* 여백 조정 */
   }
-  
-  .game-button:hover, .ai-analysis-button:hover {
-    background-color: #a5d6a7;
-  }
-  
-  .ai-analysis-button {
-    background-color: white;
-    border-radius: 20px;
-    width: 150px;
-    height: 30px;
-  }
+}
+
+img {
+  width: 100%;
+  height: auto;
+  object-fit: cover; /* 비율 유지하며 잘림 처리 */
+}

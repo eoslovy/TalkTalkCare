@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import '../../styles/components/Result.css';
+import '../../styles/components/result.css';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 console.log(import.meta.env.VITE_API_BASE_URL);
@@ -10,10 +10,15 @@ interface LocationState {
     answers: string[];
 }
 
+interface ResultProps {
+    testId: number; // testId를 props로 받음
+}
+
 const Result: React.FC = () => {
     const location = useLocation();
     const state = location.state as LocationState;
     const answers = state?.answers || [];
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     
     // 로컬 스토리지에서 로그인된 사용자 정보 가져오기
     const userId = localStorage.getItem('userId');
@@ -56,20 +61,14 @@ const Result: React.FC = () => {
             console.error(error);
         }
     };
-    
-
-    useEffect(() => {
-        if (isLoggedIn) {
-            fetchAiAnalysis();
-        }
-    }, [isLoggedIn]);
 
     return (
         <div className="result-container">
             
             <div className="content-section">
                 <h2>치매진단<br />테스트 결과</h2>
-                
+
+                <div className="result-box-wrapper">
                 <div className="result-box">
                     <div className="result-content">
                         <p>총 {answers.length}문항 중 {calculateResult()}개의 항목에서 치매 위험이 감지되었습니다.</p>
@@ -81,23 +80,30 @@ const Result: React.FC = () => {
                         </p>
                     </div>
                 </div>
-                
-                {isLoggedIn && (
-                    <button className="ai-analysis-button" onClick={fetchAiAnalysis}>
-                        AI 분석 결과 보기
-                    </button>
-                )}
-                
+                </div>
+
+                <div className="button-group" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+                    {isLoggedIn && (
+                        <button 
+                            className="ai-analysis-button" 
+                            onClick={fetchAiAnalysis}
+                            disabled={isLoading}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '200px', height: '50px', textAlign: 'center', flex: '1 1 45%' }}
+                        >
+                            {isLoading ? '분석 중...' : 'AI 분석 보기'}
+                        </button>
+                    )}
+                    
+                    <Link to="/game" className="game-button" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '200px', height: '50px', textAlign: 'center', flex: '1 1 45%' }}>
+                        게임 하러가기
+                    </Link>
+                </div>
                 {aiAnalysis && (
-                    <div className="ai-analysis-result">
+                    <div className="ai-analysis-result" style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', wordBreak: 'break-word' }}>
                         <h3>AI 분석 결과</h3>
                         <p>{aiAnalysis}</p>
                     </div>
                 )}
-                
-                <Link to="/game" className="game-button">
-                    게임 하러가기
-                </Link>
             </div>
         </div>
     );

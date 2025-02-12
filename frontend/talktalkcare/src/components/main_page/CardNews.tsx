@@ -53,6 +53,7 @@ const CardNews: React.FC = () => {
         src={images[currentIndex].image} 
         alt={images[currentIndex].title} 
         className="w-full h-auto object-cover"
+        style={{ border: "1px solid black"}}
       />
 
     {/* 제목 및 설명 */}

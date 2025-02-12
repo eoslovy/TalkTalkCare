@@ -5,6 +5,8 @@ import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import talktalk from "../../assets/talktalk.png";
 import talkbubble from "../../assets/talkbubble.png";
 
+const BASE_URL =import.meta.env.VITE_API_BASE_URL
+
 interface RobotImageProps {
   isListening: boolean;
   isWaiting: boolean;
@@ -147,7 +149,7 @@ const SpeechToText = () => {
 
   const startChat = async () => {
     try {
-      const response = await axios.post(`http://localhost:8443/api/talktalk/start`, null, {
+      const response = await axios.post(`${BASE_URL}/talktalk/start`, null, {
         params: { userId }
       });
       
@@ -172,7 +174,7 @@ const SpeechToText = () => {
   
       console.log('전송할 데이터:', { response: text, userId });
   
-      const response = await axios.get(`http://localhost:8443/api/talktalk/chat`, {
+      const response = await axios.get(`${BASE_URL}/talktalk/chat`, {
         params: { response: text, userId },
         timeout: 100000
       });
@@ -198,7 +200,7 @@ const SpeechToText = () => {
 
   const endChat = async () => {
     try {
-      const response = await axios.post(`http://localhost:8443/api/talktalk/end`, null, {
+      const response = await axios.post(`${BASE_URL}/talktalk/end`, null, {
         params: { userId }
       });
       

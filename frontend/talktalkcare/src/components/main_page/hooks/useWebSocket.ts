@@ -1,11 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Friend } from "../friends";
 
-const WS_URL = "ws://localhost:8080/api/talktalkcare";
+const WS_URL = import.meta.env.VITE_API_WS_URL;
 
 export const useWebSocket = (onStatusUpdate: (updatedFriend: Friend) => void) => {
   const userIdFromStorage = localStorage.getItem("userId");
-  // null 체크 후 할당
   const userId = userIdFromStorage || "";
   const ws = useRef<WebSocket | null>(null);
   const isConnected = useRef(false);
@@ -15,11 +14,10 @@ export const useWebSocket = (onStatusUpdate: (updatedFriend: Friend) => void) =>
   const reconnectDelay = 3000;
 
   const connect = () => {
-    // 빈 문자열이거나 재연결 시도 초과 시 연결하지 않음
     if (!userId || reconnectAttempts.current >= maxReconnectAttempts) {
       return;
     }
-
+// 확인 필요요
     const wsConnection = `${WS_URL}/?userId=${userId}`;
     console.log(`🔄 WebSocket 연결 시도 (${reconnectAttempts.current + 1}/${maxReconnectAttempts}):`, wsConnection);
 
@@ -31,14 +29,22 @@ export const useWebSocket = (onStatusUpdate: (updatedFriend: Friend) => void) =>
       reconnectAttempts.current = 0;
 
       const loginMessage = {
-        userId: parseInt(userId), // 여기서 userId는 항상 string
+        userId: parseInt(userId),
         status: "ONLINE",
         lastActiveTime: new Date().toISOString(),
       };
       ws.current?.send(JSON.stringify(loginMessage));
     };
 
-
+    ws.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log("📨 WebSocket 메시지 수신:", data);
+        onStatusUpdate(data);
+      } catch (error) {
+        console.error("⚠️ 메시지 파싱 에러:", error);
+      }
+    };
 
     ws.current.onerror = (error) => {
       console.log("❌ WebSocket 연결 실패");
@@ -54,7 +60,6 @@ export const useWebSocket = (onStatusUpdate: (updatedFriend: Friend) => void) =>
       });
       isConnected.current = false;
 
-      // 재연결 시도
       if (reconnectAttempts.current < maxReconnectAttempts) {
         reconnectAttempts.current++;
         setTimeout(connect, reconnectDelay);

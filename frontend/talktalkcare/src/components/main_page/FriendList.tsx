@@ -1,27 +1,18 @@
-// FriendList.tsx
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, UserPlus } from 'lucide-react';
+import { useWebSocket } from './hooks/useWebSocket';
 import AddFriendModal from './AddFriendModal';
 import FriendItem from './UserListItem';
+import { Friend } from './friends';
 import '../../styles/components/FriendList.css';
-import { useWebSocket } from './hooks/useWebSocket';
 
-export interface Friend {
-  userId: number;
-  name: string;
-  phone: string;
-  s3Filename?: string;
-  status: 'ONLINE' | 'OFFLINE';
-  lastActiveTime: string;
-  displayStatus: string;
-}
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface FriendListProps {
-  userId: number;
   onClose: () => void;
 }
 
-const FriendList: React.FC<FriendListProps> = ({ userId, onClose }): JSX.Element => {
+const FriendList: React.FC<FriendListProps> = ({ onClose }): JSX.Element => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,36 +20,32 @@ const FriendList: React.FC<FriendListProps> = ({ userId, onClose }): JSX.Element
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleStatusUpdate = (updatedFriend: Friend) => {
-    console.log('친구 상태 업데이트:', updatedFriend);
-    setFriends((prevFriends) =>
-      prevFriends.map((friend) =>
-        friend.userId === updatedFriend.userId
-          ? { ...friend, ...updatedFriend }
-          : friend
-      )
-    );
+    console.log('👥 친구 상태 업데이트:', updatedFriend);
+    setFriends(prev => prev.map(friend => 
+      friend.userId === updatedFriend.userId
+        ? { ...friend, ...updatedFriend }
+        : friend
+    ));
   };
 
-  const { isConnected } = useWebSocket(handleStatusUpdate); // userId는 로컬 스토리지에서 가져옴
+  const { isConnected, connectionState } = useWebSocket(handleStatusUpdate);
 
   const loadFriends = async () => {
+    const userIdFromStorage = localStorage.getItem("userId");
+    if (!userIdFromStorage) {
+      setError('사용자 ID를 찾을 수 없습니다.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch(`http://localhost:8080/api/friends/${userId}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch(`${BASE_URL}/friends/${userIdFromStorage}`, {
+        credentials: 'include'
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const data = await response.json();
-      console.log('Friend list response:', data);
-
+      
       if (data.result?.msg === 'success') {
         setFriends(data.body || []);
       }
@@ -72,7 +59,26 @@ const FriendList: React.FC<FriendListProps> = ({ userId, onClose }): JSX.Element
 
   useEffect(() => {
     loadFriends();
-  }, [userId]);
+  }, []);
+
+  useEffect(() => {
+    const connectionStatus = (() => {
+      switch (connectionState) {
+        case WebSocket.CONNECTING:
+          return '연결 중';
+        case WebSocket.OPEN:
+          return '연결됨';
+        case WebSocket.CLOSING:
+          return '연결 종료 중';
+        case WebSocket.CLOSED:
+          return '연결 종료됨';
+        default:
+          return '알 수 없음';
+      }
+    })();
+    
+    console.log('🔌 WebSocket 연결 상태:', connectionStatus);
+  }, [connectionState]);
 
   const filteredFriends = friends.filter(friend => 
     friend.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -99,15 +105,11 @@ const FriendList: React.FC<FriendListProps> = ({ userId, onClose }): JSX.Element
       <FriendItem key={friend.userId} friend={friend} />
     ));
   };
-  const username = localStorage.getItem('username');
-  console.log(username)
+
   return (
     <div className="friend-list-container">
       <div className="friend-list-header">
-        <button 
-          onClick={onClose} 
-          className="friend-list-back-button"
-        >
+        <button onClick={onClose} className="friend-list-back-button">
           <ArrowLeft size={24} />
         </button>
         <h2 className="friend-list-title">
@@ -137,7 +139,6 @@ const FriendList: React.FC<FriendListProps> = ({ userId, onClose }): JSX.Element
 
       {showAddModal && (
         <AddFriendModal
-          userId={userId}
           onClose={() => setShowAddModal(false)}
           onFriendAdded={loadFriends}
         />

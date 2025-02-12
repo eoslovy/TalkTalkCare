@@ -42,3 +42,8 @@ export interface LoginRequest {
   password: string;
   autoLogin: boolean;
 }
+
+export interface LogoutResponse {
+  success: boolean;
+  message?: string;
+}
