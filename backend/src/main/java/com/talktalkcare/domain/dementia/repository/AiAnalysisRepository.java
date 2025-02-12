@@ -13,4 +13,9 @@ public interface AiAnalysisRepository extends JpaRepository<AiDementiaAnalysis, 
     @Query("SELECT COALESCE(MAX(a.analysisSequence), 0) FROM AiDementiaAnalysis a WHERE a.userId = :userId AND a.analysisType = :analysisType")
     int findMaxAnalysisSequenceByUserId(@Param("userId") int userId, @Param("analysisType") int analysisType);
 
+    @Query("SELECT a FROM AiDementiaAnalysis a WHERE a.userId = :userId AND a.analysisType = :analysisType ORDER BY a.analysisSequence DESC LIMIT 1")
+    Optional<AiDementiaAnalysis> findLatestAnalysis(
+            @Param("userId") Integer userId,
+            @Param("analysisType") int analysisType
+    );
 }
