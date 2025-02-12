@@ -1,0 +1,115 @@
+/* Voice.css */
+.speech-to-text-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: row; /* 가로 배치 확실히 명시 */
+  gap: 20px;
+  height: 600px;
+  align-items: flex-start; /* 위쪽 정렬 */
+}
+
+.image-section {
+  flex-shrink: 0; /* 크기 고정 */
+  width: 600px;
+  height: 600px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.default-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.transcripts-section {
+  flex-shrink: 0; /* 크기 고정 */
+  width: 150px;
+  height: 600px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.transcript-item {
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+/* Voice.css */
+.wrapper {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.speech-to-text-container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.image-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.image-container {
+  flex-shrink: 0;
+  width: 800px;
+  height: 800px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.default-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.control-section {
+  width: 750px;
+  height: 100px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.transcripts-section {
+  flex-shrink: 0;
+  width: 150px;
+  height: 580px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.transcript-item {
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.bottom-section {
+  width: 750px;
+  height: 100px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-left: 35px; /* 이미지 섹션과 정렬을 맞추기 위한 여백 */
+}

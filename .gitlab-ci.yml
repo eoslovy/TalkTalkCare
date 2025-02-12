@@ -37,6 +37,7 @@ build-backend:
     - if: $CI_COMMIT_BRANCH == "develop"
       changes:
         - backend/**
+        - .gitlab-ci.yml
       when: always
   variables:
     DOCKER_PRIVILEGED: "true"
@@ -52,6 +53,7 @@ build-frontend:
       changes:
         - frontend/**
         - nginx.conf
+        - .gitlab-ci.yml
       when: always
   variables:
     DOCKER_PRIVILEGED: "true"
@@ -97,6 +99,38 @@ deploy-backend:
       CERTIFICATE_TYPE=${CERTIFICATE_TYPE}
       HTTPS_PORT=${HTTPS_PORT}
       KMS_URIS=${KMS_URIS}
+
+      # AWS 관련 설정
+      AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      AWS_REGION=${AWS_REGION}
+      AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+
+      # SMS 관련 설정
+      SMS_API_KEY=${SMS_API_KEY}
+      SMS_API_SECRET=${SMS_API_SECRET}
+      SMS_SENDER=${SMS_SENDER}
+
+      # CONTEXT PATH
+      CONTEXT_PATH=${CONTEXT_PATH}
+
+      # Spring Datasource 설정
+      SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+
+      # Docker 관련 설정
+      DOCKER_USERNAME=${DOCKER_USERNAME}
+      DOCKER_PASSWORD=${DOCKER_PASSWORD}
+
+      # SSH 관련 설정
+      SSH_HOST=${SSH_HOST}
+      SSH_USER=${SSH_USER}
+      SSH_PRIVATE_KEY=${SSH_PRIVATE_KEY}
+
+      # OpenAI API 관련 설정
+      OPENAI_API_URL=${OPENAI_API_URL}
+      OPENAI_API_KEY=${OPENAI_API_KEY}
       EOF
 
     - echo "Transferring files to EC2..."
@@ -175,6 +209,7 @@ deploy-backend:
     - if: $CI_COMMIT_BRANCH == "develop"
       changes:
         - backend/**
+        - .gitlab-ci.yml
       when: always
   variables:
     DOCKER_PRIVILEGED: "true"
@@ -216,6 +251,7 @@ deploy-frontend:
       changes:
         - frontend/**
         - nginx.conf
+        - .gitlab-ci.yml
       when: always
   variables:
     DOCKER_PRIVILEGED: "true"
