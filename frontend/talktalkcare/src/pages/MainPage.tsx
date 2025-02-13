@@ -11,8 +11,8 @@ const MainPage: React.FC = () => {
   const [showFriendList, setShowFriendList] = useState(false);
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
-  const wsUrl = import.meta.env.REACT_APP_WS_URL;
-  const apiUrl = import.meta.env.REACT_API_APP__URL;
+  const wsUrl = import.meta.env.VITE_API_WS_URL;
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (!userId) {
