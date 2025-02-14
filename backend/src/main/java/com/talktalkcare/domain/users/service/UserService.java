@@ -208,4 +208,9 @@ public class UserService {
         response.addCookie(tokenCookie);
     }
 
+    public User getUserIdByPhone(String phone) {
+        return userRepository.findByPhone(phone)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+    }
+
 }

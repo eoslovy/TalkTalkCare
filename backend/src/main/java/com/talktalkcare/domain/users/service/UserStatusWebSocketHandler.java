@@ -3,6 +3,7 @@ package com.talktalkcare.domain.users.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.talktalkcare.domain.call.dto.CallInvitationDto;
 import com.talktalkcare.domain.users.dto.FriendDto;
 import com.talktalkcare.domain.users.entity.Friend;
 import com.talktalkcare.domain.users.entity.User;
@@ -33,19 +34,19 @@ public class UserStatusWebSocketHandler extends TextWebSocketHandler {
 
     private final FriendService friendService;
     private final ObjectMapper objectMapper;
-    
+
     // static으로 선언된 sessions map
     private static final Map<Integer, WebSocketSession> sessions = new ConcurrentHashMap<>();
-    
+
     // 상태 확인을 위한 static 메서드
     public static boolean isUserConnected(Integer userId) {
         return sessions.containsKey(userId);
     }
-    
+
     public static WebSocketSession getUserSession(Integer userId) {
         return sessions.get(userId);
     }
-    
+
     public static Map<Integer, WebSocketSession> getAllSessions() {
         return Collections.unmodifiableMap(sessions);
     }
@@ -66,7 +67,7 @@ public class UserStatusWebSocketHandler extends TextWebSocketHandler {
             try {
                 sessions.put(userId, session);
                 log.info("WebSocket 연결 성공 - userId: {}", userId);
-                
+
                 // 이 사용자를 친구로 등록한 모든 사용자에게 온라인 상태 알림
                 notifyFriendsStatusChange(userId, true);
 
@@ -89,7 +90,7 @@ public class UserStatusWebSocketHandler extends TextWebSocketHandler {
             if (userId != null) {
                 sessions.remove(userId);
                 log.info("WebSocket 연결 종료 - userId: {}, status: {}", userId, status);
-                
+
                 // 접속 종료된 사용자의 친구들에게 오프라인 상태 알림
                 notifyFriendsStatusChange(userId, false);
             }
@@ -108,23 +109,23 @@ public class UserStatusWebSocketHandler extends TextWebSocketHandler {
                     if (friendSession != null && friendSession.isOpen()) {
                         // 각 사용자별로 저장된 친구 이름으로 상태 업데이트
                         Friend friendRelation = friendRepository.findAllByUserId(friendId)
-                            .stream()
-                            .filter(f -> f.getFriendId().equals(userId))
-                            .findFirst()
-                            .orElse(null);
+                                .stream()
+                                .filter(f -> f.getFriendId().equals(userId))
+                                .findFirst()
+                                .orElse(null);
 
                         if (friendRelation != null) {
                             FriendDto updatedStatus = FriendDto.from(
-                                userId,
-                                friendRelation.getFriendName(),  // 저장된 친구 이름 사용
-                                userRepository.findById(userId).map(User::getS3FileName).orElse(null),
-                                userRepository.findById(userId).map(User::getPhone).orElse(null),
-                                isOnline,
-                                LocalDateTime.now()
+                                    userId,
+                                    friendRelation.getFriendName(),  // 저장된 친구 이름 사용
+                                    userRepository.findById(userId).map(User::getS3FileName).orElse(null),
+                                    userRepository.findById(userId).map(User::getPhone).orElse(null),
+                                    isOnline,
+                                    LocalDateTime.now()
                             );
-                            
+
                             friendSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(
-                                Collections.singletonList(updatedStatus)
+                                    Collections.singletonList(updatedStatus)
                             )));
                         }
                     }
@@ -140,16 +141,16 @@ public class UserStatusWebSocketHandler extends TextWebSocketHandler {
         if (friendsStatus != null) {
             // 각 친구의 실제 현재 상태 확인
             friendsStatus = friendsStatus.stream()
-                .filter(friend -> friend != null)
-                .map(friend -> {
-                    boolean isOnline = friendService.isUserOnline(friend.getUserId());  // sessions.containsKey 대신 Redis 상태 확인
-                    if (isOnline) {
-                        friend.updateStatus(true, LocalDateTime.now());
-                    }
-                    return friend;
-                })
-                .collect(Collectors.toList());
-            
+                    .filter(friend -> friend != null)
+                    .map(friend -> {
+                        boolean isOnline = friendService.isUserOnline(friend.getUserId());  // sessions.containsKey 대신 Redis 상태 확인
+                        if (isOnline) {
+                            friend.updateStatus(true, LocalDateTime.now());
+                        }
+                        return friend;
+                    })
+                    .collect(Collectors.toList());
+
             if (session.isOpen()) {
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(friendsStatus)));
             }
@@ -164,5 +165,16 @@ public class UserStatusWebSocketHandler extends TextWebSocketHandler {
             log.error("userId 추출 중 에러 발생", e);
             return null;
         }
+    }
+
+    public void sendNotification(User receiver, CallInvitationDto invitation) {
+        WebSocketSession session = sessions.get(receiver.getUserId());
+        try {
+            String payload = objectMapper.writeValueAsString(invitation);
+            session.sendMessage(new TextMessage(payload));
+        } catch (Exception e) {
+
+        }
+
     }
 }
