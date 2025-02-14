@@ -12,6 +12,7 @@ const SignUp = () => {
   const [step, setStep] = useState(1);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isLoginIdConfirmed, setIsLoginIdConfirmed] = useState(false);
   const [formData, setFormData] = useState<UserSignupRequest>({
     name: '',
     loginId: '',
@@ -47,10 +48,10 @@ const SignUp = () => {
   const checkLoginId = async () => {
     try {
       const isAvailable = await authService.checkIdDuplicate(formData.loginId);
-  
       if (isAvailable) {
         alert('사용 가능한 아이디입니다.');
         setIsLoginIdDuplicate(false);
+        setIsLoginIdConfirmed(true); 
   
         // ✅ 아이디 중복 확인 후 "이름 입력 단계(step 2)"로 이동
         setStep(2);
@@ -194,7 +195,7 @@ const SignUp = () => {
               value={formData.loginId}
               onChange={handleChange}
               placeholder="아이디를 입력하세요 (6자 이상)"
-              // disabled={isLoginIdConfirmed}
+              disabled={isLoginIdConfirmed}
             />
             {step === 1 && (
               <div>

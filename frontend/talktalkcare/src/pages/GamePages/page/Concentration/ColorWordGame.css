@@ -1,0 +1,106 @@
+.color-word-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.score {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+}
+
+.question {
+  background-color: #f8f9fa;
+  padding: 15px 25px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.word-display {
+  font-size: 72px;
+  font-weight: bold;
+  padding: 30px;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.color-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.color-button {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.color-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.color-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.message {
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.message.correct {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.message.wrong {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.instructions {
+  text-align: center;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  margin-bottom: 15px;
+}
+
+/* button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3; */
+/* }  */

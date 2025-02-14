@@ -77,13 +77,7 @@ const TalkTalk = () => {
       <SpeechToText />
       <div className="speech-to-text-container">
         <div className="image-section">
-          <div className="image-container">
-            <img
-              // src="/api/placeholder/800/800"
-              alt="Default User"
-              className="default-image"
-            />
-          </div>
+
           <div className="control-section">
             {/* 컨트롤 영역 내용 */}
           </div>

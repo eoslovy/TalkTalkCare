@@ -1,0 +1,153 @@
+/* 두더지 게임의 메인 컴포넌트 스타일 */
+.mole-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;  /* 전체 게임 영역 최대 너비 제한 */
+  margin: 0 auto;
+}
+
+/* 점수와 시간 등 게임 정보 표시 영역 */
+.game-info {
+  display: flex;
+  justify-content: center;
+  width: fit-content;
+  height: fit-content;  /* 높이도 내용물만큼 */
+  margin: 0;
+  padding: 0;  /* 패딩 제거 */
+}
+
+.score {
+  font-size: 0.8em;  /* 폰트 크기 더 줄임 */
+  line-height: 1;    /* 줄 높이를 최소화 */
+  padding: 3px 8px;  /* 상하 패딩 줄임 */
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  white-space: nowrap;
+  height: auto;      /* 높이를 내용물에 맞춤 */
+}
+
+.time {
+  font-size: 1em;  /* 폰트 크기 더 줄임 */
+  font-weight: bold;
+  color: #4a148c;
+  background-color: #f8f9fa;
+  padding: 3px 10px;  /* 패딩 더 줄임 */
+  border-radius: 4px;  /* 모서리 둥글기 더 줄임 */
+  min-width: auto;  /* 최소 너비 제한 제거 */
+}
+
+/* 3x3 두더지 구멍 게임판 */
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* 3x3 그리드 유지 */
+  gap: 10px;
+  padding: 15px;
+  background-color: #8b4513;
+  border-radius: 10px;
+  width: 100%;
+  aspect-ratio: 1;  /* 정사각형 유지 */
+  margin: 20px 0;
+}
+
+/* 개별 두더지 구멍 */
+.hole {
+  width: 30%;  /* 부모 그리드 셀에 맞춤 */
+  aspect-ratio: 1;
+  position: relative;
+  cursor: pointer;
+  background-color: #3e2723;
+  border-radius: 50%;
+  box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.hole::before {
+  content: '';
+  display: block;
+  padding-top: 100%;
+}
+
+.hole-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #3e2723;
+  border-radius: 50%;
+  box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+/* 두더지 캐릭터 스타일 */
+.mole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2em;
+  opacity: 0;
+  transition: opacity 0.1s ease-out;
+  pointer-events: none;
+  z-index: 2;  /* z-index 추가 */
+}
+
+.hole.active .mole {
+  opacity: 1;
+}
+
+/* 게임 메뉴 영역 */
+.game-menu {
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.instructions {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.game-over {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* button {
+  padding: 10px 20px;
+  font-size: 1.2em;
+  background-color: #4a148c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+} */
+
+/* button:hover {
+  background-color: #6a1b9a;
+  transform: translateY(-2px);
+} */
+
+/* 반응형 디자인 */
+@media (max-width: 500px) {
+  .game-board {
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .mole {
+    font-size: 30px;
+  }
+} 

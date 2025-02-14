@@ -1,27 +1,31 @@
 /* 페이지 컨테이너의 전체적인 스타일 설정 */
 .page-container {
   display: flex;
-  flex-direction: row;  /* 가로로 배치 */
-  height: 100vh;
+  flex-direction: column;
+  height: auto;
   background-color: white;
-  padding-top: 3%;
+  padding-top: 50px;
   align-items: center;  /* 텍스트와 키패드가 세로로 중앙 정렬되도록 */
+  justify-content: center;
 }
 
 .text-section {
-  width: 40%;  /* 왼쪽 영역 너비 */
+  background-color: #e8ffe0;
+  border-radius: 20px;
+  width: 460px;  /* 왼쪽 영역 너비 */
   padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start; /* 왼쪽 정렬 */
 }
 
 .main-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 60%;  /* 오른쪽 영역 너비 */
+  width: auto;  /* 오른쪽 영역 너비 */
+  padding-top: 25px;
+  padding-bottom: 25px;
 }
 
 .input-display-container {
@@ -29,15 +33,15 @@
   align-items: center;
   justify-content: space-between;
   background-color: #e8ffe0;
-  width: 330px;
-  height: 40px;
+  width: 450px;
+  height: 60px;
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 10px;
 }
 
 .input-display {
-  font-size: 24px;
+  font-size: 40px;
   font-weight: bold;
   flex-grow: 1;
 }
@@ -54,21 +58,24 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  width: 450px;
 }
 
 .keypad-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 7px;
   background-color: #e8ffe0;
   padding: 15px;
   border-radius: 15px;
+  width: 320px;
+  height: 410px;
 }
 
 .keypad-button {
-  width: 60px;
-  height: 60px;
-  font-size: 22px;
+  width: 90px;
+  height: 90px;
+  font-size: 45px;
   font-weight: bold;
   background-color: white;
   border: none;
@@ -96,13 +103,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 140px;
+  width: 110px;
+  height: 200px;
   background-color: #e8ffe0;
   border-radius: 10px;
   border: none;
   font-size: 16px;
   cursor: pointer;
+  font-size: 22px;
 }
 
 .call-button:hover, .contacts-button:hover {
@@ -110,7 +118,15 @@
 }
 
 .phone-icon, .contacts-icon {
-  font-size: 24px;
+  font-size: 30px;
   margin-bottom: 5px;
   color: #214005;
+}
+
+.call-title {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  font-size: 30px;
+  padding-bottom: 10px;
 }

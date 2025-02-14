@@ -1,18 +1,22 @@
+import { useState } from "react";
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Phone, GamepadIcon, FileText, User } from 'lucide-react';
 import '../../styles/components/MenuItem.css';
 
-const MainMenu: React.FC = () => {
+// ✅ isFriendListOpen을 props로 받아 UI 조정
+const MainMenu: React.FC<{ isFriendListOpen: boolean }> = ({ isFriendListOpen }) => {
   const navigate = useNavigate();
+  
 
   const handleNavigation = (path: string) => {
     navigate(path);
   };
+  
 
   return (
-    <div className="menu">
-      <nav className="menu-grid">
+    <div className={`menu ${isFriendListOpen ? 'compressed' : ''}`}>
+      <nav className={`menu-grid ${isFriendListOpen ? 'compressed-grid' : ''}`}>
         <div onClick={() => handleNavigation('/call')} className="menu-item">
           <div className="menu-item-icon">
             <Phone size={40} />

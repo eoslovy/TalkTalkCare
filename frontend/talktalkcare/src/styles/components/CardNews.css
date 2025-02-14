@@ -1,0 +1,24 @@
+.card-news-container {
+    position: relative; /* 부모 컨테이너 기준으로 위치 설정 */
+    width: 100%; /* 기본 크기 설정 */
+    max-width: 900px; /* 적절한 크기로 제한 */
+    overflow: hidden; /* 컨테이너 밖으로 넘치는 요소 숨김 */
+    transition: all 0.3s ease-in-out;
+}
+  
+.card-news-container.compressed {
+    width: 70%;  /* 가로 크기 줄이기 */
+    height: auto; /* 세로 크기는 자동 조정 */
+    transition: all 0.3s ease-in-out;
+    padding-top: 40px;
+}
+
+.card-news-container img {
+    max-width: 100%;  /* 부모 요소 크기를 넘지 않도록 설정 */
+    height: auto;
+}
+
+.news-text {
+    word-wrap: break-word; /* 텍스트가 넘치지 않도록 자동 줄바꿈 */
+    overflow: hidden;
+}  

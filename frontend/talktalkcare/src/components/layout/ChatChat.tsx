@@ -11,9 +11,8 @@ const ChatChat = () => {
       bottom: '6%',
       right: '22%',
       width:'100px',
-      backgroundColor:'#f5ffea',
+      backgroundColor:'#c8e6c9',
       borderRadius:'50%',
-      border : '1px solid lightgray'
      }}>
       {/* 챗봇 아이콘 SVG 또는 이미지 */}
       <img src={ talktalk } alt="Chatbot Icon" />

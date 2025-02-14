@@ -1,6 +1,6 @@
 .main-page-container {
   display: flex;
-  min-height: 80vh;
+  min-height: 80vb;
   background-color: white;
   justify-content: center;
   align-items: center;
@@ -19,10 +19,10 @@
 
 .menu-card {
   width: 730px;
-  height: 630px;
+  height: auto;
   justify-content: center;
   align-items: center;
-  padding-top: 55px;
+  padding-top: 30px;
 }
 
 /* 친구 목록 버튼을 우측 상단에 배치 */
@@ -35,8 +35,8 @@
 
 /* 친구 목록 열기 버튼 스타일 */
 .friend-list-toggle button {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   background-color: #c8e6c9; /* 밝은 녹색 */
   border-radius: 50%;
   display: flex;
@@ -55,4 +55,14 @@
 
 .friend-list-container {
   margin-right: 200px;
+}
+
+.content {
+  flex: 1;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }

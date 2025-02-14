@@ -19,28 +19,35 @@ import TalkTalkChat from '../pages/TalkTalkAi.tsx/TalkTalk.tsx';
 import OpenViduComponent from '../pages/call_page/openvidu.tsx';
 // import Login from '../pages/user_page/LoginPage.tsx';
 import ChatChat from '../components/layout/ChatChat.tsx';
+import { FriendListProvider } from '../contexts/FriendListContext.tsx'; // FriendListProvider 임포트
+import ProfileEdit from '../pages/user_page/UserUpdate.tsx';
 
-const Router = () => {
+function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<MainPage />} />
-          <Route path="/call" element={<KeyPad />} />
-          <Route path="/game" element={<GameListPage />} />
-          <Route path="/test" element={<Test />} />
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/userinfopage" element={<UserInfoPage />} />
-          <Route path="/sdq" element={<SDQ />} />
-          <Route path="/smcq" element={<SMCQ />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/result" element={<Result />} />
-          <Route path="/talktalk" element={<TalkTalkChat />} />
-          <Route path="/openvidu" element={<OpenViduComponent />} />
-          <Route path="/talktalk" element={<Layout><ChatChat /></Layout>} />        </Route>
-      </Routes>
+      <FriendListProvider> {/* ✅ FriendListProvider로 감싸기 */}
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<MainPage />} />
+            <Route path="/call" element={<KeyPad />} />
+            <Route path="/game" element={<GameListPage />} />
+            <Route path="/test" element={<Test />} />
+            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/userinfopage" element={<UserInfoPage />} />
+            <Route path="/sdq" element={<SDQ />} />
+            <Route path="/smcq" element={<SMCQ />} />
+            <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/result" element={<Result />} />
+            <Route path="/talktalk" element={<TalkTalkChat />} />
+            <Route path="/openvidu" element={<OpenViduComponent />} />
+            <Route path="/chat" element={<ChatChat />} />
+            <Route path="/update" element={<ProfileEdit />} />
+          </Route>
+        </Routes>
+      </FriendListProvider>
     </BrowserRouter>
   );
-};
-export default Router;
+}
+
+export default App;

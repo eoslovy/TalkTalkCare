@@ -55,9 +55,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ userInfo, onEdit }) => {
               <User size={64} />
             </div>
           )}
-          <div className="camera-icon">
-            <Camera size={20} />
-          </div>
+          
         </div>
         <input
           type="file"

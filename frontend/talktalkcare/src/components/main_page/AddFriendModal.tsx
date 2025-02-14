@@ -6,58 +6,56 @@ import { X } from 'lucide-react';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface AddFriendModalProps {
+  userId: number;
   onClose: () => void;
-  onFriendAdded: () => Promise<void>;
+  onFriendAdded: () => void;
 }
 
-const AddFriendModal: React.FC<AddFriendModalProps> = ({ onClose, onFriendAdded }) => {
-  const [name, setName] = useState('');
+const AddFriendModal: React.FC<AddFriendModalProps> = ({ 
+  userId,
+  onClose, 
+  onFriendAdded 
+}): JSX.Element => {
   const [phone, setPhone] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const userIdFromStorage = localStorage.getItem("userId");
-    if (!userIdFromStorage) {
-      setError('사용자 정보를 찾을 수 없습니다.');
+    if (!phone.trim()) {
+      setError('전화번호를 입력해주세요.');
       return;
     }
 
-    if (!name.trim() || !phone.trim()) {
-      setError('이름과 전화번호를 모두 입력해주세요.');
-      return;
-    }
-
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      setError(null);
-
       const response = await fetch(`${BASE_URL}/friends/add`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
+
         body: JSON.stringify({
-          userId: parseInt(userIdFromStorage),
-          name: name.trim(),
-          phone: phone.trim()
+          userId,
+          phone,
+          name
         })
       });
 
       const data = await response.json();
+      console.log('Add friend response:', data);
 
       if (data.result?.msg === 'success') {
-        await onFriendAdded();
+        onFriendAdded();
         onClose();
       } else {
-        setError(data.message || '친구 추가에 실패했습니다.');
+        throw new Error(data.result?.msg || '친구 추가에 실패했습니다.');
       }
-    } catch (error) {
-      console.error('Failed to add friend:', error);
-      setError('친구 추가 중 오류가 발생했습니다.');
+    } catch (err) {
+      console.error('Friend add error:', err);
+      setError(err instanceof Error ? err.message : '친구 추가 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -75,35 +73,39 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ onClose, onFriendAdded 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="name">이름</label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              친구 이름
+            </label>
             <input
               type="text"
-              id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="w-full p-2 border rounded-lg"
               placeholder="친구 이름을 입력하세요"
-              disabled={isLoading}
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="phone">전화번호</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              전화번호
+            </label>
             <input
               type="tel"
-              id="phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="전화번호를 입력하세요"
-              disabled={isLoading}
+              className="w-full p-2 border rounded-lg"
+              placeholder="010-0000-0000"
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div className="text-red-500 text-sm">{error}</div>
+          )}
 
-          <div className="modal-footer">
-            <button 
+          <div className="flex justify-end space-x-2">
+          <button 
               type="button" 
               onClick={onClose}
               disabled={isLoading}
@@ -111,11 +113,11 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ onClose, onFriendAdded 
             >
               취소
             </button>
-            <button 
+            <button
               type="submit"
               disabled={isLoading}
               className="px-4 py-2 text-[#214005] bg-[#F5FFEA] rounded-lg hover:bg-[#F5FFEA] disabled:bg-[#F5FFEA]"
-            >
+              >
               {isLoading ? '처리중...' : '추가'}
             </button>
           </div>

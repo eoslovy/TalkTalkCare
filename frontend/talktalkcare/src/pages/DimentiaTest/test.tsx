@@ -6,10 +6,6 @@ const Test: React.FC = () => {
   useEffect(() => {
     // 임시로 userId를 로컬스토리지에 저장 (예: 1234)
     const storedUserId = localStorage.getItem('userId');
-    if (!storedUserId) {
-      localStorage.setItem('userId', '1'); // 실제 서비스에서는 세션에서 가져와야 함
-      console.log('userId 저장됨: 1');
-    }
   }, []);
 
   return (

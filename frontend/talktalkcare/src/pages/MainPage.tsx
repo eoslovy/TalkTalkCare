@@ -6,13 +6,15 @@ import FriendList from '../components/main_page/FriendList';
 import '../styles/components/MainPage.css';
 import CardNews from '../components/main_page/CardNews';
 import { authService } from '../services/authService'; // authService import
+import { useFriendList } from '../contexts/FriendListContext' // ✅ 추가
 
 const MainPage: React.FC = () => {
-  const [showFriendList, setShowFriendList] = useState(false);
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   const wsUrl = import.meta.env.VITE_API_WS_URL;
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const { isFriendListOpen, setIsFriendListOpen } = useFriendList(); // ✅ context 사용
+
 
   useEffect(() => {
     if (!userId) {
@@ -44,33 +46,33 @@ const MainPage: React.FC = () => {
   };
 
   return (
-    <div className="main-page-container">
+    <div className={`main-page-container ${isFriendListOpen ? 'friend-list-open' : ''}`}>
       <div className="main-page-content">
-        {/* 친구 목록 열기 버튼 */}
-        {!showFriendList && (
+        {/* 친구 목록 토글 버튼 */}
+        {!isFriendListOpen && (
           <div className="friend-list-toggle">
-            <button onClick={() => setShowFriendList(true)} aria-label="친구 목록 열기">
+            <button onClick={() => setIsFriendListOpen(true)} aria-label="친구 목록 열기">
               <List size={28} />
             </button>
           </div>
         )}
 
-        {/* 메뉴 카드 (일렬 정렬) */}
-        <div className="menu-card">
-          <MainMenu />
-          {/* <Analytics /> */}
-          <CardNews/>
+        {/* 메뉴 카드 (일렬 정렬, 친구 목록 열릴 때 크기 조정) */}
+        <div className={`menu-card ${isFriendListOpen ? 'compressed' : ''}`}>
+          <MainMenu isFriendListOpen={isFriendListOpen} />
+          <CardNews isFriendListOpen={isFriendListOpen} />
         </div>
       </div>
 
-      {showFriendList && (
+      {/* 친구 목록 (isFriendListOpen 상태 활용) */}
+      {isFriendListOpen && (
         <div className="friend-list-container">
           <FriendList
             userId={parseInt(userId)}
-            onClose={() => setShowFriendList(false)}
+            onClose={() => setIsFriendListOpen(false)}
             wsUrl={wsUrl}
             apiUrl={apiUrl}
-            />
+          />
         </div>
       )}
     </div>

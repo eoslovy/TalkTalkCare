@@ -38,14 +38,14 @@
   width: 18%;
   height: 50px;
   border: none;
-  background-color: #F5FFEA;
+  background-color: #7fbb3f;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .skill-button.active {
-  background-color: #4CAF50;
+  background-color: #1f5720;
   color: white;
 }
 
@@ -82,15 +82,10 @@
   justify-content: center;
 }
 
-.game-info h3 {
+.game-info {
   margin: 0 0 0.5rem 0;
   font-size: 1.2rem;
-}
-
-.game-info p {
-  margin: 0;
   color: #666;
-  font-size: 0.9rem;
 }
 
 .game-content-wrapper {
