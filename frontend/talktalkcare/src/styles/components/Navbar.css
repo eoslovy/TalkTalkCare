@@ -5,6 +5,7 @@
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 4px rgba(186, 100, 100, 0.1);
+  z-index: 1000;
 }
 
 .navbar-left {

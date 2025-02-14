@@ -9,6 +9,8 @@ import { authService } from '../services/authService'; // authService import
 import { useWebSocket } from '../contexts/WebSocketContext';
 import { Friend } from '../types/friend';  // 타입 임포트 추가
 import { useFriendList } from '../contexts/FriendListContext' // ✅ 추가
+import LoadingModal from '../components/LoadingModal'; // 🔥 로딩 모달 추가
+
 
 const MainPage: React.FC = () => {
   const [showFriendList, setShowFriendList] = useState(false);
@@ -19,16 +21,30 @@ const MainPage: React.FC = () => {
   const wsUrl = import.meta.env.VITE_API_WS_URL;
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { isFriendListOpen, setIsFriendListOpen } = useFriendList(); // ✅ context 사용
+  const [isLoading, setIsLoading] = useState(true); // ✅ 로딩 상태 추가
+
+  useEffect(() => {
+    // 5초 동안 로딩 상태 유지 후 로딩 완료 (데이터 불러오는 시뮬레이션)
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
+  }, []);
 
 
+  // 실제 API 요청시 걸리는 기간 동안 로딩 모달 띄우기
   // useEffect(() => {
-    // if (!userId) {
-    //   console.log('userId is not available.');
-    //   navigate('/login');
-    // } else {
-  //     console.log('userId:', userId);
-  //   }
-  // }, [userId, navigate]);
+  //   const fetchFriends = async () => {
+  //     try {
+  //       setIsLoading(true); // ✅ 로딩 시작
+  //       const response = await fetch('https://api.example.com/friends');
+  //       const data = await response.json();
+  //       setIsFriendListOpen(data);
+  //     } catch (error) {
+  //       console.error('친구 목록 불러오기 실패:', error);
+  //     } finally {
+  //       setIsLoading(false); // ✅ 로딩 끝
+  //     }
+  //   };
 
   // 초기 친구 목록 로드
   const loadFriends = async () => {
@@ -145,6 +161,10 @@ const MainPage: React.FC = () => {
       {/* 친구 목록 (isFriendListOpen 상태 활용) */}
       {isFriendListOpen && (
         <div className="friend-list-container">
+
+          {/* 🔥 로딩 중이면 모달 표시 */}
+          {isLoading && <LoadingModal />}
+
           <FriendList
             friends={friends}
             setFriends={setFriends}
@@ -156,6 +176,7 @@ const MainPage: React.FC = () => {
           />
         </div>
       )}
+
     </div>
   );
 };

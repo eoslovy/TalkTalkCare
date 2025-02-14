@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
           <div className="company-info">
             <p>톡톡케어</p>
             <p>서울특별시 강남구 테헤란로 212</p>
-            <p>대표이사: 김싸피</p>
+            {/* <p>대표이사: 김싸피</p> */}
             <p className="email">E-mail: talktalkcarel@ssafy.ac.kr</p>
           </div>
           <div className="contact-info">
@@ -26,7 +26,7 @@ const Footer: React.FC = () => {
         </div>
         <div className="footer-bottom">
           <p className="copyright">© 2025, TalkTalkcare. All rights reserved.</p>
-          <p className="company">Ping's corp.</p>
+          {/* <p className="company">Ping's corp.</p> */}
         </div>
       </div>
     </footer>

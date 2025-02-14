@@ -95,50 +95,55 @@ const ThinkingGame: React.FC = () => {
       }}
       gameStarted={gameStarted}
     >
+     {gameStarted ? (
+  <div className="game-container">
+    <div className="top-container">
       <div className="condition">
-        <h2>{currentCondition?.text}</h2>
+        {currentCondition?.text}
       </div>
       <div className="score">점수: {score}</div>
-      
-      {!gameStarted ? (
-        <div className="instructions">
-          <h3>게임 방법</h3>
-          <p>1. 화면에 표시되는 가위바위보 이미지를 보세요.</p>
-          <p>2. 주어진 조건에 맞는 선택을 하세요.</p>
-          <p>3. 올바른 선택을 하면 점수가 올라갑니다.</p>
-          <button onClick={generateQuestion}>게임 시작</button>
-        </div>
-      ) : (
-        <div className="game-container">
-          <div className="current-image">
-            <div className="image-display">
-              {currentImage?.image}
-            </div>
-            <p>현재 이미지</p>
-          </div>
+    </div>
 
-          <div className="choices">
-            {hands.map((hand) => (
-              <button
-                key={hand.name}
-                className="choice-button"
-                onClick={() => checkAnswer(hand)}
-              >
-                <div className="hand-image">{hand.image}</div>
-                <div className="hand-name">{hand.name}</div>
-              </button>
-            ))}
-          </div>
-
-          {message && (
-            <div className={`message ${message.includes('정답') ? 'correct' : 'wrong'}`}>
-              {message}
-            </div>
-          )}
+    <div className="image-container">
+      <div className="current-image">
+        <div className="image-display">
+          {currentImage?.image}
         </div>
-      )}
+        <p>현재 이미지</p>
+      </div>
+
+      <div className="choices">
+        {hands.map((hand) => (
+          <button
+            key={hand.name}
+            className="choice-button"
+            onClick={() => checkAnswer(hand)}
+          >
+            <div className="hand-image">{hand.image}</div>
+            <div className="hand-name">{hand.name}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {message && (
+      <div className={`message ${message.includes('정답') ? 'correct' : 'wrong'}`}>
+        {message}
+      </div>
+    )}
+  </div>
+) : (
+  <div className="instructions">
+    <h3>게임 방법</h3>
+    <p>1. 화면에 표시되는 가위바위보 이미지를 보세요.</p>
+    <p>2. 주어진 조건에 맞는 선택을 하세요.</p>
+    <p>3. 올바른 선택을 하면 점수가 올라갑니다.</p>
+    <button onClick={generateQuestion}>게임 시작</button>
+  </div>
+)}
     </GamePage>
   );
-};
+}
+
 
 export default ThinkingGame; 
