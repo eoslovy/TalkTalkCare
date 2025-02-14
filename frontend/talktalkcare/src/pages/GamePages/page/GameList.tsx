@@ -68,7 +68,7 @@ const GameList: React.FC = () => {
             onClick={() => navigate(`/game/${game.id}`)}
           >
             <div className="game-icon">{game.icon}</div>
-            <h2>{game.title}</h2>
+            {/* <h2>{game.title}</h2> */}
             <p>{game.description}</p>
           </div>
         ))}

@@ -53,6 +53,20 @@
   cursor: pointer;
   transition: background-color 0.3s;
 }
+.instructions-title {
+  font-size: 30px;
+  font-weight: bold;
+  color: #ffffffd8;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.instructions-content p {
+  font-size: 30px;
+  line-height: 1.5;
+  margin: 10px 0;
+  color: #ffffffd8;
+}
 
 .input-section button:hover,
 .instructions button:hover {
@@ -78,7 +92,7 @@
 
 .instructions {
   text-align: left;
-  background-color: #f5f5f5;
+  background-color: #b50e0e;
   padding: 20px;
   border-radius: 10px;
   margin: 20px 0;

@@ -30,8 +30,7 @@
 .profile-image {
   width: 120px;
   height: 120px;
-  border-radius: 60px;
-  margin-bottom: 1rem;
+  border-radius: 50px;
   object-fit: cover;
   background-color: #e5e7eb;
 }

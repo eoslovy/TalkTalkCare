@@ -68,60 +68,62 @@ const KeyPad: React.FC = () => {
 
   return (
     <div className="page-container" tabIndex={0} onKeyDown={handleKeyDown}>
-      {/* 왼쪽 서비스 설명 텍스트 */}
-      <div className="text-section">
-        <p className='call-title'>화상 전화 사용법</p>
-        <ol>
-          <li>🖤전화하고 싶은 사람의 번호를 입력합니다.</li>
-          <li>🖤상대방이 톡톡케어 회원이어야 합니다.</li>
-          <li>🖤상대방이 서비스에 접속 중일 경우 화상 전화가 연결됩니다.</li>
-        </ol>
-      </div>
-
-      <div className="main-container">
-        <div className="input-display-container">
-          <div className="input-display">
-            <span>{input}</span>
-          </div>
-          {input.length > 0 && (
-            <button className="clear-button" onClick={handleClear}>⌫</button>
-          )}
+      <div className='page-section'>
+        {/* 왼쪽 서비스 설명 텍스트 */}
+        <div className="text-section">
+          <p className='call-title'>화상 전화 사용법</p>
+          <ol>
+            <li>🖤전화하고 싶은 사람의 번호를 입력합니다.</li>
+            <li>🖤상대방이 톡톡케어 회원이어야 합니다.</li>
+            <li>🖤상대방이 서비스에 접속 중일 경우 화상 전화가 연결됩니다.</li>
+          </ol>
         </div>
 
-        <div className="bottom-section">
-          <div className="keypad-grid">
-            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map((key) => (
-              <button
-                key={key}
-                className="keypad-button"
-                onClick={() => handleButtonClick(key)}
-              >
-                {key}
-              </button>
-            ))}
+        <div className="main-container">
+          <div className="input-display-container">
+            <div className="input-display">
+              <span>{input}</span>
+            </div>
+            {input.length > 0 && (
+              <button className="clear-button" onClick={handleClear}>⌫</button>
+            )}
           </div>
 
-          {/* 사이드 버튼 */}
-          <div className="side-buttons">
-            <button className="call-button" onClick={handleCall}>
-              <img src={phone} alt="핸드폰" className='phone-icon'/>
-              <span>전화걸기</span>
-            </button>
+          <div className="bottom-section">
+            <div className="keypad-grid">
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map((key) => (
+                <button
+                  key={key}
+                  className="keypad-button"
+                  onClick={() => handleButtonClick(key)}
+                >
+                  {key}
+                </button>
+              ))}
+            </div>
 
-            <CustomModal
-              title="알림"
-              message={modalMessage} // 상황에 따라 다른 메시지 전달
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-            />
+            {/* 사이드 버튼 */}
+            <div className="side-buttons">
+              <button className="call-button" onClick={handleCall}>
+                <img src={phone} alt="핸드폰" className='phone-icon'/>
+                <span>전화걸기</span>
+              </button>
 
-            <button className="contacts-button" onClick={toggleFriendsList}>
-              <img src={side} alt="친구목록" className='contacts-icon'/>
-              <span>친구 목록</span>
-            </button>
+              <CustomModal
+                title="알림"
+                message={modalMessage} // 상황에 따라 다른 메시지 전달
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+              />
 
-            {/* 친구 목록 표시 */}
-            {showFriends && <FriendList onClose={() => setShowFriends(false)}/>}
+              <button className="contacts-button" onClick={toggleFriendsList}>
+                <img src={side} alt="친구목록" className='contacts-icon'/>
+                <span>친구 목록</span>
+              </button>
+
+              {/* 친구 목록 표시 */}
+              {showFriends && <FriendList onClose={() => setShowFriends(false)}/>}
+            </div>
           </div>
         </div>
       </div>

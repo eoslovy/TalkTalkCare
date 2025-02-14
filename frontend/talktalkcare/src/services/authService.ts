@@ -103,13 +103,6 @@ export const authService = {
 
   login: async (loginData: LoginRequest) => {
     try {
-      // 전송하는 데이터 콘솔 로그 추가
-      console.log('로그인 요청 데이터:', {
-        userLoginId: loginData.userLoginId,
-        password: loginData.password ? '(비밀번호 입력됨)' : '(비밀번호 없음)',
-        autoLogin: loginData.autoLogin
-      });
-  
       const response = await axios.post(`${BASE_URL}/users/login`, {
         userLoginId: loginData.userLoginId,
         password: loginData.password,
@@ -117,26 +110,54 @@ export const authService = {
       }, {
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        withCredentials: true // 쿠키를 주고받을 수 있도록 설정
       });
-  
-      // 응답 데이터도 콘솔 로그 추가
-      console.log('로그인 응답 데이터:', response.data);
-  
+
+      // 응답에서 토큰을 받아와서 axios의 기본 헤더에 설정
+      const token = response.data.body.token;
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
+
       return response.data;
     } catch (error) {
-      // 에러 발생 시 상세 정보 로깅
       console.error('로그인 실패:', error);
-      
-      // Axios 에러인 경우 추가 정보 로깅
-      if (axios.isAxiosError(error)) {
-        console.error('Axios 에러 상세 정보:', {
-          response: error.response?.data,
-          status: error.response?.status,
-          headers: error.response?.headers
-        });
-      }
       throw error;
+    }
+  },
+  validateToken: async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('토큰이 존재하지 않습니다.');
+        return false;
+      }
+  
+      // 토큰 디코딩 및 만료 확인
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        console.log('토큰 형식이 잘못되었습니다.');
+        return false;
+      }
+  
+      try {
+        const response = await axios.get(`${BASE_URL}/api/users/validate-token`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          withCredentials: true
+        });
+  
+        console.log('토큰 검증 응답:', response.data);
+        return response.data.result.msg === 'success';
+      } catch (error) {
+        console.error('토큰 검증 API 호출 중 오류:', error);
+        return false;
+      }
+    } catch (error) {
+      console.error('토큰 검증 중 예상치 못한 오류:', error);
+      return false;
     }
   },
 

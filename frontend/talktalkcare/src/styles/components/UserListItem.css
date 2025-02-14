@@ -3,11 +3,12 @@
   align-items: center;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  background-color: #F5FFEA;
+  background-color: #c8e6c9;
+  margin-bottom: 10px;
 }
 
 .friend-item:hover {
-  background-color: #A1E55A; /* 진한 녹색 */
+  background-color: #F5FFEA; /* 진한 녹색 */
   box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2); /* 그림자 강조 */
 }
 
@@ -85,11 +86,3 @@
 .friend-item-remove-btn:hover {
   color: #ef4444;
 }
-
-/* .frofile-item {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background-color: #F5FFEA;
-} */

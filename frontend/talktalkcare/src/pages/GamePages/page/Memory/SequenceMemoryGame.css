@@ -63,7 +63,7 @@
 
 .instructions {
   text-align: left;
-  background-color: #f5f5f5;
+  background-color: #06790c;
   padding: 20px;
   border-radius: 10px;
   margin: 20px 0;
@@ -73,13 +73,27 @@
   margin-top: 20px;
   padding: 10px 20px;
   font-size: 1.2em;
-  background-color: #4a148c;
-  color: white;
+  background-color: #444346;
+  color: rgba(255, 255, 255, 0.774);
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
+/* .instructions-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+} */
+
+/* .instructions-content p {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 10px 0;
+  color: #555;
+} */
 @media (max-width: 600px) {
   .color-button {
     width: 120px;

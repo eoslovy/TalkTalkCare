@@ -1,7 +1,7 @@
 .game-list-container {
   padding: 2rem;
   max-width: 1200px;
-  margin: 3rem auto 0 auto; /* 헤더 높이에 맞게 조정 */
+  margin: 3rem auto 0 auto;
   background-color: #F5FFEA;
   border-radius: 1rem;
 }
@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-height: 500px; /* 원하는 높이로 조정 가능 */
+  max-height: 500px;
   overflow-y: auto;
 }
 
@@ -18,12 +18,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-.game-header h1 {
   font-size: 2rem;
   font-weight: bold;
 }
 
+/* 🔹 필터 버튼 스타일 */
 .skills-filter {
   display: flex;
   gap: 1rem;
@@ -49,45 +48,68 @@
   color: white;
 }
 
-.games-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
+/* 🔹 게임 카드 */
 .game-card {
-  width: calc(100% - 2rem); /* padding을 고려하여 너비 조정 */
+  display: flex;
+  flex-direction: row; /* ✅ 가로 정렬 */
+  align-items: center;
   background-color: white;
   border-radius: 1rem;
-  padding: 1rem;
-  display: flex;
-  gap: 1rem;
+  padding: 1.5rem;
+  gap: 1.5rem;
   cursor: pointer;
   transition: transform 0.3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin: 0 1rem; /* 좌우 여백 추가 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%; /* ✅ 게임 카드 너비를 충분히 확보 */
 }
 
 .game-card:hover {
   transform: translateY(-5px);
 }
 
-.game-icon {
-  width: 80px;
-  height: 80px;
-  background-color: #B6F3AA;
-  border-radius: 0.5rem;
+/* 🔹 아이콘과 게임 이름 */
+.game-icon-container {
+  width: 100px; /* ✅ 고정된 크기 */
+  height: 100px; /* ✅ 고정된 크기 */
+  flex-shrink: 0; /* ✅ 크기가 줄어들지 않도록 설정 */
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.game-info {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
-  color: #666;
+.game-icon {
+  width: 80px; /* ✅ 고정된 크기 */
+  height: 80px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
 }
 
+.game-name {
+  width: 120px; /* ✅ 충분한 너비 확보 */
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap; /* ✅ 한 줄 유지 */
+  overflow: visible; /* ✅ 글자가 잘리지 않도록 설정 */
+}
+
+/* 🔹 게임 설명 */
+.game-info {
+  flex: 1;
+  text-align: left; /* 설명을 왼쪽 정렬 */
+  font-size: 1rem;
+  color: #333;
+}
+
+/* 🔹 게임 컴포넌트 */
+.game-component {
+  margin-top: 10px;
+}
+
+/* 🔹 콘텐츠 전체 스타일 */
 .game-content-wrapper {
   background-color: #B6F3AA;
   padding: 1rem;
@@ -100,17 +122,14 @@
   box-sizing: border-box;
 }
 
-/* 기존 스타일에서 skills-filter의 배경색을 투명하게 변경 */
+/* 🔹 필터 스타일 */
 .skills-filter {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
   background-color: transparent;
   padding: 1rem;
   border-radius: 0.5rem;
 }
 
-/* game-card의 배경색을 더 밝게 조정 */
+/* 🔹 game-card 배경색 조정 */
 .game-card {
   background-color: white;
   border-radius: 1rem;
@@ -121,4 +140,24 @@
   transition: transform 0.3s;
   border: none;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.game-detail p {
+  font-size: 30px; /* 원하는 크기로 변경 */
+}
+
+
+.back-button {
+  font-size: 30px; /* 텍스트 크기 */
+  padding: 10px 20px; /* 버튼 안쪽 여백 */
+  color: rgb(61, 30, 30); /* 텍스트 색상 */
+  border: none; /* 기본 테두리 없애기 */
+  cursor: pointer; /* 마우스 커서가 손 모양으로 바뀌게 */
+  }
+
+.back-button:hover {
+  color: #1f5720;
+}
+
+.back-button:focus {
+  outline: none; /* 포커스 시 외곽선 없애기 */
 }

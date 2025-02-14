@@ -108,7 +108,7 @@ const ColorWordGame: React.FC = () => {
   return (
     <GamePage 
       title="색깔 단어 읽기"
-      timeLimit={timeLeft ?? undefined}
+      // timeLimit={timeLeft ?? undefined}
       onRestart={() => {
         setGameStarted(false);
         setScore(0);

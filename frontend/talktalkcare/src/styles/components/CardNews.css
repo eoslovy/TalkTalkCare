@@ -4,6 +4,8 @@
     max-width: 900px; /* 적절한 크기로 제한 */
     overflow: hidden; /* 컨테이너 밖으로 넘치는 요소 숨김 */
     transition: all 0.3s ease-in-out;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
 }
   
 .card-news-container.compressed {
@@ -13,12 +15,81 @@
     padding-top: 40px;
 }
 
-.card-news-container img {
-    max-width: 100%;  /* 부모 요소 크기를 넘지 않도록 설정 */
-    height: auto;
-}
-
 .news-text {
     word-wrap: break-word; /* 텍스트가 넘치지 않도록 자동 줄바꿈 */
     overflow: hidden;
+    width: 470px;
+    height: 150px;
+    background-color: #f5ffea;
+    opacity: 90%;
+    padding-bottom: 10px;
 }  
+
+.card-news-img {
+    max-width: 100%; 
+    width: 730px;
+    height: 400px;
+    object-fit: cover;
+}
+
+/* 이전/다음 버튼 공통 스타일 */
+.prev-btn,
+.next-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 2.25rem; /* text-4xl */
+  font-weight: bold;
+  color: #214005;
+  background-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s;
+}
+
+/* 이전 버튼 위치 */
+.prev-btn {
+  left: 8px;
+}
+
+/* 다음 버튼 위치 */
+.next-btn {
+  right: 8px;
+}
+
+/* 버튼 호버 효과 */
+.prev-btn:hover,
+.next-btn:hover {
+  background-color: #214005;
+  color: white;
+}
+
+/* 버튼 클릭 효과 */
+.prev-btn:active,
+.next-btn:active {
+  background-color: #6b7280; /* bg-gray-500 */
+}
+
+.btn {
+    padding-bottom: 5px;
+}
+
+/* 인디케이터 점 스타일 */
+.indicator-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: all 0.3s;
+  margin: 0 4px;
+}
+
+/* 활성 인디케이터 점 스타일 */
+.indicator-dot.active {
+  background-color: #214005;
+}
+
+/* 비활성 인디케이터 점 스타일 */
+.indicator-dot:not(.active) {
+  background-color: #f3f4f6; /* bg-gray-100 */
+}

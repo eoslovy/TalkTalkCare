@@ -110,7 +110,11 @@ const FriendList: React.FC<FriendListProps> = ({
           <UserPlus size={24} />
         </button>
       </div>
-
+      <hr 
+      style={{ 
+        marginBottom:'10px',
+        marginTop:'-25px'
+       }}/>
       <div className="friend-list-search-container">
         <input
           type="search"
@@ -128,18 +132,12 @@ const FriendList: React.FC<FriendListProps> = ({
             alt="톡톡이" 
             className="profile-image"
           />
-          {/* <div className="status-dot" /> */}
         </div>
         <div className="profile-info">
           <div className="profile-name">내 친구 톡톡이</div>
-          {/* <div className="profile-status">
-            <span>온라인</span>
-            <span> · </span>
-            <span>AI 챗봇</span>
-          </div> */}
         </div>
       </Link>
-
+      
       <div className="friend-list-content">
         {renderContent()}
         {/* {isConnected ? '(온라인)' : '(오프라인)'} */}

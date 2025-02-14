@@ -9,6 +9,12 @@
   justify-content: center;
 }
 
+.page-section {
+  background-color: #c8e6c9;
+  padding: 30px 50px;
+  border-radius: 20px;
+}
+
 .text-section {
   background-color: #e8ffe0;
   border-radius: 20px;
@@ -38,6 +44,7 @@
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 10px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .input-display {
@@ -70,6 +77,7 @@
   border-radius: 15px;
   width: 320px;
   height: 410px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .keypad-button {
@@ -96,6 +104,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  
 }
 
 .call-button, .contacts-button {
@@ -111,6 +120,7 @@
   font-size: 16px;
   cursor: pointer;
   font-size: 22px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .call-button:hover, .contacts-button:hover {
@@ -129,4 +139,8 @@
   display: flex;
   font-size: 30px;
   padding-bottom: 10px;
+}
+
+.clear-button {
+  font: bold;
 }

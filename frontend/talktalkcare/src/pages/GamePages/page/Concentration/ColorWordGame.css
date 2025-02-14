@@ -90,6 +90,16 @@
   margin: 20px 0;
   margin-bottom: 15px;
 }
+.instructions button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1.2em;
+  background-color: #444346;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
 
 /* button {
   padding: 10px 20px;

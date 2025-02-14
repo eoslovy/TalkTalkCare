@@ -154,7 +154,7 @@ const PatternGame: React.FC = () => {
   return (
     <GamePage 
       title="숫자 패턴 찾기"
-      timeLimit={timeLeft ?? undefined}
+      // timeLimit={timeLeft ?? undefined}
       onRestart={() => {
         setGameStarted(false);
         setScore(0);
@@ -163,10 +163,12 @@ const PatternGame: React.FC = () => {
     >
       {!gameStarted ? (
         <div className="instructions">
-          <h3>게임 방법</h3>
-          <p>1. 주어진 숫자들의 규칙을 찾아보세요.</p>
-          <p>2. 숫자는 순차적으로 더하기(+1, +2, +3), 빼기(-1), 또는 곱하기(×2)됩니다.</p>
-          <p>3. 빈칸(?)에 들어갈 알맞은 숫자를 입력하세요.</p>
+          <h3 className="instructions-title">게임 방법</h3>
+          <div className="instructions-content">
+            <p>1. 숫자들 사이에는 일정한 패턴이나 규칙(더하기, 빼기, 곱하기 등)이 있습니다.</p>
+            <p>2. 주어진 숫자들 사이 빈칸에 들어갈 숫자를 찾아 입력하세요.</p>
+          
+          </div>
           <button onClick={() => setGameStarted(true)}>게임 시작</button>
           {message && <div className="final-score">{message}</div>}
         </div>

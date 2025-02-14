@@ -3,24 +3,24 @@ import '../../styles/components/CardNews.css'
 
 const images = [
     { 
-      image: "/images/news1.png", 
-      title: "첫 번째 뉴스", 
-      description: "이것은 첫 번째 카드 뉴스의 설명입니다." 
+      image: "/images/news1.jpg", 
+      title: "똑똑이와 대화", 
+      description: "무엇이든 함께 이야기 해주는 똑똑한 독똑이와 대화해 보세요." 
     },
     { 
-      image: "/images/news2.png", 
-      title: "두 번째 뉴스", 
-      description: "이것은 두 번째 카드 뉴스의 설명입니다." 
+      image: "/images/news2.jpg", 
+      title: "함께 즐기는 치매 예방", 
+      description: "혼자서도 할 수 있지만, 가족이나 친구들과 함께 즐기면 더욱 효과적입니다." 
     },
     { 
-      image: "/images/news3.png", 
-      title: "세 번째 뉴스", 
-      description: "이것은 세 번째 카드 뉴스의 설명입니다." 
+      image: "/images/news3.jpg", 
+      title: "소통의 도구, 톡톡케어", 
+      description: "함께 게임을 하며 웃고 대화하는 것 자체가 최고의 치매 예방법입니다." 
     },
     { 
-      image: "/images/news4.png", 
-      title: "네 번째 뉴스", 
-      description: "이것은 네 번째 카드 뉴스의 설명입니다." 
+      image: "/images/news4.jpg", 
+      title: "재밌게 하는 두뇌 운동", 
+      description: "톡톡케어는 다양한 인지 기능을 강화할 수 있는 게임들을 제공합니다." 
     },
   ];
 
@@ -54,11 +54,11 @@ const CardNews: React.FC<{ isFriendListOpen: boolean }> = ({ isFriendListOpen })
       <img 
         src={images[currentIndex].image} 
         alt={images[currentIndex].title} 
-        className="w-full h-auto object-cover"
+        className="card-news-img"
       />
 
       {/* 제목 및 설명 */}
-      <div className="news-text absolute bottom-5 left-5 bg-amber-50 bg-opacity-50 p-4 rounded-lg" style={{ color: "#214005" }}>
+      <div className="news-text absolute bottom-7 left-5 bg-opacity-50 p-4 rounded-lg" style={{ color: "#214005" }}>
         <h2 className="text-xl font-bold">{images[currentIndex].title}</h2>
         <p className="text-sm">{images[currentIndex].description}</p>
       </div>
@@ -66,17 +66,17 @@ const CardNews: React.FC<{ isFriendListOpen: boolean }> = ({ isFriendListOpen })
         {/* 이전 버튼 */}
         <button
           onClick={prevSlide}
-          className="prev-btn absolute left-2 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-md text-4xl font-bold text-gray-700 bg-white bg-opacity-50 shadow-md transition-all duration-300 hover:bg-gray-300 hover:text-white active:bg-gray-500"
-        >
-          &#8249;
+          className="prev-btn">
+          {/* &#8249; */}
+          <p className="btn">◀</p>
         </button>
 
         {/* 다음 버튼 */}
         <button
           onClick={nextSlide}
-          className="next-btn absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 rounded-md text-4xl font-bold text-gray-700 bg-white bg-opacity-50 shadow-md transition-all duration-300 hover:bg-gray-300 hover:text-white active:bg-gray-500"
-        >
-          &#8250;
+          className="next-btn">
+          {/* &#8250; */}
+          <p className="btn">▶</p>
         </button>
 
         {/* 인디케이터 (슬라이드 위치 표시) */}
@@ -84,9 +84,7 @@ const CardNews: React.FC<{ isFriendListOpen: boolean }> = ({ isFriendListOpen })
           {images.map((_, index) => (
             <span
               key={index}
-              className={`indicatar-dot w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex ? "bg-gray-400" : "bg-gray-100"
-              }` }
+              className={`indicator-dot ${index === currentIndex ? "active" : ""}`}
             ></span>
           ))}
       </div>

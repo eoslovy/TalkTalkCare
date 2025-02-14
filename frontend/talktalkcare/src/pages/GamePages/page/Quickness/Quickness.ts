@@ -2,7 +2,7 @@ import QuicknessGame1 from './MoleGame';
 // import MemoryGame2 from './SequenceMemoryGame';
 
 export default [
-  { id: '1',
+  { id: 'catch-mole',
     name: '두더지 잡기',
     description: '제한 시간 내에 나타나는 두더지를 클릭하여 점수를 얻으세요!',
     icon: '🦔',

@@ -45,13 +45,16 @@
 
 .navbar-menu {
   position: absolute;
-  left: 900px;
+  left:900px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   margin-right: 200px;
   gap: 2px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* 오른쪽 정렬 */
 }
 
 .menu-icon {
@@ -68,8 +71,4 @@
 
 .logo-image:hover, .navbar-left:hover {
   transform: scale(1.1);
-}
-
-.navbar-link:hover {
-  background-color: #c8e6c9;
 }

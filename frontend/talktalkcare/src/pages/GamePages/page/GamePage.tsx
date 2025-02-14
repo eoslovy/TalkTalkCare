@@ -31,6 +31,10 @@ const GamePage: React.FC<GamePageProps> = ({
       onRestart();
     }
   };
+  
+  const handleExit = () => {
+    navigate('/game-list');  // 목록 페이지로 이동
+  };
 
   useEffect(() => {
     if (gameStarted && currentTime > 0) {
@@ -61,39 +65,43 @@ const GamePage: React.FC<GamePageProps> = ({
 
   return (
     <div className="game-page">
-      <div className="game-header">
-        <div className="header-content">
-          <h2>{title}</h2>
-          {gameStarted && (
-            <div className="time-display">
-              남은 시간: {currentTime}초
-            </div>
-          )}
-        </div>
-        <div className="game-controls">
-          {onRestart && (
-            <button className="control-button restart" onClick={handleRestart}>
-              다시 시작
-            </button>
-          )}
-          <button className="control-button exit" onClick={() => navigate('/')}>
-            나가기
-          </button>
-        </div>
-      </div>
       {gameStarted && (
-        <div className="time-progress-container">
-          <div 
-            className="time-progress-bar"
-            style={{ width: `${timePercentage}%` }}
-          />
-        </div>
+        <>
+          <div className="game-header">
+            <div className="header-content">
+              {/* 게임이 시작되었을 때만 시간 표시 */}
+              <div className="time-display">
+                남은 시간: {currentTime}초
+              </div>
+            </div>
+            <div className="game-controls">
+              {/* 게임이 시작되었을 때만 버튼 표시 */}
+              {onRestart && (
+                <button className="control-button restart" onClick={handleRestart}>
+                  다시 시작
+                </button>
+              )}
+              <button className="control-button exit" onClick={handleExit}>
+                나가기
+              </button>
+            </div>
+          </div>
+          
+          <div className="time-progress-container">
+            <div 
+              className="time-progress-bar"
+              style={{ width: `${timePercentage}%` }}
+            />
+          </div>
+        </>
       )}
+      
       <div className="game-content">
         {children}
       </div>
     </div>
+
   );
 };
 
-export default GamePage; 
+export default GamePage;

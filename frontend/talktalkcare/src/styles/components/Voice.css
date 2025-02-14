@@ -127,7 +127,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  background-color: #ffffffd8;
   border-left: 1px solid #e0e0e0;
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
@@ -175,7 +175,7 @@
 
 /* AI 메시지 */
 .ai-message {
-  background-color: #ffffff;
+  background-color: #ffffffd8;
   color: #214005;
   margin-right: auto;
   float: left;
@@ -286,7 +286,7 @@
 
 /* 현재 입력 텍스트 박스 */
 .transcript-box {
-  background-color: #ffffff;
+  background-color: #ffffffd8;
   border-top: 1px solid #e0e0e0;
   padding: 10px 15px;
 }

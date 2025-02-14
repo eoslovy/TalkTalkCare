@@ -64,7 +64,8 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({
   return (
     <div className="fixed inset-0 flex items-center justify-center z-[9999]">
      
-      <div className="bg-[#fffef8] rounded-lg shadow-xl w-96 p-6">
+      <div className="bg-[#fffef8] rounded-lg shadow-xl w-96 p-6"
+      style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)' }}>
         <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold text-center bg-[#CBE6C9] p-2 rounded-md">
                친구 추가</h3>

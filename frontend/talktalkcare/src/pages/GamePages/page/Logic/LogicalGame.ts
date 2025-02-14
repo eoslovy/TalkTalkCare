@@ -1,7 +1,7 @@
 import LogicGame1 from './PatternGame';
 
 export default [
-  { id: '1',
+  { id: 'Find-number-patterns',
     name: '숫자 패턴 찾기',
     description: '숫자의 규칙을 찾아 빈칸을 채우세요!',
     icon: '🔢',

@@ -28,7 +28,7 @@
 }
 
 .time-display {
-  color: #4a148c;
+  color: #161c69;
   font-weight: bold;
   font-size: 1.1em;
 }
@@ -45,7 +45,7 @@
 
 .time-progress-bar {
   height: 100%;
-  background-color: #4a148c;
+  background-color: #0d0dda;
   transition: width 1s linear;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }

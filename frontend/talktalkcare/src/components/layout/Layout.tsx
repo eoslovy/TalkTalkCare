@@ -5,17 +5,18 @@ import ChatChat from './ChatChat';
 import { Link } from 'react-router-dom';
 import Footer from './Footerbar.tsx';
 import { useFriendList } from '../../contexts/FriendListContext'; // ✅ 추가
+import { useAuth } from '../../contexts/AuthContext';
 
 const Layout = () => {
   const location = useLocation();
   const isMainPage = location.pathname === '/';
-  const { isFriendListOpen } = useFriendList(); // ✅ context 사용
+  const { isFriendListOpen } = useFriendList();
 
   return (
     <>
-      <Navbar />
+      <Navbar /> {/* isLoggedIn props 제거 */}
       <Outlet />
-      {isMainPage && !isFriendListOpen && ( // ✅ 친구 목록이 열려있을 때 챗봇 아이콘 숨김
+      {isMainPage && !isFriendListOpen && ( 
         <Link to="/talktalk">
           <ChatChat />
         </Link>
