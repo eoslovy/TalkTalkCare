@@ -21,5 +21,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     void setUserLoginedAt(Integer userId);
 
     Optional<User> findByPhone(@NotNull String phone);
+
+    boolean existsByPhone(String phone);
 }
 

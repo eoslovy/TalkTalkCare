@@ -2,6 +2,7 @@ package com.talktalkcare.domain.users.service;
 
 import com.talktalkcare.domain.users.error.UserErrorCode;
 import com.talktalkcare.domain.users.exception.UserException;
+import com.talktalkcare.domain.users.repository.UserRepository;
 import com.talktalkcare.infrastructure.repository.RedisRepository;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.message.model.Message;
@@ -21,8 +22,13 @@ public class SmsService {
 
     private final DefaultMessageService messageService;
     private final RedisRepository redisRepository;
+    private final UserRepository userRepository;
 
     public void sendMessage(String to) {
+        if(userRepository.existsByPhone(to)) {
+            throw new UserException(UserErrorCode.USER_ALREADY_EXISTS);
+        }
+
         String verificationCode = generateVerificationCode();
 
         Message message = new Message();

@@ -34,6 +34,11 @@ export const authService = {
           }
         }
       );
+
+      if (response.data.result.msg !== 'success') {
+        alert(response.data.result.msg);
+        console.log(response.data.result.errorCode);
+      }
       return response.data;
     } catch (error) {
       console.error('SMS 인증번호 요청 실패:', error);
