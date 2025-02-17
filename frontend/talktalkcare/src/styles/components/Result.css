@@ -54,6 +54,9 @@
 .notice {
   max-width: 100%; /* 외부 컨테이너의 너비를 초과하지 않음 */
   box-sizing: border-box; /* 패딩과 보더를 포함한 크기 계산 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .result-content {
@@ -66,7 +69,7 @@
   display: flex;
   font-size: 1.2em;
   height: 40px;
-  width: 560px;
+  width: 100%;
   white-space: nowrap; /* 텍스트 줄바꿈 방지 */
   overflow: hidden; /* 넘치는 텍스트 숨김 */
   text-overflow: ellipsis; /* 생략 부호(...) 표시 */
@@ -136,4 +139,41 @@ img {
   width: 100%;
   height: auto;
   object-fit: cover; /* 비율 유지하며 잘림 처리 */
+}
+
+.signup-button-1{
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  min-Width: 200px;
+  height: 50px; 
+  text-align: center;
+  flex: 1 1 45%;
+  background-color: #f8fff8;
+  border-radius: 10px;
+  width: 200px;
+}
+
+.login-button-1{
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  min-Width: 200px;
+  height: 50px; 
+  text-align: center;
+  flex: 1 1 45%;
+  background-color:#f8fff8;
+  border-radius: 10px;
+  width: 200px;
+
+}
+
+.login-button-1:hover{
+  background-color:#e0f7c8;
+  cursor: pointer;
+}
+
+.signup-button-1:hover{
+  background-color:#e0f7c8;
+  cursor: pointer;
 }

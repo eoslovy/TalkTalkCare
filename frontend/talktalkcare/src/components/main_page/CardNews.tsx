@@ -4,8 +4,8 @@ import '../../styles/components/CardNews.css'
 const images = [
     { 
       image: "/images/news1.jpg", 
-      title: "똑똑이와 대화", 
-      description: "무엇이든 함께 이야기 해주는 똑똑한 독똑이와 대화해 보세요." 
+      title: "톡톡이와 대화", 
+      description: "무엇이든 함께 이야기 해주는 똑똑한 톡톡이와 대화해 보세요." 
     },
     { 
       image: "/images/news2.jpg", 

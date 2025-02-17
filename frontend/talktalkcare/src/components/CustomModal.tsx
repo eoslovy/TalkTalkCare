@@ -13,8 +13,8 @@ const CustomModal: React.FC<CustomModalProps> = ({ title, message, isOpen, onClo
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        <h2>{title}</h2>
-        <p>{message}</p>
+        <h2 className="card-title-box">{title}</h2>
+        <p className="text-xl">{message}</p>
         <button onClick={onClose} style={styles.closeButton}>
           닫기
         </button>
@@ -51,9 +51,10 @@ const styles = {
     backgroundColor: "#c8e6c9",
     color: "#214005",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: "5px",
     cursor: "pointer",
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    font: "bold",
   },
 };
 

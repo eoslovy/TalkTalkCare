@@ -5,35 +5,74 @@ import CustomModal from '../../../components/CustomModal';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 console.log(import.meta.env.VITE_API_BASE_URL);
 
+// 문항 데이터 배열 정의
 const questions = [
   "전화번호나 사람이름을 기억하기 힘들다.",
   "어떤 일이 언제 일어났는지 기억하지 못할 때가 있다.",
   "며칠 전에 들었던 이야기를 잊는다.",
   "오래 전부터 들었던 이야기를 잊는다.",
-  // ... (기존의 모든 문항들)
+  "반복되는 일상 생활에 변화가 생겼을 때 금방 적응하기 힘들다.",
+  "본인에게 중요한 사항을 잊을 때가 있다.(배우자 생일, 결혼기념일 등)",
+  "다른 사람에게 같은 이야기를 반복할 때가 있다.",
+  "어떤 일을 해 놓고도 잊어버려 다시 반복할 때가 있다.",
+  "약속을 해 놓고 잊을 때가 있다.",
+  "이야기 도중 방금 자기가 무슨 이야기를 하고 있었는지 잊을 때가 있다.",
+  "약 먹는 시간을 놓치기도 한다.",
+  "여러 가지 물건을 사러 갔다가 한두 가지를 빠뜨리기도 한다.",
+  "가스 불을 끄는 것을 잊어버리거나 음식을 태운 적이 있다.",
+  "남에게 같은 질문을 반복한다.",
+  "어떤 일을 해 놓고도 했는지 안 했는지 몰라 다시 확인해야 한다.",
+  "물건을 두고 다니거나 또는 가지고 갈 물건을 놓고 간다.",
+  "하고 싶은 말이나 표현이 금방 떠오르지 않는다.",
+  "물건 이름이 금방 생각나지 않는다.",
+  "개인적인 편지나 사무적인 편지를 쓰기 힘들다.",
+  "갈수록 말수가 감소되는 경향이 있다.",
+  "신문이나 잡지를 읽을 때 이야기 줄거리를 파악하지 못한다.",
+  "책을 읽을 때 같은 문장을 여러 번 읽어야 이해가 된다.",
+  "텔레비전에 나오는 이야기를 따라가기 힘들다.",
+  "자주 보는 친구나 친척을 바로 알아보지 못한다.",
+  "물건을 어디에 두고 나중에 어디에 두었는지 몰라 찾게 된다.",
+  "전에 가본 장소를 기억하지 못한다.",
+  "방향감각이 떨어졌다.",
+  "길을 잃거나 헤맨 적이 있다.",
+  "물건을 항상 두는 장소를 잊어버리고 엉뚱한 곳을 찾는다.",
+  "계산 능력이 떨어졌다.",
+  "돈 관리를 하는 데 실수가 있다.",
+  "과거에 쓰던 기구 사용이 서툴러졌다."
 ];
 
-const submitSurvey = async (userId: number | null, testId: number, testResult: string) => {
-  // 비로그인 사용자의 경우 임시 userId 생성
-  const finalUserId = userId || Math.floor(Math.random() * 1000000);
-
-  const response = await fetch(`${BASE_URL}/dementia-test/result`,{ 
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ 
-      userId: finalUserId, 
-      testId, 
-      testResult 
-    }),
-  }); 
-
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
+const submitSurvey = async (
+  userId: number | null, 
+  testId: number, 
+  testResult: string, 
+  navigate: (path: string, options?: { state?: any }) => void, 
+  answers: Array<string | null>
+) => {
+  
+  // 비로그인 시 서버에 전송하지 않고 결과 페이지로 이동
+  if (userId === null) {
+    navigate('/result', { state: { answers, testType: 'SDQ' } });
+    return { message: '비로그인 사용자입니다. 결과가 저장되지 않았습니다.' };
   }
 
-  return response.json();
+  try {
+    const response = await fetch(`${BASE_URL}/dementia-test/result`,{ 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, testId, testResult }), 
+    }); 
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Survey submission error:', error);
+    throw error;
+  }
 };
 
 const SDQ: React.FC = () => {
@@ -43,12 +82,18 @@ const SDQ: React.FC = () => {
   const [testId, setTestId] = useState<number>(2);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string>("");
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
-    // 로컬 스토리지에서 userId 가져오기 (선택적)
+    // 로컬 스토리지에서 userId 가져오기
     const storedUserId = localStorage.getItem('userId');
-    if (storedUserId) {
+    const storedToken = localStorage.getItem('token');
+
+    if (storedUserId && storedToken) {
       setUserId(Number(storedUserId));
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
     }
   }, []);
 
@@ -70,8 +115,8 @@ const SDQ: React.FC = () => {
       .join(', ');
 
     try {
-      const result = await submitSurvey(userId, testId, testResult);
-      console.log('Success:', result);
+      const result = await submitSurvey(userId, testId, testResult, navigate, answers);
+      console.log('Survey submitted:', result);
       navigate('/result', { state: { answers, testType: 'SDQ' } });
     } catch (error) {
       console.error('Error:', error);
@@ -79,7 +124,14 @@ const SDQ: React.FC = () => {
       setIsModalOpen(true);
     }
   };
+  const handleLogin = () => {
+    navigate('/login');
+  };
 
+  const handleSignup = () => {
+    navigate('/signup');
+  };
+  
   return (
     <div className="sdq-container">
       <div className="content-section">
@@ -93,7 +145,7 @@ const SDQ: React.FC = () => {
           {questions.map((question, index) => (
             <div key={index} className="question-item">
               <div className="question-text">
-                {index + 1}. {question}
+                {index + 1}. {question} {/* 문항 번호는 1부터 시작 */}
               </div>
               <div className="answer-buttons">
                 <button 
@@ -121,7 +173,7 @@ const SDQ: React.FC = () => {
           </button>
           <CustomModal
               title="알림"
-              message={modalMessage}
+              message={modalMessage} // 상황에 따라 다른 메시지 전달
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
             />

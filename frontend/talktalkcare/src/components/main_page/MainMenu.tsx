@@ -24,7 +24,7 @@ const MainMenu: React.FC<{ isFriendListOpen: boolean }> = ({ isFriendListOpen })
           <div className="menu-item-icon">
             <Phone size={40} />
           </div>
-          <p className="menu-item-text">통화하기</p>
+          <p className="menu-item-text">화상통화</p>
         </div>
 
         <div onClick={() => handleNavigation('/game')} className="menu-item">

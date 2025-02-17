@@ -200,7 +200,7 @@ const ThinkingGame: React.FC = () => {
         <p className='instructions-content'>1. 화면에 표시되는 가위바위보 이미지를 보세요.
         <br />2. 주어진 조건에 맞는 선택을 하세요.
         <br />3. 올바른 선택을 하면 점수가 올라갑니다.</p>
-        <button onClick={generateQuestion} className='instructions-button'>게임 시작</button>
+        <button onClick={() => setGameStarted(true)}  className='instructions-button'>게임 시작</button>
       </div>
     
       ) : (
