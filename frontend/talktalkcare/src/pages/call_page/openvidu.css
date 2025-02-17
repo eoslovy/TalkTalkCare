@@ -1,4 +1,4 @@
-.container {
+/* .container {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -24,16 +24,16 @@ h1 {
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
-}
+} */
 
 /* 세션 나가기 버튼 */
-.button-container button:first-child {
+/* .button-container button:first-child {
   background-color: #dc3545;  /* 빨간색 */
-}
+/* }
 
 .button-container button:first-child:hover {
   background-color: #c82333;
-}
+} */ */
 
 /* 카메라 토글 버튼 - 켜진 상태 */
 .camera-on {
@@ -112,13 +112,13 @@ h1 {
   border-radius: 4px;
 }
 
-.device-status div {
+/* .device-status div {
   display: flex;
   align-items: center;
   gap: 5px;
-}
+} */
 
-.device-status .icon {
+/* .device-status .icon {
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -130,10 +130,10 @@ h1 {
 
 .device-status .inactive {
   background-color: #dc3545;
-}
+} */
 
 /* 반응형 디자인 */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .main-video video {
     height: 400px;
   }
@@ -146,23 +146,23 @@ h1 {
   .video-box video {
     height: 360px;
   }
-
+/*  */
   .button-container {
     flex-direction: column;
   }
-
+/* 
   .button-container button {
-    width: 100%;
-  }
-}
+    width: 100%; */
+  /* }
+} */
 
 /* 로딩 상태 */
-.loading {
+/* .loading {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px;
-}
+  height: 100px; */
+/* }
 
 .loading::after {
   content: '';
@@ -172,14 +172,14 @@ h1 {
   border-top: 3px solid #007bff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-}
-
+} */
+/* 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
+} */
 
-/* 에러 메시지 */
+/* 에러 메시지
 .error-message {
   color: #dc3545;
   text-align: center;
@@ -188,10 +188,10 @@ h1 {
   background-color: #f8d7da;
   border: 1px solid #f5c6cb;
   border-radius: 4px;
-}
+} */
 
 /* 세션 정보 */
-.session-info {
+/* .session-info {
   text-align: center;
   margin: 10px 0;
   padding: 10px;
@@ -207,8 +207,8 @@ h1 {
   gap: 10px;
   justify-content: center;
   margin: 10px 0;
-}
-
+} */
+/* 
 .video-controls button {
   padding: 5px 10px;
   font-size: 14px;
@@ -233,7 +233,7 @@ h1 {
 }
 
 /* 세션 입력 폼 */
-.session-form {
+/* .session-form {
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -263,7 +263,7 @@ h1 {
 }
 
 /* 세션 정보 */
-.session-info {
+/* .session-info {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -328,4 +328,4 @@ h1 {
 
 .video-content {
   margin-top: 20px;
-} 
+}  */

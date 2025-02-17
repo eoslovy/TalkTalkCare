@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './SequenceMemoryGame.css';
 import GamePage from '../GamePage';
-import { gameService } from '../../../../services/gameService';
-import { GAME_IDS } from '../../gameIds';
 
 //순서 기억하기 게임
 interface ColorButton {
@@ -24,7 +22,6 @@ const SequenceMemoryGame: React.FC = () => {
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [showingSequence, setShowingSequence] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
-  const [gameOver, setGameOver] = useState<boolean>(false);  // 게임 오버 상태 추가
 
   const colors: ColorButton[] = [
     { id: 1, color: '#FF5252', sound: 'C4' },
@@ -85,30 +82,6 @@ const SequenceMemoryGame: React.FC = () => {
     setIsPlaying(true);
   };
 
-  const saveGameScore = async () => {
-    try {
-      const userId = localStorage.getItem('userId');
-      
-      if (!userId) {
-        console.error('사용자 ID를 찾을 수 없습니다.');
-        return;
-      }
-
-      const finalScore = score + (level * 10); // 현재 점수 + 마지막 레벨 보너스
-      await gameService.saveGameResult(Number(userId), GAME_IDS.MEMORY_GAME, finalScore);
-      console.log('게임 결과 저장 완료 - 점수:', finalScore);
-    } catch (error) {
-      console.error('게임 결과 저장 중 오류:', error);
-    }
-  };
-
-  const handleGameOver = () => {
-    setGameOver(true);
-    setIsPlaying(false);
-    saveGameScore();
-  };
-
-  // handleButtonClick 함수 수정
   const handleButtonClick = (color: ColorButton): void => {
     if (!isPlaying || showingSequence) return;
 
@@ -126,41 +99,27 @@ const SequenceMemoryGame: React.FC = () => {
 
     const currentIndex = newUserSequence.length - 1;
     if (color.id !== sequence[currentIndex].id) {
-      setMessage('틀렸습니다. 게임 오버!');
-      handleGameOver();  // 게임 오버 처리 추가
+      setMessage('틀렸습니다. 다시 시도하세요.');
+      setIsPlaying(false);
+      setTimeout(() => {
+        setMessage('');
+        showSequence(sequence);
+      }, 1500);
       return;
     }
 
     if (newUserSequence.length === sequence.length) {
       setScore(score + (level * 10));
-      if (level >= 9) {  // 최대 레벨 도달 시
-        setMessage('축하합니다! 게임 클리어!');
-        handleGameOver();  // 게임 클리어 시에도 점수 저장
-      } else {
-        setLevel(level + 1);
-        setMessage('정답입니다!');
-        setIsPlaying(false);
-        setTimeout(() => {
-          setMessage('');
-          const newSeq = createSequence();
-          showSequence(newSeq);
-        }, 1500);
-      }
+      setLevel(level + 1);
+      setMessage('정답입니다!');
+      setIsPlaying(false);
+      setTimeout(() => {
+        setMessage('');
+        const newSeq = createSequence();
+        showSequence(newSeq);
+      }, 1500);
     }
   };
-
-  const handleRestart = () => {
-    setGameStarted(false);
-    setScore(0);
-    setLevel(1);
-    setGameOver(false);
-    setMessage('');
-    setSequence([]);
-    setUserSequence([]);
-    setIsPlaying(false);
-    setShowingSequence(false);
-  };
-
 
   useEffect(() => {
     if (gameStarted && !isPlaying && !showingSequence) {

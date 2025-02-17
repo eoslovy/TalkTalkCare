@@ -45,6 +45,7 @@ const Navbar: React.FC = () => {
         <div className="navbar-menu">
           {isLoggedIn ? (
             <>
+            <div className='login-navbar'>
               <p className="text-md mr-2">
                 <p style={{color:'green'}}>{userName} <span style={{color:'black'}}>님</span><br /> <span style={{color:'black'}}>반갑습니다!</span></p>
               </p>
@@ -58,10 +59,11 @@ const Navbar: React.FC = () => {
                 <img src={logout_icon} alt="로그아웃" className="menu-icon" />
                 <p className='navbar-menu-text text-md'>로그아웃</p>
               </button>
+              </div>
             </>
           ) : (
             <>
-            <div className="" style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="logout-navbar" style={{ display: 'flex', alignItems: 'center' }}>
               <Link to="/sign-up" className="navbar-link">
                 <img src={signup_icon} alt="회원가입" className="menu-icon" />
                 <p className='navbar-menu-text text-md'>회원가입</p>

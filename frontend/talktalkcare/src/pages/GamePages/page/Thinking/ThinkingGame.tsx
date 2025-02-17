@@ -196,14 +196,13 @@ const ThinkingGame: React.FC = () => {
     >
       {!gameStarted ? (
         <div className="instructions">
-          <h3>게임 방법</h3>
-          <p>1. 화면에 표시되는 가위바위보 이미지를 보세요.</p>
-          <p>2. 주어진 조건에 맞는 선택을 하세요.</p>
-          <p>3. 올바른 선택을 하면 점수가 올라갑니다.</p>
-          <p>4. 제한 시간은 60초입니다.</p>
-          <p>🎮 키보드 조작 가능: 방향키로 버튼 선택, 엔터/스페이스바로 선택</p>
-          <button onClick={startGame}>게임 시작</button>
-        </div>
+        <h3 className='instructions-title'>게임 방법</h3>
+        <p className='instructions-content'>1. 화면에 표시되는 가위바위보 이미지를 보세요.
+        <br />2. 주어진 조건에 맞는 선택을 하세요.
+        <br />3. 올바른 선택을 하면 점수가 올라갑니다.</p>
+        <button onClick={generateQuestion} className='instructions-button'>게임 시작</button>
+      </div>
+    
       ) : (
         <div className="game-container">
           <div className="top-container">

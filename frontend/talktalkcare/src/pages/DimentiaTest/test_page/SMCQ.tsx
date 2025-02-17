@@ -23,26 +23,26 @@ const questions = [
 ];
 
 const submitSurvey = async (userId: number | null, testId: number, testResult: string) => {
-  if (userId !== null) {
-    console.log('userId:', userId);
-    console.log('testId:', testId);
-    console.log('testResult:', testResult); 
-    const response = await fetch(`${BASE_URL}/dementia-test/result`,{ 
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ userId, testId, testResult }), // 요청 파라미터 포함
-    }); 
-    console.log('Response:', response);
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
+  // 비로그인 사용자의 경우 임시 userId 생성
+  const finalUserId = userId || Math.floor(Math.random() * 1000000);
 
-    return response.json();
-  } else {
-    return Promise.resolve({ message: '로그인하지 않은 사용자입니다. 결과가 저장되지 않았습니다.' });
+  const response = await fetch(`${BASE_URL}/dementia-test/result`,{ 
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ 
+      userId: finalUserId, 
+      testId, 
+      testResult 
+    }),
+  }); 
+
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
   }
+
+  return response.json();
 };
 
 const SMCQ: React.FC = () => {
@@ -54,16 +54,12 @@ const SMCQ: React.FC = () => {
   const [modalMessage, setModalMessage] = useState<string>("");
 
   useEffect(() => {
-    // 로컬 스토리지에서 userId 가져오기
+    // 로컬 스토리지에서 userId 가져오기 (선택적)
     const storedUserId = localStorage.getItem('userId');
     if (storedUserId) {
-      setUserId(Number(storedUserId)); // 로컬 스토리지에서 가져온 값으로 상태 업데이트
-      console.log('userId:', storedUserId);
-    } else {
-      console.error('로그인 정보가 없습니다. 로그인해주세요.');
-      navigate('/login'); // 로그인 페이지로 리다이렉트
+      setUserId(Number(storedUserId));
     }
-  }, [navigate]);
+  }, []);
 
   const handleAnswer = (index: number, answer: string) => {
     const newAnswers = [...answers];
@@ -71,7 +67,6 @@ const SMCQ: React.FC = () => {
     setAnswers(newAnswers);
   };
 
-  // 문항 답변 안할 때때
   const handleSubmit = async () => {
     if (answers.includes(null)) {
       setModalMessage('모든 문항에 답변해 주세요.');
@@ -96,7 +91,6 @@ const SMCQ: React.FC = () => {
 
   return (
     <div className="smcq-container">
-      
       <div className="content-section">
         <h2 className='test-title'>이용자용 테스트</h2>
         <div className="instruction">
@@ -108,7 +102,7 @@ const SMCQ: React.FC = () => {
           {questions.map((question, index) => (
             <div key={index} className="question-item">
               <div className="question-text">
-                {index + 1}. {question} {/* 문항 번호는 1부터 시작 */}
+                {index + 1}. {question}
               </div>
               <div className="answer-buttons">
                 <button 
@@ -136,7 +130,7 @@ const SMCQ: React.FC = () => {
           </button>
           <CustomModal
               title="알림"
-              message={modalMessage} // 상황에 따라 다른 메시지 전달
+              message={modalMessage}
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
             />

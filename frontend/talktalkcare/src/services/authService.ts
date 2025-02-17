@@ -173,7 +173,7 @@ export const authService = {
       localStorage.removeItem('profile-image');
    
       // navigate를 위해 현재 라우터 이용
-      window.location.href = '/login'; // 직접 로그인 페이지로 리다이렉트
+      window.location.href = '/'; // 직접 로그인 페이지로 리다이렉트
    
       return response.data;
     } catch (error) {

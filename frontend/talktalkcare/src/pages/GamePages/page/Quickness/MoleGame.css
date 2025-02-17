@@ -19,7 +19,7 @@
 }
 
 .score {
-  font-size: 24px;  /* 폰트 크기 작아서 키움 */
+  font-size: 0.8em;  /* 폰트 크기 더 줄임 */
   line-height: 1;    /* 줄 높이를 최소화 */
   padding: 3px 8px;  /* 상하 패딩 줄임 */
   background-color: #f8f9fa;
@@ -39,15 +39,14 @@
 }
 
 /* 3x3 두더지 구멍 게임판 */
-.game-board-mole {
+.game-board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);  /* 3x3 그리드 유지 */
   gap: 10px;
   padding: 15px;
   background-color: #8b4513;
   border-radius: 10px;
-  width: 80%;
-  height: 50%;
+  width: 100%;
   aspect-ratio: 1;  /* 정사각형 유지 */
   margin: 20px 0;
 }

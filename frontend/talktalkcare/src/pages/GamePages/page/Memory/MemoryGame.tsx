@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './MemoryGame.css';
+import goldBrain from '../assets/goldbrain.png';
+import silverBrain from '../assets/silverbrain.png';
+import bronzeBrain from '../assets/bronzebrain.png';
+import GameComplete from '../GameComplete';
 import GamePage from '../GamePage';
-import { gameService } from '../../../../services/gameService';
-import { GAME_IDS } from '../../gameIds';
+
+//기억력게임
 
 interface Card {
   id: number;
@@ -33,15 +37,16 @@ const levelConfig: LevelConfigs = {
     emojis: ['🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🥝']
   },
   2: {
-    time: 120,
+    time: 90,
     grid: 16,
     emojis: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼']
   },
   3: {
-    time: 120,
+    time: 60,
     grid: 36,
-    emojis: ['⭐', '🌙', '☀️', '⚡', '🌈', '☁️', '❄️', '🌸', '🌺', '🌻', '🌹', '🍀', '🌴', '🌵', '🎄', '🌲', '🌳', '🌾']  }
-} as const;
+    emojis: ['⭐', '🌙', '☀️', '⚡', '🌈', '☁️', '❄️', '🌸', '🌺', '🌻', '🌹', '🍀', '🌴', '🌵', '🎄', '🌲', '🌳', '🌾']
+  }
+};
 
 const MemoryGame: React.FC = () => {
   const [cards, setCards] = useState<Card[]>([]);
@@ -50,8 +55,8 @@ const MemoryGame: React.FC = () => {
   const [moves, setMoves] = useState<number>(0);
   const [isLocked, setIsLocked] = useState<boolean>(false);
   const [gameStarted, setGameStarted] = useState<boolean>(false);
-  const [currentStage, setCurrentStage] = useState<number>(1);
-  const [timer, setTimer] = useState<number>(levelConfig[1].time);
+  const [level, setLevel] = useState<number>(1);
+  const [timer, setTimer] = useState<number | null>(null);
   const [rewards, setRewards] = useState<Rewards>({
     bronze: false,
     silver: false,
@@ -60,163 +65,74 @@ const MemoryGame: React.FC = () => {
   const [stars, setStars] = useState<number>(0);
   const [gameCompleted, setGameCompleted] = useState<boolean>(false);
   const [isForceQuit, setIsForceQuit] = useState<boolean>(false);
+  const [completedLevel, setCompletedLevel] = useState<number>(0);
   const [isPreview, setIsPreview] = useState<boolean>(true);
   const [previewTime, setPreviewTime] = useState<number>(10);
-  const [gameOver, setGameOver] = useState<boolean>(false);
-  const [levelCompleteModal, setLevelCompleteModal] = useState<boolean>(false);
-  const [finalGameOverModal, setFinalGameOverModal] = useState<boolean>(false);
 
-  // 타이머 관리
   useEffect(() => {
-    let gameTimer: NodeJS.Timeout;
-    
-    if (gameStarted && !gameOver && !isPreview && timer > 0) {
-      gameTimer = setInterval(() => {
+    if (gameStarted && timer !== null && timer > 0) {
+      const countdown = setInterval(() => {
         setTimer(prev => {
-          if (prev <= 1) {
+          if (prev !== null && prev <= 1) {
+            clearInterval(countdown);
             handleTimeUp();
             return 0;
           }
-          return prev - 1;
+          return prev !== null ? prev - 1 : null;
         });
       }, 1000);
+      return () => clearInterval(countdown);
     }
+  }, [gameStarted, timer]);
 
-    return () => {
-      if (gameTimer) {
-        clearInterval(gameTimer);
-      }
-    };
-  }, [gameStarted, gameOver, isPreview, timer]);
-
-// 프리뷰 타이머 관리
-useEffect(() => {
-  let previewTimer: NodeJS.Timeout;
-  
-  if (isPreview && previewTime > 0) {
-    previewTimer = setInterval(() => {
-      setPreviewTime(prev => {
-        if (prev <= 1) {
-          setIsPreview(false);
-          setCards(prevCards => prevCards.map(card => ({ ...card, isFlipped: false })));
-          // 프리뷰가 끝나면 해당 레벨의 시간으로 타이머 초기화
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }
-
-  return () => {
-    if (previewTimer) {
-      clearInterval(previewTimer);
-    }
-  };
-}, [isPreview, previewTime, currentStage]);
-
-  // 게임 오버 처리와 점수 저장
   useEffect(() => {
-    let isUnmounted = false;
+    if (isPreview && previewTime > 0) {
+      const timer = setInterval(() => {
+        setPreviewTime(prev => prev - 1);
+      }, 1000);
 
-    const saveGameScore = async () => {
-      // 게임이 완전히 종료된 경우에만 점수 저장 (모든 레벨 클리어 또는 시간 초과)
-      if (gameOver && (gameCompleted || finalGameOverModal) && !isUnmounted) {
-        try {
-          const userId = localStorage.getItem('userId');
-          
-          if (!userId) {
-            console.error('사용자 ID를 찾을 수 없습니다.');
-            return;
-          }
+      return () => clearInterval(timer);
+    } else if (isPreview && previewTime === 0) {
+      setIsPreview(false);
+      setCards(prev => prev.map(card => ({ ...card, isFlipped: false })));
+    }
+  }, [isPreview, previewTime]);
 
-          let finalScore = 0;
-          if (gameCompleted) {
-            // 모든 레벨 성공적으로 완료
-            finalScore = (currentStage * 10) + (timer * 10) - (moves * 5);
-            console.log('게임 완료 - 최종 스테이지:', currentStage);
-          } else {
-            // 제한시간 초과로 실패
-            const completedStage = currentStage - 1;
-            finalScore = (completedStage * 100) - (moves * 5);
-            console.log('시간 초과 - 완료한 스테이지:', completedStage);
-          }
-          
-          const scoreToSave = Math.max(0, finalScore);
-          console.log('저장할 점수:', scoreToSave);
-          await gameService.saveGameResult(Number(userId), GAME_IDS.MEMORY_GAME, scoreToSave);
-        } catch (error) {
-          console.error('게임 결과 저장 중 오류:', error);
-        }
-      }
-    };
-
-    saveGameScore();
-
-    return () => {
-      isUnmounted = true;
-    };
-  }, [gameOver, gameCompleted, finalGameOverModal, currentStage, timer, moves]);
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleTimeUp = (): void => {
     setGameStarted(false);
     setIsLocked(true);
-    setGameOver(true);
-    setFinalGameOverModal(true);
-    handleGameEnd(false); // 제한시간 초과로 게임 종료
-  };
-
-  const handleGameEnd = async (isSuccess: boolean) => {
-    try {
-      const userId = localStorage.getItem('userId');
-      
-      if (!userId) {
-        console.error('사용자 ID를 찾을 수 없습니다.');
-        return;
-      }
-  
-      let finalScore = 0;
-      if (isSuccess) {
-        // 성공적으로 게임을 완료한 경우
-        finalScore = (currentStage * 10) + (timer * 10) - (moves * 5);
-      } else {
-        // 제한시간 초과로 실패한 경우
-        finalScore = ((currentStage - 1) * 100) + (0 * 10) - (moves * 5); // 현재 스테이지 - 1까지만 점수 계산
-      }
-      
-      const scoreToSave = Math.max(0, finalScore);
-      await gameService.saveGameResult(Number(userId), GAME_IDS.MEMORY_GAME, scoreToSave);
-      console.log('게임 결과 저장 완료 - 점수:', scoreToSave);
-    } catch (error) {
-      console.error('게임 결과 저장 중 오류:', error);
+    if (matched.length !== cards.length) {
+      alert(`시간이 초과되었습니다! ${level}단계까지 성공하셨습니다!`);
+      setGameStarted(false);
     }
   };
 
   const initializeGame = (): void => {
-    const stage = currentStage as 1 | 2 | 3;
-    const currentLevel = levelConfig[stage];
-    
-    console.log('Initializing game for stage:', stage);
-    
-    const emojiSet = [...currentLevel.emojis];
-    const pairsNeeded = currentLevel.grid / 2;
-    const selectedEmojis = emojiSet.slice(0, pairsNeeded);
-    
-    const shuffledCards: Card[] = [...selectedEmojis, ...selectedEmojis]
+    const currentLevel = levelConfig[level];
+    const shuffledCards: Card[] = [...currentLevel.emojis.slice(0, currentLevel.grid/2), 
+                          ...currentLevel.emojis.slice(0, currentLevel.grid/2)]
       .sort(() => Math.random() - 0.5)
-      .map((content, index) => ({
-        id: index,
-        content,
-        isFlipped: true
+      .map((card, index) => ({ 
+        id: index, 
+        content: card, 
+        isFlipped: true  // 처음에는 모든 카드가 보이도록 설정
       }));
     
     setCards(shuffledCards);
     setFlipped([]);
     setMatched([]);
     setMoves(0);
+    setTimer(currentLevel.time);
   };
 
   const handleCardClick = (cardId: number): void => {
-    if (isPreview || isLocked || gameOver) return;
+    if (isLocked) return;
     if (flipped.length === 2) return;
     if (flipped.includes(cardId)) return;
     if (matched.includes(cardId)) return;
@@ -234,6 +150,7 @@ useEffect(() => {
         setMatched([...matched, flipped[0], cardId]);
         setFlipped([]);
         setIsLocked(false);
+
         if (matched.length + 2 === cards.length) {
           handleLevelComplete();
         }
@@ -247,58 +164,20 @@ useEffect(() => {
   };
 
   const handleLevelComplete = (): void => {
-    if (currentStage < 3) {
-      setLevelCompleteModal(true);
-      // 중간 단계에서는 gameOver를 true로 설정하지 않음
+    setCompletedLevel(level);
+    
+    if (level < 3) {
+      setTimeout(() => {
+        setLevel(prev => prev + 1);
+        initializeGame();
+      }, 1500);
     } else {
-      // 마지막 단계 완료 시에만 게임 오버 및 게임 완료 설정
       setGameCompleted(true);
-      setGameOver(true);
     }
   };
 
-  const continueToNextLevel = () => {
-    const nextStage = currentStage + 1;
-    console.log('Moving to next stage:', nextStage);
-    
-    const initNextLevel = () => {
-      const stage = nextStage as 1 | 2 | 3;
-      const currentLevel = levelConfig[stage];
-      const emojiSet = [...currentLevel.emojis];
-      const pairsNeeded = currentLevel.grid / 2;
-      const selectedEmojis = emojiSet.slice(0, pairsNeeded);
-      
-      const shuffledCards: Card[] = [...selectedEmojis, ...selectedEmojis]
-        .sort(() => Math.random() - 0.5)
-        .map((content, index) => ({
-          id: index,
-          content,
-          isFlipped: true
-        }));
-  
-      setCurrentStage(stage);
-      setCards(shuffledCards);
-      setFlipped([]);
-      setMatched([]);
-      setMoves(0);
-      setLevelCompleteModal(false);
-      setGameOver(false);
-      setIsPreview(true);
-      setPreviewTime(10);
-      setGameStarted(true);
-    };
-  
-    setGameStarted(false);
-    setTimeout(initNextLevel, 100);
-  };
-
-  const startGame = (): void => {
-    setGameStarted(true);
-    setIsPreview(true);
-    setPreviewTime(10);
-    setGameOver(false);
-    initializeGame();
-    setTimer(levelConfig[1].time); // 게임 시작 시 타이머 초기화
+  const isCardFlipped = (cardId: number): boolean => {
+    return flipped.includes(cardId) || matched.includes(cardId);
   };
 
   const handleRestart = (): void => {
@@ -308,7 +187,8 @@ useEffect(() => {
     setMatched([]);
     setMoves(0);
     setTimer(levelConfig[1].time);
-    setCurrentStage(1);
+    setLevel(1);
+    setCompletedLevel(0);
     setRewards({
       bronze: false,
       silver: false,
@@ -316,26 +196,26 @@ useEffect(() => {
     });
     setGameCompleted(false);
     setIsForceQuit(false);
-    setGameOver(false);
-    setLevelCompleteModal(false);
-    setFinalGameOverModal(false);
   };
 
   const handleQuit = (): void => {
     setGameStarted(false);
     setGameCompleted(true);
     setIsForceQuit(true);
-    setGameOver(true);
+    setCompletedLevel(level - 1);
+  };
+
+  const startGame = (): void => {
+    setGameStarted(true);  // 게임 시작 상태를 먼저 설정
+    setIsPreview(true);
+    setPreviewTime(10);
+    initializeGame();
   };
 
   return (
     <GamePage 
       title="카드 짝 맞추기" 
-      timeLimit={levelConfig[1].time}  // 총 제한시간은 1단계의 120초로 고정
-      currentTime={timer}  // 현재 남은 시간
-      previewTime={10}
-      isPreview={isPreview}
-      pauseTimer={levelCompleteModal || finalGameOverModal || gameCompleted}
+      timeLimit={levelConfig[level].time}
       onRestart={handleRestart}
       gameStarted={gameStarted}
     >
@@ -350,44 +230,16 @@ useEffect(() => {
           </div>
         ) : (
           <div className="game-board">
-            {levelCompleteModal && (
-              <div className="win-message">
-                <h2>{currentStage}단계 성공!</h2>
-                <p>총 {moves}번 시도하셨습니다.</p>
-                <button onClick={continueToNextLevel}>다음 단계로</button>
-              </div>
-            )}
-
-            {finalGameOverModal && (
-              <div className="game-over-message">
-                <h2>게임 오버!</h2>
-                <p>제한 시간이 종료되었습니다.</p>
-                <p>완료한 레벨: {currentStage - 1}</p>
-                <p>총 시도 횟수: {moves}</p>
-                <button onClick={handleRestart}>다시 시작하기</button>
-              </div>
-            )}
-
-            {gameCompleted && (
-              <div className="win-message">
-                <h2>🎉 게임 클리어! 🎉</h2>
-                <p>모든 단계를 성공적으로 완료하셨습니다!</p>
-                <p>총 시도 횟수: {moves}</p>
-                <button onClick={handleRestart}>다시 시작</button>
-              </div>
-            )}
-
             {isPreview && (
               <div className="preview-message">
                 {previewTime}초 동안 카드를 확인하세요!
               </div>
             )}
-
-            <div className={`card-grid level-${currentStage}`}>
+            <div className={`card-grid level-${level}`}>
               {cards.map((card) => (
                 <div
                   key={card.id}
-                  className={`card ${card.isFlipped || flipped.includes(card.id) || matched.includes(card.id) ? 'flipped' : ''}`}
+                  className={`card ${card.isFlipped || isCardFlipped(card.id) ? 'flipped' : ''}`}
                   onClick={() => handleCardClick(card.id)}
                 >
                   <div className="card-inner">
@@ -397,6 +249,12 @@ useEffect(() => {
                 </div>
               ))}
             </div>
+            {matched.length === cards.length && (
+              <div className="win-message">
+                <h2>축하합니다! {level}단계를 클리어하셨습니다!</h2>
+                <p>총 {moves}번 시도하셨습니다.</p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -404,4 +262,4 @@ useEffect(() => {
   );
 };
 
-export default MemoryGame;
+export default MemoryGame; 

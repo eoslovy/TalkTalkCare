@@ -48,7 +48,7 @@ const MainPage: React.FC = () => {
 
   // 초기 친구 목록 로드
   const loadFriends = async () => {
-    if (!userId) return;
+    if (!userId) return;  // 친구 목록 로드만 userId가 있을 때 수행
 
     try {
       const response = await fetch(`${apiUrl}/friends/${userId}`, {
@@ -118,10 +118,6 @@ const MainPage: React.FC = () => {
   useEffect(() => {
     console.log('🔄 친구 목록 상태 실제 변경됨:', friends);
   }, [friends]);
-
-  if (!userId) {
-    return null;
-  }
   
   const handleLogout = async () => {
     try {
@@ -143,7 +139,7 @@ const MainPage: React.FC = () => {
     <div className={`main-page-container ${isFriendListOpen ? 'friend-list-open' : ''}`}>
       <div className="main-page-content">
         {/* 친구 목록 토글 버튼 */}
-        {!isFriendListOpen && (
+        {!isFriendListOpen && userId && (
           <div className="friend-list-toggle">
             <button onClick={() => setIsFriendListOpen(true)} aria-label="친구 목록 열기">
               <List size={28} />
@@ -161,10 +157,8 @@ const MainPage: React.FC = () => {
       {/* 친구 목록 (isFriendListOpen 상태 활용) */}
       {isFriendListOpen && (
         <div className="friend-list-container">
-
           {/* 🔥 로딩 중이면 모달 표시 */}
           {isLoading && <LoadingModal />}
-
           <FriendList
             friends={friends}
             setFriends={setFriends}

@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import '../../styles/components/Login.css';
-import axios, { AxiosError } from 'axios';
-import { useAuth } from '../../contexts/AuthContext'; // 추가
+import { useAuth } from '../../contexts/AuthContext';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { setUserName } = useAuth(); // setUserName 추가
-  const { isConnected, setIsLoggedIn } = useWebSocket();
+  const { setIsLoggedIn, setUserName } = useAuth(); // 디스트럭처링 변경
   const [formData, setFormData] = useState({
     userLoginId: '',
     password: '',
@@ -30,24 +28,25 @@ const Login: React.FC = () => {
       const response = await authService.login(formData);
       
       if (response.result.msg === 'success') {
-        // localStorage에 정보 저장
         localStorage.setItem('userId', response.body.userId);
         localStorage.setItem('name', response.body.username);
         localStorage.setItem('profile-image', response.body.s3Filename);
         localStorage.setItem('token', response.body.token);
   
-        // AuthContext 상태 업데이트
         setIsLoggedIn(true);
         setUserName(response.body.username);
      
         alert('로그인 성공!');
-        navigate('/', { replace: true });
       } else {
         alert(response.result.msg || '로그인에 실패했습니다.');
       }
+      // 로그인 성공 여부와 관계없이 메인 페이지로 이동
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('로그인 실패:', error);
       alert('로그인 중 오류가 발생했습니다.');
+      // 에러가 발생해도 메인 페이지로 이동
+      navigate('/', { replace: true });
     }
   };
 

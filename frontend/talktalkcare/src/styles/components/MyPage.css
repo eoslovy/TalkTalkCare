@@ -176,3 +176,37 @@
 .profile-image-container:hover .camera-icon {
   background-color: #9FE895;
 }
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  width: 100%; /* 전체 너비 차지 */
+  text-align: center;
+}
+
+.loading-container svg {
+  margin-bottom: 10px;
+  color: #4CAF50;
+  width: 48px;
+  height: 48px;
+  /* 명시적 가운데 정렬 추가 */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
