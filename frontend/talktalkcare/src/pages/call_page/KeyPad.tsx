@@ -6,19 +6,19 @@ import side from '../../assets/side.png';
 import FriendList from '../../components/main_page/FriendList';
 import CustomModal from '../../components/CustomModal';
 
+import { useEffect } from 'react';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const KeyPad: React.FC = () => {
   const navigate = useNavigate();
   const [input, setInput] = useState<string>('');
-  const [showFriends, setShowFriends] = useState<boolean>(false); // 친구 목록 표시 여부 상태
+  const [showFriends, setShowFriends] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string>("");
   const [sessionId, setSessionId] = useState<string>('');
 
-  // 전화번호 포맷팅 함수
   const formatPhoneNumber = (value: string): string => {
-    const digits = value.replace(/[^0-9]/g, ''); // 숫자만 남기기
+    const digits = value.replace(/[^0-9]/g, '');
 
     if (digits.startsWith('010')) {
       if (digits.length <= 3) return digits;
@@ -29,6 +29,16 @@ const KeyPad: React.FC = () => {
       if (digits.length <= 4) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
       if (digits.length <= 8) return `${digits.slice(0, 4)}-${digits.slice(4)}`;
       return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`;
+    }
+  };
+  // 키 이벤트 처리 (handleKeyDown 수정)
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key >= '0' && e.key <= '9') {
+      handleButtonClick(e.key); // 숫자 키 입력 시 전화번호 추가
+    } else if (e.key === 'Backspace') {
+      handleClear(); // 백스페이스 키 입력 시 삭제
+    } else if (e.key === 'Enter') {
+      handleCall(); // 엔터 키 입력 시 전화 걸기
     }
   };
 
@@ -90,30 +100,39 @@ const KeyPad: React.FC = () => {
 
         // navigate('/videocall');
       }
+      setIsModalOpen(true);
     } catch (error) {
       setModalMessage('일시적인 서버 오류가 발생했습니다.');
       setIsModalOpen(true);
     }
   };
 
-  // 친구 목록 발생
   const toggleFriendsList = () => {
-    setShowFriends((prev) => !prev); // 친구 목록 표시/숨기기 토글
+    setShowFriends(prev => !prev);
   };
 
-  // 키 이벤트 처리 (handleKeyDown 추가)
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key >= '0' && e.key <= '9') {
-      handleButtonClick(e.key); // 숫자키 입력 시 전화번호 추가
-    } else if (e.key === 'Backspace') {
-      handleClear(); // 백스페이스 키 입력 시 지우기
-    }
-  };
-
+  // 키 이벤트 등록 및 해제
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') {
+        handleButtonClick(e.key); // 숫자 입력 처리
+      } else if (e.key === 'Backspace') {
+        handleClear(); // 백스페이스 처리
+      } else if (e.key === 'Enter') {
+        handleCall(); // 엔터로 전화 걸기
+      }
+    };
+  
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+  
   return (
-    <div className="page-container" tabIndex={0} onKeyDown={handleKeyDown}>
-      <div className='page-section'>
-        {/* 왼쪽 서비스 설명 텍스트 */}
+    <div className="page-container">
+      <div className={`page-section ${showFriends ? 'shift-left' : ''}`}>
         <div className="text-section">
           <p className='call-title'>화상 전화 사용법</p>
           <ol>
@@ -124,7 +143,11 @@ const KeyPad: React.FC = () => {
         </div>
 
         <div className="main-container">
-          <div className="input-display-container">
+        <div 
+            className="input-display-container" 
+            tabIndex={0} 
+            onKeyDown={handleKeyDown}
+          >
             <div className="input-display">
               <span>{input}</span>
             </div>
@@ -132,45 +155,39 @@ const KeyPad: React.FC = () => {
               <button className="clear-button" onClick={handleClear}>⌫</button>
             )}
           </div>
-
+          
           <div className="bottom-section">
             <div className="keypad-grid">
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map((key) => (
-                <button
-                  key={key}
-                  className="keypad-button"
-                  onClick={() => handleButtonClick(key)}
-                >
+              {[...'123456789*0#'].map((key) => (
+                <button key={key} className="keypad-button" onClick={() => handleButtonClick(key)}>
                   {key}
                 </button>
               ))}
             </div>
-
-            {/* 사이드 버튼 */}
             <div className="side-buttons">
               <button className="call-button" onClick={handleCall}>
                 <img src={phone} alt="핸드폰" className='phone-icon'/>
                 <span>전화걸기</span>
               </button>
-
               <CustomModal
                 title="알림"
-                message={modalMessage} // 상황에 따라 다른 메시지 전달
+                message={modalMessage}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
               />
-
               <button className="contacts-button" onClick={toggleFriendsList}>
                 <img src={side} alt="친구목록" className='contacts-icon'/>
                 <span>친구 목록</span>
               </button>
-
-              {/* 친구 목록 표시 */}
-              {showFriends && <FriendList onClose={() => setShowFriends(false)}/>}
             </div>
           </div>
         </div>
       </div>
+      {showFriends && (
+        <div className="friend-list-container">
+          <FriendList friends={[]} setFriends={() => {}} onClose={() => setShowFriends(false)}/>
+        </div>
+      )}
     </div>
   );
 };

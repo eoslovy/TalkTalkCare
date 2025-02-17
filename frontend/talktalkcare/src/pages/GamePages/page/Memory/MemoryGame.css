@@ -4,6 +4,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px); /* 헤더 높이만큼 뺌 */
 }
 
 .game-container {
@@ -26,32 +28,50 @@
   margin: 0;
 }
 
+.game-content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .game-board {
   width: 100%;
+  max-width: 800px; /* 최대 너비 제한 */
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
-  overflow-y: auto;
+  justify-content: center;
+  padding: 20px;
+  background-color: #8B4513; /* 배경색 지정 */
+  border-radius: 20px; /* 모서리 둥글게 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
 }
+
 
 .card-grid {
   display: grid;
   gap: 8px;
-  padding: 8px;
   width: 100%;
-  max-width: 600px;
+  padding: 20px;
+  justify-content: center;
+  background-color: transparent;
 }
 
 .card-grid.level-1,
 .card-grid.level-2 {
   grid-template-columns: repeat(4, 1fr);
+  max-width: 600px;
+
 }
 
 .card-grid.level-3 {
   grid-template-columns: repeat(6, 1fr);
+  gap: 6px; /* 간격 축소 */
+  padding: 6px;
+  max-width: 800px;
 }
-
 .card {
   aspect-ratio: 1;
   width: 100%;
@@ -61,7 +81,8 @@
 }
 
 .level-3 .card {
-  min-height: 100px;
+  min-height: 60px; /* 카드 높이 감소 */
+  max-width: 80px; /* 카드 최대 너비 설정 */
 }
 
 .card-inner {
@@ -93,7 +114,7 @@
 
 .level-3 .card-front,
 .level-3 .card-back {
-  font-size: 1.5em;
+  font-size: 2em;
 }
 
 .card-front {
@@ -133,44 +154,6 @@
   font-size: 1.8em;
 }
 
-
-/* button {
-  padding: 10px 20px;
-  font-size: 1.1em;
-  background-color: #4a148c;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-} */
-
-/* button:hover {
-  background-color: #6a1b9a;
-} */
-
-.instructions {
-  width: 100%;
-  max-width: 600px;
-  text-align: center;
-  padding: 40px;
-  border-radius: 15px;
-  background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.instructions {
-  margin-top: 40px;
-  padding: 15px 40px;
-  font-size: 1.4em;
-  background-color: #4a148c;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
 .rewards {
   display: flex;
   justify-content: center;

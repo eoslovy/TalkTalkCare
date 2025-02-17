@@ -99,7 +99,7 @@
   animation: breathe 1.5s infinite ease-in-out;
 }
 
-.robot-image.listening {
+.robot-image.speaking {
   animation: breathe 1.5s infinite ease-in-out, jump 1.2s infinite cubic-bezier(0.25, 1, 0.5, 1);
 }
 

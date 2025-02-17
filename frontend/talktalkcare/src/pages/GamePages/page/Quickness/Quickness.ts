@@ -4,7 +4,7 @@ import QuicknessGame1 from './MoleGame';
 export default [
   { id: 'catch-mole',
     name: '두더지 잡기',
-    description: '제한 시간 내에 나타나는 두더지를 클릭하여 점수를 얻으세요!',
+    description: '제한 시간 내에 나타나는 두더지를 잡으세요!',
     icon: '🦔',
     skill: '순발력',
   component: QuicknessGame1 },

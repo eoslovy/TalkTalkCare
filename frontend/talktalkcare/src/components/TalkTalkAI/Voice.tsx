@@ -1,9 +1,16 @@
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any;
+    SpeechRecognition: any;
+    webkitAudioContext: typeof AudioContext;
+  }
+}
+
 import React, { useState, useEffect, useRef } from 'react';
 import "../../styles/components/Voice.css";
 import axios from 'axios';
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import talktalk from "../../assets/talktalk.png";
-import talkbubble from "../../assets/talkbubble.png";
 import { Mic, MicOff } from "lucide-react";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -12,7 +19,7 @@ type FontSize = 'small' | 'medium' | 'large';
 
 interface RobotImageProps {
   isListening: boolean;
-  isWaiting: boolean;
+  isSpeaking: boolean;
 }
 
 interface ControlsProps {
@@ -35,13 +42,18 @@ const pollyClient = new PollyClient({
   }
 });
 
-const RobotImage: React.FC<RobotImageProps> = ({ isListening, isWaiting }) => {
+let audioContext: AudioContext | null = null;
+let audio: HTMLAudioElement | null = null;
+let recognition: any = null;
+
+const RobotImage: React.FC<RobotImageProps> = ({ isListening, isSpeaking }) => {
+  const imageClass = `robot-image ${isListening ? 'listening' : ''} ${isSpeaking ? 'speaking' : ''}`;
   return (
     <div className="robot-image-container">
       <img
         src={talktalk}
         alt="AI 로봇"
-        className={`robot-image ${isListening ? '' : 'listening'}`}
+        className={imageClass}
       />
     </div>
   );
@@ -89,7 +101,6 @@ const Controls: React.FC<ControlsProps> = ({
       )}
     </div>
     <div className="controls-row">
-      {/* 마이크 아이콘 버튼 */}
       <button
         onClick={toggleListening}
         className="control-button mic-button"
@@ -108,70 +119,8 @@ const Controls: React.FC<ControlsProps> = ({
   </div>
 );
 
-const synthesizeSpeech = async (text: string) => {
-  try {
-    const command = new SynthesizeSpeechCommand({
-      Text: text,
-      OutputFormat: "mp3",
-      VoiceId: "Seoyeon",
-      Engine: "neural",
-      LanguageCode: "ko-KR"
-    });
-
-    const response = await pollyClient.send(command);
-
-    if (response.AudioStream) {
-      const arrayBuffer = await response.AudioStream.transformToByteArray();
-      const blob = new Blob([arrayBuffer], { type: 'audio/mp3' });
-      const url = URL.createObjectURL(blob);
-
-      return new Promise<void>((resolve, reject) => {
-        const audio = new Audio(url);
-
-        audio.addEventListener('canplaythrough', () => {
-          const playPromise = audio.play();
-
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                audio.onended = () => {
-                  URL.revokeObjectURL(url);
-                  resolve();
-                };
-              })
-              .catch((error) => {
-                console.warn('자동 재생 차단:', error);
-                fallbackTextToSpeech(text)
-                  .then(resolve)
-                  .catch(reject);
-              });
-          }
-        });
-      });
-    }
-  } catch (error) {
-    console.error('Speech synthesis failed:', error);
-    return fallbackTextToSpeech(text);
-  }
-};
-
-const fallbackTextToSpeech = async (text: string): Promise<void> => {
-  return new Promise<void>((resolve, reject) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ko-KR';
-      utterance.onend = () => resolve();
-      utterance.onerror = (error) => reject(error);
-      window.speechSynthesis.speak(utterance);
-    } else {
-      console.warn('음성 합성을 지원하지 않는 브라우저입니다.');
-      reject(new Error('음성 합성 미지원'));
-    }
-  });
-};
-
 const SpeechToText = () => {
-  const [userId, setUserId] = useState<number>(() => {
+  const [userId] = useState<number>(() => {
     const storedUserId = localStorage.getItem('userId');
     return storedUserId ? parseInt(storedUserId) : 7;
   });
@@ -181,38 +130,226 @@ const SpeechToText = () => {
   });
 
   const [showFontControls, setShowFontControls] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [savedTranscripts, setSavedTranscripts] = useState<Array<{ text: string, isUser: boolean }>>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const isComponentMounted = useRef(true);
+
+  const transcriptsEndRef = useRef<HTMLDivElement>(null);
+  const transcriptsListRef = useRef<HTMLDivElement>(null);
 
   const fontSizeMap = {
     small: '16px',
     medium: '20px',
     large: '24px'
   };
+  const cleanup = () => {
+    // 음성 재생 중지
+    if (audio) {
+      audio.pause();
+      audio.src = '';
+      audio = null;
+    }
+  
+    // 음성 인식 중지
+    if (recognition) {
+      recognition.stop();
+      recognition = null;
+    }
+  
+    // 음성 합성 중지
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  
+    // 상태 초기화
+    setIsListening(false);
+    setIsSpeaking(false);
+    setTranscript('');
+  };
+  useEffect(() => {
+    return () => {
+      isComponentMounted.current = false;
+      cleanup();  // cleanup 함수 호출
+    };
+  }, []);
 
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [savedTranscripts, setSavedTranscripts] = useState<Array<{ text: string, isUser: boolean }>>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isWaiting, setIsWaiting] = useState(false);
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'ko-KR';
+  
+      recognition.onresult = (event: any) => {
+        if (!isComponentMounted.current) return;  // 마운트 상태 확인
+        
+        const current = event.resultIndex;
+        const transcriptText = event.results[current][0].transcript;
+  
+        if (event.results[current].isFinal) {
+          sendTranscriptToServer(transcriptText);
+        } else {
+          setTranscript(transcriptText);
+        }
+      };
+  
+      recognition.onerror = () => {
+        if (isComponentMounted.current) {
+          setIsListening(false);
+        }
+      };
+  
+      recognition.onend = () => {
+        if (isComponentMounted.current) {
+          setIsListening(false);
+          setTranscript('');
+        }
+      };
+  
+      startListening();
+    }
+  
+    // cleanup 함수 개선
+    return () => {
+      cleanup();  // cleanup 함수 호출
+    };
+  }, []);
+  
+  const synthesizeSpeech = async (text: string): Promise<void> => {
+    try {
+      setIsSpeaking(true);
+      const command = new SynthesizeSpeechCommand({
+        Text: text,
+        OutputFormat: "mp3",
+        VoiceId: "Seoyeon",
+        Engine: "neural",
+        LanguageCode: "ko-KR"
+      });
 
-  const recognitionRef = useRef<any>(null);
-  const tempTranscriptRef = useRef<string>('');
-  const transcriptsEndRef = useRef<HTMLDivElement>(null);
+      const response = await pollyClient.send(command);
+
+      if (response.AudioStream) {
+        const arrayBuffer = await response.AudioStream.transformToByteArray();
+        const blob = new Blob([arrayBuffer], { type: 'audio/mp3' });
+        const url = URL.createObjectURL(blob);
+
+        return new Promise<void>((resolve, reject) => {
+          if (audio) {
+            audio.pause();
+            audio = null;
+          }
+
+          audio = new Audio(url);
+
+          if (!audio) {
+            setIsSpeaking(false);
+            reject(new Error('Failed to create audio element'));
+            return;
+          }
+
+          audio.addEventListener('play', () => {
+            setIsSpeaking(true);
+          });
+
+          audio.addEventListener('ended', () => {
+            setIsSpeaking(false);
+            URL.revokeObjectURL(url);
+            resolve();
+          });
+
+          audio.addEventListener('pause', () => {
+            setIsSpeaking(false);
+          });
+
+          audio.addEventListener('error', (error) => {
+            console.error('Audio playback error:', error);
+            setIsSpeaking(false);
+            reject(error);
+          });
+
+          const playPromise = audio.play();
+
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              console.warn('자동 재생 차단:', error);
+              setIsSpeaking(false);
+              fallbackTextToSpeech(text)
+                .then(resolve)
+                .catch(reject);
+            });
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Speech synthesis failed:', error);
+      setIsSpeaking(false);
+      return fallbackTextToSpeech(text);
+    }
+  };
+
+  const fallbackTextToSpeech = async (text: string): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      if (!isComponentMounted.current) {
+        resolve();
+        return;
+      }
+
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ko-KR';
+        utterance.onend = () => {
+          setIsSpeaking(false);
+          resolve();
+        };
+        utterance.onerror = (error) => reject(error);
+        setIsSpeaking(true);
+        window.speechSynthesis.speak(utterance);
+      } else {
+        console.warn('음성 합성을 지원하지 않는 브라우저입니다.');
+        setIsSpeaking(false);
+        reject(new Error('음성 합성 미지원'));
+      }
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      isComponentMounted.current = false;
+      if (audio) {
+        audio.pause();
+        audio.src = '';
+        audio = null;
+      }
+      if (recognition) {
+        recognition.stop();
+      }
+      setIsSpeaking(false);
+      window.speechSynthesis?.cancel();
+    };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('chatFontSize', fontSize);
   }, [fontSize]);
 
-  const scrollToBottom = () => {
-    transcriptsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    const savedTranscripts = localStorage.getItem('savedTranscripts');
+    if (savedTranscripts) {
+      setSavedTranscripts(JSON.parse(savedTranscripts));
+    }
+    startChat();
+  }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    localStorage.setItem('savedTranscripts', JSON.stringify(savedTranscripts));
+    if (transcriptsListRef.current) {
+      transcriptsListRef.current.scrollTop = transcriptsListRef.current.scrollHeight;
+    }
   }, [savedTranscripts]);
-
-  useEffect(() => {
-    localStorage.setItem('userId', userId.toString());
-  }, [userId]);
 
   const startChat = async () => {
     try {
@@ -231,7 +368,6 @@ const SpeechToText = () => {
   const sendTranscriptToServer = async (text: string) => {
     try {
       setIsLoading(true);
-      setIsWaiting(true);
       stopListening();
 
       setSavedTranscripts(prev => [
@@ -256,38 +392,35 @@ const SpeechToText = () => {
       console.error('전송 중 에러:', error);
     } finally {
       setIsLoading(false);
-      setIsWaiting(false);
       startListening();
     }
   };
 
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window) {
-      recognitionRef.current = new (window as any).webkitSpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'ko-KR';
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'ko-KR';
 
-      recognitionRef.current.onresult = (event: any) => {
+      recognition.onresult = (event: any) => {
         const current = event.resultIndex;
         const transcriptText = event.results[current][0].transcript;
 
         if (event.results[current].isFinal) {
           sendTranscriptToServer(transcriptText);
         } else {
-          tempTranscriptRef.current = transcriptText;
           setTranscript(transcriptText);
         }
       };
 
-      recognitionRef.current.onerror = (event: any) => {
-        console.error('음성 인식 에러:', event.error);
+      recognition.onerror = () => {
         setIsListening(false);
       };
 
-      recognitionRef.current.onend = () => {
+      recognition.onend = () => {
         setIsListening(false);
-        tempTranscriptRef.current = '';
         setTranscript('');
       };
 
@@ -295,20 +428,23 @@ const SpeechToText = () => {
     }
 
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
+      if (recognition) {
+        recognition.stop();
+      }
+      if (audio) {
+        audio.pause();
+        audio.src = '';
       }
     };
   }, []);
 
   const startListening = async () => {
-    if (!recognitionRef.current || isLoading || isListening) return;
+    if (!recognition || isLoading || isListening) return;
 
     try {
       await startChat();
-      recognitionRef.current.start();
+      recognition.start();
       setIsListening(true);
-      tempTranscriptRef.current = '';
       setTranscript('');
     } catch (error) {
       console.error('시작 에러:', error);
@@ -316,15 +452,13 @@ const SpeechToText = () => {
   };
 
   const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
+    if (recognition) {
+      recognition.stop();
       setIsListening(false);
-      tempTranscriptRef.current = '';
       setTranscript('');
     }
   };
 
-  // Modified toggleListening function
   const toggleListening = () => {
     if (isListening) {
       stopListening();
@@ -335,7 +469,6 @@ const SpeechToText = () => {
 
   const clearTranscripts = () => {
     setSavedTranscripts([]);
-    tempTranscriptRef.current = '';
     setTranscript('');
   };
 
@@ -351,13 +484,13 @@ const SpeechToText = () => {
         <div className="chat-container">
           <div className="speech-to-text-section">
             <div className="speech-recognition-container">
-              <RobotImage isListening={isListening} isWaiting={isWaiting} />
+              <RobotImage isListening={isListening} isSpeaking={isSpeaking} />
             </div>
           </div>
   
           <div className="chat-content-section">
             <div className="saved-transcripts">
-              <div className="transcripts-list">
+              <div ref={transcriptsListRef} className="transcripts-list">
                 {savedTranscripts.map((message, index) => (
                   <p
                     key={index}
@@ -386,5 +519,6 @@ const SpeechToText = () => {
       </div>
     </div>
   );
-}  
+};
+
 export default SpeechToText;

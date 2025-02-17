@@ -98,7 +98,7 @@ const SMCQ: React.FC = () => {
     <div className="smcq-container">
       
       <div className="content-section">
-        <h2>이용자용 테스트</h2>
+        <h2 className='test-title'>이용자용 테스트</h2>
         <div className="instruction">
           이 테스트는 <span className='font-bold'>이용자용 테스트</span>입니다. <br />
           다음 문항을 읽고 최근 <span className='font-bold'>6개월 간의</span> 해당 사항에

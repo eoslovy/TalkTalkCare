@@ -1,6 +1,7 @@
 .main-page-container {
+  /* margin-top: 70px; */
   display: flex;
-  min-height: 80vb;
+  height: auto;
   background-color: white;
   justify-content: center;
   align-items: center;

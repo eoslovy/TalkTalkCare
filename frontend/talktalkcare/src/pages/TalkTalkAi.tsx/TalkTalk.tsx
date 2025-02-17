@@ -16,6 +16,8 @@ const TalkTalk = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const recognitionRef = useRef<any>(null);
+  const transcriptsSectionRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window) {
@@ -54,6 +56,12 @@ const TalkTalk = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (transcriptsSectionRef.current) {
+      transcriptsSectionRef.current.scrollTop = transcriptsSectionRef.current.scrollHeight;
+    }
+  }, [savedTranscripts]);
+
   const startListening = () => {
     if (recognitionRef.current) {
       try {
@@ -83,7 +91,7 @@ const TalkTalk = () => {
           </div>
         </div>
 
-        <div className="transcripts-section">
+        <div ref={transcriptsSectionRef} className="transcripts-section">
           {savedTranscripts.map((text, index) => (
             <div key={index} className="transcript-item">
               {text}

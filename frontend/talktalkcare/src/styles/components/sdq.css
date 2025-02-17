@@ -86,11 +86,6 @@ transform: scale(1.05); /* 약간 커지는 효과 */
 transform: scale(0.95); /* 약간 작아지는 효과 */
 }
 
-h2 {
-text-align: center;
-margin-bottom: 20px;
-}
-
 .submit-section {
 margin-top: 30px;
 text-align: center;
@@ -109,4 +104,9 @@ transition: background-color 0.3s;
 
 .submit-button:hover {
 background-color: #45a049;
+}
+
+.test-title {
+  font-size: xx-large;
+  padding-bottom: 10px;
 }

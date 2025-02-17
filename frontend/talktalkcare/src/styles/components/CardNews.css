@@ -12,14 +12,14 @@
     width: 70%;  /* 가로 크기 줄이기 */
     height: auto; /* 세로 크기는 자동 조정 */
     transition: all 0.3s ease-in-out;
-    padding-top: 40px;
+    margin-top: 40px;
 }
 
 .news-text {
     word-wrap: break-word; /* 텍스트가 넘치지 않도록 자동 줄바꿈 */
     overflow: hidden;
-    width: 470px;
-    height: 150px;
+    width: 480px;
+    height: 135px;
     background-color: #f5ffea;
     opacity: 90%;
     padding-bottom: 10px;
@@ -30,6 +30,21 @@
     width: 730px;
     height: 400px;
     object-fit: cover;
+}
+
+.card-title-box {
+  background-color: #c8e6c9;
+  border-radius: 20px;
+  padding: 10px;
+  font-size: 30px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-content {
+  padding-left: 10px;
 }
 
 /* 이전/다음 버튼 공통 스타일 */

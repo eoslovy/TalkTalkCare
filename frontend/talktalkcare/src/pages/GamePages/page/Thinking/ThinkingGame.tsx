@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import './ThinkingGame.css';
 import GamePage from '../GamePage';
+import { gameService } from '../../../../services/gameService';
+import { GAME_IDS } from '../../gameIds';
 
-//가위바위보 게임
 interface Hand {
   name: string;
   value: number;
@@ -15,11 +16,15 @@ interface Condition {
 }
 
 const ThinkingGame: React.FC = () => {
+  const TOTAL_TIME = 60;
   const [currentImage, setCurrentImage] = useState<Hand | null>(null);
   const [score, setScore] = useState<number>(0);
   const [message, setMessage] = useState<string>('');
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [currentCondition, setCurrentCondition] = useState<Condition | null>(null);
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState<number>(TOTAL_TIME);
+  const [selectedButtonIndex, setSelectedButtonIndex] = useState<number>(0);
 
   const hands: Hand[] = [
     { name: '가위', value: 0, image: '✌️' },
@@ -36,20 +41,29 @@ const ThinkingGame: React.FC = () => {
     { id: 5, text: '이기지도 않고 지지도 않는 경우를 선택하세요' }
   ];
 
-  const generateQuestion = (): void => {
+  const startGame = useCallback(() => {
+    setScore(0);
+    setTimeLeft(TOTAL_TIME);
+    setGameOver(false);
+    setMessage('');
+    setSelectedButtonIndex(0);
+    setGameStarted(true);
+    generateQuestion();
+  }, []);
+
+  const generateQuestion = useCallback((): void => {
+    if (gameOver) return;
+    
     const randomIndex = Math.floor(Math.random() * 3);
     const randomCondition = Math.floor(Math.random() * conditions.length);
     setCurrentImage(hands[randomIndex]);
     setCurrentCondition(conditions[randomCondition]);
     setMessage('');
-    setGameStarted(true);
-  };
+  }, [gameOver, hands, conditions]);
 
-  const checkAnswer = (selectedHand: Hand): void => {
-    if (!currentImage) return;
+  const checkAnswer = useCallback((selectedHand: Hand): void => {
+    if (!currentImage || gameOver) return;
 
-    // 가위바위보 승패 로직
-    // 0: 무승부, 1: 현재 이미지가 승, 2: 선택한 값이 승
     const result = (currentImage.value - selectedHand.value + 3) % 3;
     let isCorrect = false;
 
@@ -75,75 +89,162 @@ const ThinkingGame: React.FC = () => {
     }
 
     if (isCorrect) {
-      setMessage('정답입니다!');
       setScore(prev => prev + 1);
+      // 바로 다음 문제 생성
+      const randomIndex = Math.floor(Math.random() * 3);
+      const randomCondition = Math.floor(Math.random() * conditions.length);
+      setCurrentImage(hands[randomIndex]);
+      setCurrentCondition(conditions[randomCondition]);
     } else {
-      setMessage('틀렸습니다!');
-      setScore(prev => Math.max(0, prev - 1));
+      setMessage('틀렸습니다. 게임이 종료되었습니다.');
+      setGameOver(true);
+    }
+  }, [currentImage, gameOver, currentCondition, hands, conditions]);
+
+  // 키보드 이벤트 핸들러
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (!gameStarted || gameOver) return;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        setSelectedButtonIndex(prev => (prev + 1) % hands.length);
+        break;
+      case 'ArrowLeft':
+        setSelectedButtonIndex(prev => (prev - 1 + hands.length) % hands.length);
+        break;
+      case 'Enter':
+      case ' ':
+        // 현재 선택된 손 선택
+        checkAnswer(hands[selectedButtonIndex]);
+        break;
+    }
+  }, [gameStarted, gameOver, selectedButtonIndex, hands, checkAnswer]);
+
+  // 키보드 이벤트 리스너 추가
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
+  // 게임 오버 처리를 위한 useEffect
+  useEffect(() => {
+    const saveGameScore = async () => {
+      if (gameOver) {
+        try {
+          const userId = localStorage.getItem('userId');
+          
+          if (!userId) {
+            console.error('사용자 ID를 찾을 수 없습니다.');
+            return;
+          }
+
+          await gameService.saveGameResult(Number(userId), GAME_IDS.THINKING_GAME, score*10);
+          console.log('게임 결과 저장 완료 - 점수:', score);
+        } catch (error) {
+          console.error('게임 결과 저장 중 오류:', error);
+          setMessage('점수 저장에 실패했습니다.');
+        }
+      }
+    };
+
+    saveGameScore();
+  }, [gameOver, score]);
+
+  // 시간 관리
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      setMessage('시간이 종료되었습니다!');
+      setGameOver(true);
+    }
+  }, [timeLeft]);
+
+  // 타이머 감소 관리
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (gameStarted && !gameOver) {
+      timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
 
-    setTimeout(generateQuestion, 1500);
-  };
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  }, [gameStarted, gameOver]);
 
   return (
     <GamePage 
       title="가위바위보 생각하기"
-      onRestart={() => {
-        setGameStarted(false);
-        setScore(0);
-        generateQuestion();
-      }}
+      timeLimit={TOTAL_TIME}
+      currentTime={timeLeft}
+      onRestart={startGame}
       gameStarted={gameStarted}
+      gameOver={gameOver}
+      score={score}
+      message={message || '시간이 종료되었습니다!'}
     >
-     {gameStarted ? (
-  <div className="game-container">
-    <div className="top-container">
-      <div className="condition">
-        {currentCondition?.text}
-      </div>
-      <div className="score">점수: {score}</div>
-    </div>
-
-    <div className="image-container">
-      <div className="current-image">
-        <div className="image-display">
-          {currentImage?.image}
+      {!gameStarted ? (
+        <div className="instructions">
+          <h3>게임 방법</h3>
+          <p>1. 화면에 표시되는 가위바위보 이미지를 보세요.</p>
+          <p>2. 주어진 조건에 맞는 선택을 하세요.</p>
+          <p>3. 올바른 선택을 하면 점수가 올라갑니다.</p>
+          <p>4. 제한 시간은 60초입니다.</p>
+          <p>🎮 키보드 조작 가능: 방향키로 버튼 선택, 엔터/스페이스바로 선택</p>
+          <button onClick={startGame}>게임 시작</button>
         </div>
-        <p>현재 이미지</p>
-      </div>
+      ) : (
+        <div className="game-container">
+          <div className="top-container">
+            <div className="condition">
+              {currentCondition?.text}
+            </div>
+            <div className="game-info">
+              <div className="score">점수: {score}</div>
+            </div>
+          </div>
 
-      <div className="choices">
-        {hands.map((hand) => (
-          <button
-            key={hand.name}
-            className="choice-button"
-            onClick={() => checkAnswer(hand)}
-          >
-            <div className="hand-image">{hand.image}</div>
-            <div className="hand-name">{hand.name}</div>
-          </button>
-        ))}
-      </div>
-    </div>
+          <div className="current-image">
+            <div className="image-display">
+              {currentImage?.image}
+            </div>
+            <p>현재 이미지</p>
+          </div>
 
-    {message && (
-      <div className={`message ${message.includes('정답') ? 'correct' : 'wrong'}`}>
-        {message}
-      </div>
-    )}
-  </div>
-) : (
-  <div className="instructions">
-    <h3>게임 방법</h3>
-    <p>1. 화면에 표시되는 가위바위보 이미지를 보세요.</p>
-    <p>2. 주어진 조건에 맞는 선택을 하세요.</p>
-    <p>3. 올바른 선택을 하면 점수가 올라갑니다.</p>
-    <button onClick={generateQuestion}>게임 시작</button>
-  </div>
-)}
+          <div className="choices">
+            {hands.map((hand, index) => (
+              <button
+                key={hand.name}
+                className={`choice-button ${index === selectedButtonIndex ? 'selected' : ''}`}
+                onClick={() => checkAnswer(hand)}
+                disabled={gameOver}
+              >
+                <div className="hand-image">{hand.image}</div>
+                <div className="hand-name">{hand.name}</div>
+              </button>
+            ))}
+          </div>
+
+          {message && (
+            <div className={`message ${message.includes('정답') ? 'correct' : 'wrong'}`}>
+              {message}
+            </div>
+          )}
+        </div>
+      )}
     </GamePage>
   );
-}
+};
 
-
-export default ThinkingGame; 
+export default ThinkingGame;

@@ -59,8 +59,8 @@ const CardNews: React.FC<{ isFriendListOpen: boolean }> = ({ isFriendListOpen })
 
       {/* 제목 및 설명 */}
       <div className="news-text absolute bottom-7 left-5 bg-opacity-50 p-4 rounded-lg" style={{ color: "#214005" }}>
-        <h2 className="text-xl font-bold">{images[currentIndex].title}</h2>
-        <p className="text-sm">{images[currentIndex].description}</p>
+        <h2 className="card-title-box text-xl font-bold">{images[currentIndex].title}</h2>
+        <p className="card-content text-sm">{images[currentIndex].description}</p>
       </div>
 
         {/* 이전 버튼 */}

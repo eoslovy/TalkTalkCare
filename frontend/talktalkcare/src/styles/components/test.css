@@ -11,26 +11,31 @@
   background-color: white;
 }
 
+.test-page {
+  background-color: #e0f7c8;
+  border-radius: 20px;
+  padding: 30px;
+}
+
 .title-section {
   display: flex; /* 플렉스 박스 활성화 */
   justify-content: center; /* 수평 중앙 정렬 */
   align-items: center; /* 수직 중앙 정렬 */
-  background-color: #e8ffe0;
+  background-color: #c8e6c9;
   border-radius: 25px; /* 모서리 둥글기 증가 */
-  margin: 40px 0;
-  width: 400px; 
   height: 80px; /* 높이를 명시적으로 설정 */
   font-size: 2.0em; /* 글자 크기 증가 */
   text-align: center; /* 텍스트 중앙 정렬 */
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .buttons-container {
   display: flex;
   justify-content: center;
   gap: 60px;  /* 버튼 사이 간격 증가 */
-  padding-top: 30px;
   width: 100%;
   max-width: 1200px;  /* 최대 너비 증가 */
+  margin-top: 50px;
 }
 
 .test-button {
@@ -44,7 +49,6 @@
   align-items: center;
   justify-content: center;
   color: #214005;
-  margin-top: 30px;
   text-align: center;
   font-size: 1.8em;  /* 글자 크기 증가 */
   line-height: 1.0;

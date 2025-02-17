@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './PathFindingGame.css';
 import GamePage from '../GamePage';
+import { gameService } from '../../../../services/gameService';
+import { GAME_IDS } from '../../gameIds';
 
-//똑똑이 방향 찾기 게임
 interface Direction {
   key: string;
   value: 'left' | 'right' | 'up' | 'down';
@@ -24,6 +25,8 @@ const PathFindingGame: React.FC = () => {
   const [showingSequence, setShowingSequence] = useState<boolean>(false);
   const [currentPosition, setCurrentPosition] = useState<Position>({ x: 2, y: 2 });
   const [message, setMessage] = useState<string>('');
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [timeLeft, setTimeLeft] = useState<number>(60);
 
   const directions: Direction[] = [
     { key: '←', value: 'left', icon: '←' },
@@ -31,6 +34,61 @@ const PathFindingGame: React.FC = () => {
     { key: '↑', value: 'up', icon: '↑' },
     { key: '↓', value: 'down', icon: '↓' }
   ];
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (gameStarted && !gameOver) {
+      timer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            setMessage('시간이 종료되었습니다!');
+            setGameOver(true);  // endGame 직접 호출하지 않고 gameOver 상태만 변경
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  }, [gameStarted, gameOver]);
+
+  // 게임 오버 처리를 위한 useEffect
+  useEffect(() => {
+    let isUnmounted = false;
+
+    const handleGameOver = async () => {
+      if (gameOver && !isUnmounted) {
+        try {
+          const userId = localStorage.getItem('userId');
+          
+          if (!userId) {
+            console.error('사용자 ID를 찾을 수 없습니다.');
+            return;
+          }
+
+          await gameService.saveGameResult(Number(userId), GAME_IDS.THINKING_GAME, score);
+          console.log('게임 결과 저장 완료 - 점수:', score);
+          setGameStarted(false);
+          setIsPlaying(false);
+        } catch (error) {
+          console.error('게임 결과 저장 중 오류:', error);
+          setMessage('점수 저장에 실패했습니다.');
+        }
+      }
+    };
+
+    handleGameOver();
+
+    return () => {
+      isUnmounted = true;
+    };
+  }, [gameOver, score]);
 
   const createSequence = (): Direction[] => {
     const length = Math.min(3 + level, 8);
@@ -112,22 +170,35 @@ const PathFindingGame: React.FC = () => {
     setIsPlaying(true);
   };
 
+  const startGame = async () => {
+    setScore(0);
+    setLevel(1);
+    setTimeLeft(60);
+    setGameOver(false);
+    setGameStarted(true);
+    setMessage('');
+    setCurrentPosition({ x: 2, y: 2 });
+    
+    const newSeq = createSequence();
+    await showSequence(newSeq);
+  };
+
   const handleDirectionClick = (direction: Direction): void => {
-    if (!isPlaying || showingSequence) return;
+    if (!isPlaying || showingSequence || gameOver) return;
 
     const newPos = { ...currentPosition };
     switch (direction.value) {
       case 'left':
-        newPos.x = newPos.x - 1;
+        newPos.x = Math.max(0, newPos.x - 1);
         break;
       case 'right':
-        newPos.x = newPos.x + 1;
+        newPos.x = Math.min(4, newPos.x + 1);
         break;
       case 'up':
-        newPos.y = newPos.y - 1;
+        newPos.y = Math.max(0, newPos.y - 1);
         break;
       case 'down':
-        newPos.y = newPos.y + 1;
+        newPos.y = Math.min(4, newPos.y + 1);
         break;
     }
 
@@ -145,30 +216,28 @@ const PathFindingGame: React.FC = () => {
       );
 
       if (isCorrect) {
-        setScore(score + (level * 10));
-        setLevel(level + 1);
+        const newScore = score + (level * 10);
+        setScore(newScore);
+        setLevel(prev => prev + 1);
         setMessage('정답입니다!');
         setIsPlaying(false);
         setTimeout(() => {
-          setMessage('');
-          setCurrentPosition({ x: 2, y: 2 });
-          const newSeq = createSequence();
-          showSequence(newSeq);
+          if (!gameOver) {
+            setMessage('');
+            setCurrentPosition({ x: 2, y: 2 });
+            const newSeq = createSequence();
+            showSequence(newSeq);
+          }
         }, 1500);
       } else {
-        setMessage('틀렸습니다. 다시 시도하세요.');
-        setIsPlaying(false);
-        setTimeout(() => {
-          setMessage('');
-          setCurrentPosition({ x: 2, y: 2 });
-          showSequence(sequence);
-        }, 1500);
+        setMessage('틀렸습니다. 게임이 종료되었습니다.');
+        setGameOver(true);
       }
     }
   };
 
   useEffect(() => {
-    if (gameStarted && !isPlaying && !showingSequence) {
+    if (gameStarted && !isPlaying && !showingSequence && !gameOver) {
       const newSeq = createSequence();
       showSequence(newSeq);
     }
@@ -181,23 +250,34 @@ const PathFindingGame: React.FC = () => {
         setGameStarted(false);
         setScore(0);
         setLevel(1);
+        setGameOver(false);
+        setMessage('');
+        setTimeLeft(60);
       }}
       gameStarted={gameStarted}
     >
       {!gameStarted ? (
         <div className="instructions">
-          <h3>게임 방법</h3>
-          <p>1. 톡톡이가 움직이는 방향을 잘 기억하세요.</p>
-          <p>2. 순서대로 방향키를 눌러 톡톡이의 움직임을 따라하세요.</p>
-          <p>3. 레벨이 올라갈수록 기억해야 할 방향이 늘어납니다.</p>
-          <button onClick={() => setGameStarted(true)}>게임 시작</button>
+          <h3 className='instructions-title'>게임 방법</h3>
+          <p className='instructions-content'>1. 톡톡이가 움직이는 방향을 잘 기억하세요.
+          <br />2. 순서대로 방향키를 눌러 톡톡이의 움직임을 따라하세요.
+          <br />3. 레벨이 올라갈수록 기억해야 할 방향이 늘어납니다.</p>
+          <button onClick={() => setGameStarted(true)} className='instructions-button'>게임 시작</button>
         </div>
       ) : (
-        <div className="game-content">
+        <div className="">
           <div className="game-info">
             <div className="score">점수: {score}</div>
             <div className="level">레벨: {level}</div>
+            <div className="time-left">남은 시간: {timeLeft}초</div>
           </div>
+
+          {gameOver && (
+            <div className="game-over-message">
+              게임이 종료되었습니다!<br />
+              최종 점수: {score}점
+            </div>
+          )}
 
           <div className="game-grid">
             {Array(5).fill(null).map((_, y) => (
@@ -223,7 +303,7 @@ const PathFindingGame: React.FC = () => {
               <button
                 key={dir.key}
                 onClick={() => handleDirectionClick(dir)}
-                disabled={showingSequence || !isPlaying}
+                disabled={showingSequence || !isPlaying || gameOver}
               >
                 {dir.icon}
               </button>

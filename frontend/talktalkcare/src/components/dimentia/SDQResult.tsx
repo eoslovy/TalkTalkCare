@@ -66,7 +66,7 @@ const Result: React.FC = () => {
         <div className="result-container">
             
             <div className="content-section">
-                <h2>치매진단<br />테스트 결과</h2>
+                <h2 className='result-title'>치매진단<br />테스트 결과</h2>
 
                 <div className="result-box-wrapper">
                 <div className="result-box">

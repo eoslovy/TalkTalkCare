@@ -6,6 +6,7 @@ import thinkingGames from './page/Thinking/Thinking.ts';
 import quicknessGames from './page/Quickness/Quickness.ts';
 import memoryGames from './page/Memory/Memory.ts';
 import GamePage from './page/GamePage.tsx';
+import GameList from './page/GameList.tsx';
 
 interface Game {
   id: string;
@@ -13,6 +14,7 @@ interface Game {
   description: string;
   component: React.FC;
   skill: string;
+  icon: string;
 }
 
 const GameListPage = () => {
@@ -57,8 +59,11 @@ const GameListPage = () => {
         // 🔹 선택한 게임 화면
         <div className="game-detail">
           <button className="back-button" onClick={handleBackToList}>⬅ 목록으로</button>
-          <h2>{activeGame.name}</h2>
-          <p>{activeGame.description}</p>
+          <h2 className='middle-title'>{activeGame.name}</h2>
+          <div className='small-title'>
+            <p>{activeGame.icon}</p>
+            <p>{activeGame.description}</p>
+          </div>
           <div className="game-component">
             <activeGame.component />
           </div>

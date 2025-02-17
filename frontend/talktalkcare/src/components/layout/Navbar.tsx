@@ -37,7 +37,8 @@ const Navbar: React.FC = () => {
     <nav className="navbar">
       <div className="navbar-middle" style={{ backgroundColor: '#F5FFEA' }}>
         <Link to="/" className="navbar-left">
-          <img src="/images/logo.png" alt="로고" className="logo-image" />
+          <img src="/images/logo.png" alt="로고" className="logo-image" 
+          style={{ width:'30px', height:'30px' }}/>
           <p className="navbar-title ml-2 text-2xl">톡톡케어</p>
         </Link>
 
@@ -47,27 +48,29 @@ const Navbar: React.FC = () => {
               <p className="text-md mr-2">
                 <p style={{color:'green'}}>{userName} <span style={{color:'black'}}>님</span><br /> <span style={{color:'black'}}>반갑습니다!</span></p>
               </p>
-              <div className="navbar-link" style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="" style={{ display: 'flex', alignItems: 'center' }}>
                 <Link to="/mypage" className="navbar-link">
                   <img src={mypage_icon} alt="내 정보" className="menu-icon" />
-                  <p className='text-md'>내 정보</p>
+                  <p className='navbar-menu-text text-md'>내 정보</p>
                 </Link>
               </div>
               <button onClick={handleLogout} className="navbar-link">
                 <img src={logout_icon} alt="로그아웃" className="menu-icon" />
-                <p className='text-md'>로그아웃</p>
+                <p className='navbar-menu-text text-md'>로그아웃</p>
               </button>
             </>
           ) : (
             <>
+            <div className="" style={{ display: 'flex', alignItems: 'center' }}>
               <Link to="/sign-up" className="navbar-link">
                 <img src={signup_icon} alt="회원가입" className="menu-icon" />
-                <p className='text-md'>회원가입</p>
+                <p className='navbar-menu-text text-md'>회원가입</p>
               </Link>
               <Link to="/login" className="navbar-link">
                 <img src={login_icon} alt="로그인" className="menu-icon" />
-                <p className='text-md'>로그인</p>
+                <p className='navbar-menu-text text-md'>로그인</p>
               </Link>
+            </div>
             </>
           )}
         </div>

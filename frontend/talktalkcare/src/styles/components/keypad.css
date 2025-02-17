@@ -33,6 +33,10 @@
   padding-top: 25px;
   padding-bottom: 25px;
 }
+.shift-left {
+  margin-right: 150px; /* 원하는 만큼 조정 */
+  transition: margin-right 0.3s ease-in-out;
+}
 
 .input-display-container {
   display: flex;

@@ -16,7 +16,7 @@ const GameList: React.FC = () => {
     {
       id: 'mole',
       title: '두더지 잡기',
-      description: '제한 시간 내에 나타나는 두더지를 클릭하여 점수를 얻으세요!',
+      description: '제한 시간 내에 나타나는 두더지를 잡으세요!',
       icon: '🦔'
     },
     {
@@ -69,7 +69,7 @@ const GameList: React.FC = () => {
           >
             <div className="game-icon">{game.icon}</div>
             {/* <h2>{game.title}</h2> */}
-            <p>{game.description}</p>
+            <p className='game-description'>{game.description}</p>
           </div>
         ))}
       </div>

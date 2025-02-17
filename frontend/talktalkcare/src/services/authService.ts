@@ -165,11 +165,21 @@ export const authService = {
           withCredentials: true 
         }
       );
+      
+      // localStorage 초기화
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('name');
+      localStorage.removeItem('profile-image');
+   
+      // navigate를 위해 현재 라우터 이용
+      window.location.href = '/login'; // 직접 로그인 페이지로 리다이렉트
+   
       return response.data;
     } catch (error) {
       console.error('Logout failed:', error);
       throw error;
     }
-  }
+   }
 };
 

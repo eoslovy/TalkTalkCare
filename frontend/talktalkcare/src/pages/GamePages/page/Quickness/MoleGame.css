@@ -19,7 +19,7 @@
 }
 
 .score {
-  font-size: 0.8em;  /* 폰트 크기 더 줄임 */
+  font-size: 24px;  /* 폰트 크기 작아서 키움 */
   line-height: 1;    /* 줄 높이를 최소화 */
   padding: 3px 8px;  /* 상하 패딩 줄임 */
   background-color: #f8f9fa;
@@ -39,14 +39,15 @@
 }
 
 /* 3x3 두더지 구멍 게임판 */
-.game-board {
+.game-board-mole {
   display: grid;
   grid-template-columns: repeat(3, 1fr);  /* 3x3 그리드 유지 */
   gap: 10px;
   padding: 15px;
   background-color: #8b4513;
   border-radius: 10px;
-  width: 100%;
+  width: 80%;
+  height: 50%;
   aspect-ratio: 1;  /* 정사각형 유지 */
   margin: 20px 0;
 }
@@ -109,13 +110,6 @@
   max-width: 400px;
 }
 
-.instructions {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
 .game-over {
   background-color: #f8d7da;
   color: #721c24;
@@ -123,22 +117,6 @@
   border-radius: 10px;
   margin-bottom: 20px;
 }
-
-/* button {
-  padding: 10px 20px;
-  font-size: 1.2em;
-  background-color: #4a148c;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-} */
-
-/* button:hover {
-  background-color: #6a1b9a; 
-  transform: translateY(-2px);
-} */
 
 /* 반응형 디자인 */
 @media (max-width: 500px) {
