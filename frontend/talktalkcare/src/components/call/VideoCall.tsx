@@ -53,6 +53,45 @@ const VideoCall: React.FC = () => {
     };
   }, []);
 
+  /** 🟢 Publisher 초기화 후 즉시 로컬 비디오 바인딩 */
+  const handleInitPublisher = async () => {
+    try {
+      const OV = sessionRef.current!.openvidu;
+      const publisher = await OV.initPublisherAsync(undefined, {
+        audioSource: undefined,
+        videoSource: undefined,
+        publishAudio: true,
+        publishVideo: true,
+        mirror: true,
+      });
+      publisherRef.current = publisher;
+
+      // 🎥 로컬 비디오 즉시 바인딩
+      if (localVideoRef.current) {
+        publisher.addVideoElement(localVideoRef.current);
+        console.log('🎥 로컬 비디오 즉시 바인딩 완료');
+      }
+
+      // 세션에 Publisher 등록
+      await sessionRef.current!.publish(publisher);
+      console.log('✅ Publisher 세션 등록 완료');
+    } catch (error) {
+      console.error('🚨 Publisher 초기화 실패:', error);
+    }
+  };
+
+  /** 🎥 카메라 ON/OFF */
+  const handleToggleCamera = async () => {
+    if (publisherRef.current) {
+      const newState = !isVideoEnabled;
+      publisherRef.current.publishVideo(newState);
+      setIsVideoEnabled(newState);
+      console.log(`🚀 카메라 ${newState ? 'ON' : 'OFF'}`);
+    } else {
+      console.error('🚨 Publisher가 존재하지 않음');
+    }
+  };
+
   // 이벤트 핸들러 함수들
   const handleStreamCreated = (event: any) => {
     const streamId = event.stream.streamId;
@@ -77,26 +116,13 @@ const VideoCall: React.FC = () => {
       subscriber.addVideoElement(videoElement);
       videoElement.dataset.bound = 'true';
       console.log(`📡 비디오 바인딩 완료: ${streamId}`);
-
-      // 비디오 트랙 상태 확인
-      const stream = subscriber.stream?.getMediaStream();
-      if (stream) {
-        stream.getVideoTracks().forEach(track => {
-          console.log('📹 비디오 트랙 상태:', {
-            streamId,
-            enabled: track.enabled,
-            muted: track.muted,
-            readyState: track.readyState
-          });
-        });
-      }
     }
 
-    // subscribers 상태 업데이트 (중복 제거)
+    // 📡 구독자 상태 업데이트 (streamId 기반 중복 제거)
     setSubscribers((prev) => {
-      const unique = new Map(prev.map((sub) => [sub.stream?.streamId, sub]));
-      unique.set(streamId, subscriber);
-      return Array.from(unique.values());
+      const uniqueSubscribers = new Map(prev.map((sub) => [sub.stream?.streamId, sub]));
+      uniqueSubscribers.set(streamId, subscriber);
+      return Array.from(uniqueSubscribers.values());
     });
   };
 
@@ -111,10 +137,20 @@ const VideoCall: React.FC = () => {
 
   const handleSessionException = (exception: any) => {
     console.warn('⚠️ 세션 예외 발생:', exception);
-    if (exception.name === 'ICE_CONNECTION_FAILED') {
-      setModalMessage('네트워크 연결에 문제가 발생했습니다.');
-      setIsModalOpen(true);
+    switch (exception.name) {
+      case 'ICE_CONNECTION_FAILED':
+        setModalMessage('네트워크 연결에 문제가 발생했습니다.');
+        break;
+      case 'networkDisconnected':
+        setModalMessage('네트워크가 끊겼습니다. 다시 연결해 주세요.');
+        break;
+      case 'tokenExpired':
+        setModalMessage('세션 토큰이 만료되었습니다. 다시 로그인해 주세요.');
+        break;
+      default:
+        setModalMessage('알 수 없는 오류가 발생했습니다.');
     }
+    setIsModalOpen(true);
   };
 
   const handleSessionDisconnected = () => {
@@ -142,7 +178,6 @@ const VideoCall: React.FC = () => {
     session.on('sessionDisconnected', handleSessionDisconnected);
     console.log('✅ 세션 리스너 등록 완료');
 
-    // useEffect 클린업
     return () => {
       session.off('streamCreated');
       session.off('streamDestroyed');
@@ -152,23 +187,16 @@ const VideoCall: React.FC = () => {
     };
   }, [subscribers]);
 
-  /** 🎥 카메라 ON/OFF */
-  const handleToggleCamera = async () => {
-    if (publisherRef.current) {
-      const newState = !isVideoEnabled;
-      try {
-        await publisherRef.current.publishVideo(newState);
-        setIsVideoEnabled(newState);
-      } catch (error) {
-        console.error('🚨 카메라 토글 중 에러:', error);
-      }
-    }
-  };
-
   /** 🚪 세션 나가기 */
   const handleLeaveSession = () => {
     if (sessionRef.current) {
       try {
+        // Publisher 종료
+        if (publisherRef.current) {
+          publisherRef.current.stream.disposeWebRtcPeer();
+          publisherRef.current = null;
+          console.log('🧹 Publisher 리소스 정리 완료');
+        }
         sessionRef.current.disconnect();
       } catch (error) {
         console.error('🚨 세션 종료 중 에러:', error);
@@ -196,6 +224,51 @@ const VideoCall: React.FC = () => {
       console.error('🚨 화면 공유 에러:', error);
     }
   };
+
+  useEffect(() => {
+    let mounted = true;
+
+    const joinSession = async () => {
+      try {
+        if (sessionRef.current) {
+          sessionRef.current.disconnect();
+        }
+        const { session } = await openviduService.joinSession(sessionId);
+        if (!mounted) return;
+
+        sessionRef.current = session;
+        
+        // Publisher 초기화 및 로컬 비디오 바인딩
+        await handleInitPublisher();
+
+      } catch (error) {
+        console.error('세션 접속 실패:', error);
+        if (!((error as any)?.response?.status === 409)) {
+          setModalMessage('연결 중 오류가 발생했습니다.');
+          setIsModalOpen(true);
+        }
+      }
+    };
+
+    joinSession();
+
+    return () => {
+      mounted = false;
+      if (sessionRef.current) {
+        try {
+          // Publisher 리소스 정리
+          if (publisherRef.current) {
+            publisherRef.current.stream.disposeWebRtcPeer();
+            publisherRef.current = null;
+          }
+          sessionRef.current.disconnect();
+        } catch (error) {
+          console.error('세션 종료 중 에러:', error);
+        }
+      }
+      videoRefs.current.clear();
+    };
+  }, [sessionId, navigate]);
 
   return (
     <div className="videocall-container">

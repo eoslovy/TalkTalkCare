@@ -147,8 +147,8 @@ deploy-backend:
       alt-tls-listening-port=443
 
       # SSL 인증서 경로 지정
-      cert=/etc/letsencrypt/live/talktalkcare.com/fullchain.pem
-      pkey=/etc/letsencrypt/live/talktalkcare.com/privkey.pem
+      cert=/etc/turnserver/live/talktalkcare.com/fullchain.pem
+      pkey=/etc/turnserver/live/talktalkcare.com/privkey.pem
 
       # 인증 방식 설정 (static-auth-secret 기반)
       lt-cred-mech
@@ -177,6 +177,17 @@ deploy-backend:
       no-loopback-peers
       no-multicast-peers
       EOF
+      
+      # Let's Encrypt 인증서 전송
+    - echo "Copying Let's Encrypt certificates..."
+    - scp -r /etc/letsencrypt $SSH_USER@$SSH_HOST:/etc/turnserver/certs
+
+      # Coturn 설정파일 전송
+    - echo "Copying Coturn turnserver.conf..."
+    - scp turnserver.conf $SSH_USER@$SSH_HOST:/etc/turnserver/turnserver.conf
+
+      # 디렉터리 권한 설정
+    - ssh $SSH_USER@$SSH_HOST "sudo mkdir -p /etc/turnserver/live && sudo chmod -R 755 /etc/letsencrypt"
 
     - echo "Transferring files to EC2..."
     - scp .env docker-compose.yml $SSH_USER@$SSH_HOST:~/
