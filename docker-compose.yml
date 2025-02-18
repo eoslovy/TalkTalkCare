@@ -69,7 +69,7 @@ services:
       - "3478:3478/tcp"
       - "5349:5349/tcp"
       - "5349:5349/udp"
-      - "40000-40400:40000-40400/udp"
+      - "41000-41400:41000-41400/udp"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - ./turnserver.conf:/etc/turnserver/turnserver.conf
