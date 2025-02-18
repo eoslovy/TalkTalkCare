@@ -97,7 +97,7 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full p-2 border rounded-lg"
-              placeholder="010-0000-0000"
+              placeholder=" - 없이 입력하세요"
             />
           </div>
 

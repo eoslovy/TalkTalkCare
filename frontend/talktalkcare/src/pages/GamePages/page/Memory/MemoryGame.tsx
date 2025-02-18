@@ -243,7 +243,7 @@ const MemoryGame: React.FC = () => {
                   onClick={() => handleCardClick(card.id)}
                 >
                   <div className="card-inner">
-                    <div className="card-front">?</div>
+                    <div className="card-front">❔</div>
                     <div className="card-back">{card.content}</div>
                   </div>
                 </div>

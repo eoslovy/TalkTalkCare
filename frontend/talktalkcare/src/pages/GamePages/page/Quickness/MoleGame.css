@@ -9,24 +9,24 @@
 }
 
 /* 점수와 시간 등 게임 정보 표시 영역 */
-.game-info {
+/* .game-info {
   display: flex;
   justify-content: center;
   width: fit-content;
-  height: fit-content;  /* 높이도 내용물만큼 */
+  height: fit-content; 
   margin: 0;
-  padding: 0;  /* 패딩 제거 */
-}
+  padding: 0;
+} */
 
-.score {
-  font-size: 0.8em;  /* 폰트 크기 더 줄임 */
-  line-height: 1;    /* 줄 높이를 최소화 */
-  padding: 3px 8px;  /* 상하 패딩 줄임 */
+/* .score {
+  font-size: 0.8em; 
+  line-height: 1;   
+  padding: 3px 8px;  
   background-color: #f8f9fa;
   border-radius: 4px;
   white-space: nowrap;
-  height: auto;      /* 높이를 내용물에 맞춤 */
-}
+  height: auto;   
+} */
 
 .time {
   font-size: 1em;  /* 폰트 크기 더 줄임 */
@@ -39,7 +39,7 @@
 }
 
 /* 3x3 두더지 구멍 게임판 */
-.game-board {
+.mole-game-board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);  /* 3x3 그리드 유지 */
   gap: 10px;

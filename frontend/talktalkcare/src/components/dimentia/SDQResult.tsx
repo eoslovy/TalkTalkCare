@@ -118,7 +118,7 @@ const Result: React.FC = () => {
                             </button>
                             
                             <button 
-                                onClick={() => navigate('/signup')}
+                                onClick={() => navigate('/sign-up')}
                                 className="signup-button-1"                                >
                                 회원가입
                             </button>

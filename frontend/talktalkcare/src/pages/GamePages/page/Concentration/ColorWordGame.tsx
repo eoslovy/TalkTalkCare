@@ -127,11 +127,12 @@ const ColorWordGame: React.FC = () => {
           {message && <div className="final-score">{message}</div>}
         </div>
       ) : (
-        <div className="">
+        <div className="game-box">
           <div className="game-info">
             <div className="score">점수: {score}</div>
-            <div className="level">레벨: {level}</div>
+            <div className="game-level">레벨: {level}</div>
           </div>
+          
 
           <div className="question">
             <h3>{currentQuestion}</h3>

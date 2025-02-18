@@ -16,6 +16,7 @@
   transition: transform 0.3s ease;
   width: 100%; /* 가로 크기 100%로 설정 */
   max-width: 200px; /* max-width로 최대 너비 제한 */
+  height: 60px;
 }
 
 .navbar-middle {

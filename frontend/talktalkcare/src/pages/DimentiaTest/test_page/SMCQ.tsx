@@ -22,17 +22,14 @@ const questions = [
   "자주 사용하는 전화번호(자신 혹은 자녀)를 기억하기 어렵나요?"
 ];
 
-const submitSurvey = async (userId: number | null, testId: number, testResult: string) => {
-  // 비로그인 사용자의 경우 임시 userId 생성
-  const finalUserId = userId || Math.floor(Math.random() * 1000000);
-
-  const response = await fetch(`${BASE_URL}/dementia-test/result`,{ 
+const submitSurvey = async (userId: number, testId: number, testResult: string) => {
+  const response = await fetch(`${BASE_URL}/dementia-test/result`, { 
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ 
-      userId: finalUserId, 
+      userId, 
       testId, 
       testResult 
     }),
@@ -74,13 +71,17 @@ const SMCQ: React.FC = () => {
       return;
     }
 
-    const testResult = answers
-      .map((answer, index) => `${index + 1}: ${answer === '예' ? 1 : 0}`)
-      .join(', ');
-
     try {
-      const result = await submitSurvey(userId, testId, testResult);
-      console.log('Success:', result);
+      // 로그인한 사용자인 경우에만 데이터베이스에 저장
+      if (userId) {
+        const testResult = answers
+          .map((answer, index) => `${index + 1}: ${answer === '예' ? 1 : 0}`)
+          .join(', ');
+        
+        await submitSurvey(userId, testId, testResult);
+      }
+      
+      // 로그인 여부와 관계없이 결과 페이지로 이동
       navigate('/result', { state: { answers, testType: 'SMCQ' } });
     } catch (error) {
       console.error('Error:', error);
@@ -129,11 +130,11 @@ const SMCQ: React.FC = () => {
             제출하기
           </button>
           <CustomModal
-              title="알림"
-              message={modalMessage}
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-            />
+            title="알림"
+            message={modalMessage}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
         </div>
       </div>
     </div>

@@ -110,7 +110,7 @@ const MoleGame: React.FC = () => {
             <div className="game-info">
               <div className="score">점수: {score}</div>
             </div>
-            <div className="game-board">
+            <div className="mole-game-board">
               {moles.map((isActive, index) => (
                 <div 
                   key={index} 

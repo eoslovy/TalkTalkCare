@@ -6,31 +6,12 @@
   align-items: center;
 }
 
-.game-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.game-info {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  margin: 20px 0;
-  flex-wrap: wrap;
-}
-
-.game-info p {
-  font-size: 1.2em;
-  margin: 0;
-}
-
 .game-board {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 10px;
   overflow-y: auto;
 }
@@ -41,6 +22,8 @@
   padding: 8px;
   width: 100%;
   max-width: 600px;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-grid.level-1,
@@ -86,7 +69,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2em;
+  font-size: 3em;
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -97,8 +80,7 @@
 }
 
 .card-front {
-  background-color: #4a148c;
-  color: white;
+  background-color: #c6e6c9;
 }
 
 .card-back {

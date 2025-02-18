@@ -38,8 +38,8 @@ const Navbar: React.FC = () => {
       <div className="navbar-middle" style={{ backgroundColor: '#F5FFEA' }}>
         <Link to="/" className="navbar-left">
           <img src="/images/logo.png" alt="로고" className="logo-image" 
-          style={{ width:'30px', height:'30px' }}/>
-          <p className="navbar-title ml-2 text-2xl">톡톡케어</p>
+          style={{ width:'50px', height:'50px' }}/>
+          <p className="navbar-title ml-2 text-3xl">톡톡케어</p>
         </Link>
 
         <div className="navbar-menu">

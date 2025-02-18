@@ -33,7 +33,7 @@ const GamePage: React.FC<GamePageProps> = ({
   };
   
   const handleExit = () => {
-    navigate('/game');  // 목록 페이지로 이동
+    navigate('/game', { state: { exit: true } });  // 목록 페이지로 이동..이 안되냐
   };
 
   useEffect(() => {

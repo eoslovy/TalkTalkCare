@@ -5,13 +5,13 @@
   text-align: center;
 }
 
-.game-info {
+/* .game-info {
   display: flex;
   justify-content: space-around;
   margin: 20px 0;
   font-size: 1.2em;
   font-weight: bold;
-}
+} */
 
 .sequence-display {
   display: flex;

@@ -204,7 +204,7 @@ const ThinkingGame: React.FC = () => {
       </div>
     
       ) : (
-        <div className="game-container">
+        <div className="think-game-container">
           <div className="top-container">
             <div className="condition">
               {currentCondition?.text}

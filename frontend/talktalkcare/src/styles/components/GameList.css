@@ -18,6 +18,7 @@
 
 .game-header {
   margin: 0 auto;
+  display: flex;
   justify-content: center;
   align-items: center;
   font-size: 2rem;
@@ -110,10 +111,24 @@
 
 /* 🔹 게임 설명 */
 .game-info {
-  flex: 1;
-  text-align: left; /* 설명을 왼쪽 정렬 */
-  font-size: 1rem;
-  color: #333;
+  display: flex;
+  align-items: baseline;
+  font-size: 20px;
+  justify-content: space-between;
+  white-space: nowrap; /* ✅ 한 줄 유지 */
+  overflow: visible; /* ✅ 글자가 잘리지 않도록 설정 */
+}
+
+.score {
+  padding: 10px 20px;
+}
+
+.game-level {
+  padding: 10px 20px;
+}
+
+.game-box {
+  margin: 20px 0px;
 }
 
 /* 🔹 게임 컴포넌트 */

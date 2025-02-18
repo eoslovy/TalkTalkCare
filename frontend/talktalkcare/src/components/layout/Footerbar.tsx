@@ -6,10 +6,10 @@ const Footer: React.FC = () => {
     <footer className="footer">
       <div className="footer-content">
         <nav className="footer-nav">
-          <a href="#">회사 소개</a>
+          {/* <a href="#">회사 소개</a>
           <a href="#">이용 약관</a>
           <a href="#">개인정보 처리방침</a>
-          <a href="#">문의하기</a>
+          <a href="#">문의하기</a> */}
         </nav>
         <div className="footer-info">
           <div className="company-info">

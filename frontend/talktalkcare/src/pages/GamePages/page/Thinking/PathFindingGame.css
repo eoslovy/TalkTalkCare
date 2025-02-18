@@ -74,14 +74,14 @@
   transform: scale(1.1);
 }
 
-.game-info {
+/* .game-info {
   display: flex;
   justify-content: center;
   gap: 20px;
   margin-bottom: 20px;
   font-size: 1.2em;
   font-weight: bold;
-}
+} */
 
 .message {
   margin-top: 20px;

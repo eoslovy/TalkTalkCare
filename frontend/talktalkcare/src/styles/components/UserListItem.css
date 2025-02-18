@@ -5,11 +5,12 @@
   border-radius: 0.5rem;
   background-color: #c8e6c9;
   margin-bottom: 10px;
+  position: relative;
 }
 
 .friend-item:hover {
-  background-color: #F5FFEA; /* 진한 녹색 */
-  box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2); /* 그림자 강조 */
+  background-color: #F5FFEA;
+  box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .friend-item-avatar-container {
@@ -39,16 +40,15 @@
 }
 
 .friend-item-status-dot.online {
-  background-color: #10b981; /* green-500 */
-  width : 20px;
-  height : 20px; 
-
+  background-color: #10b981;
+  width: 20px;
+  height: 20px;
 }
 
 .friend-item-status-dot.offline {
-  background-color: #ef4444; /* red-500 */
-  width : 20px;
-  height : 20px; 
+  background-color: #ef4444;
+  width: 20px;
+  height: 20px;
 }
 
 .friend-item-content {
@@ -77,12 +77,23 @@
   color: #6b7280;
 }
 
-.friend-item-remove-btn {
-  padding: 0.5rem;
-  color: #9ca3af;
-  border-radius: 9999px;
+.friend-item-call-actions {
+  margin-left: 0.5rem;
 }
 
-.friend-item-remove-btn:hover {
-  color: #ef4444;
+.friend-item-call-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.friend-item-call-btn:hover {
+  transform: scale(1.1);
+  background-color: rgba(0,0,0,0.05);
+  border-radius: 50%;
 }

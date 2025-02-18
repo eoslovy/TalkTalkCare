@@ -112,12 +112,12 @@
   }
   
   /* 🔹 게임 설명 */
-  .game-info {
+  /* .game-info {
     flex: 1;
-    text-align: left; /* 설명을 왼쪽 정렬 */
+    text-align: left;
     font-size: 1rem;
     color: #333;
-  }
+  } */
   
   /* 🔹 게임 컴포넌트 */
   .game-component {

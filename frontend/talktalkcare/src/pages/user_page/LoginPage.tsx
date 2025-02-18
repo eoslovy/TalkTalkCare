@@ -36,7 +36,7 @@ const Login: React.FC = () => {
         setIsLoggedIn(true);
         setUserName(response.body.username);
      
-        alert('로그인 성공!');
+        // alert('로그인 성공!');
       } else {
         alert(response.result.msg || '로그인에 실패했습니다.');
       }

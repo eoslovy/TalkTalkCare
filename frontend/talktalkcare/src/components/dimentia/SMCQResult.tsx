@@ -118,7 +118,7 @@ const Result: React.FC = () => {
                             </button>
                             
                             <button 
-                                onClick={() => navigate('/signup')}
+                                onClick={() => navigate('/sign-up')}
                                 className="signup-button-1" 
                                 // style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '200px', height: '50px', textAlign: 'center', flex: '1 1 45%', backgroundColor:'#f8fff8' }}
                             >

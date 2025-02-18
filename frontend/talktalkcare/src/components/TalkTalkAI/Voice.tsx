@@ -1,19 +1,20 @@
-declare global {
-  interface Window {
-    webkitSpeechRecognition: any;
-    SpeechRecognition: any;
-    webkitAudioContext: typeof AudioContext;
-  }
-}
-
 import React, { useState, useEffect, useRef } from 'react';
 import "../../styles/components/Voice.css";
 import axios from 'axios';
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import talktalk from "../../assets/talktalk.png";
 import { Mic, MicOff } from "lucide-react";
-
+// import CustomModal from '../CustomModal';  // 상위 폴더에서 CustomModal import
+import { useNavigate } from 'react-router-dom';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// TypeScript에서 window 객체에 대한 타입을 확장합니다.
+declare global {
+  interface Window {
+    webkitSpeechRecognition?: any;
+    SpeechRecognition?: any;
+  }
+}
 
 type FontSize = 'small' | 'medium' | 'large';
 
@@ -22,16 +23,26 @@ interface RobotImageProps {
   isSpeaking: boolean;
 }
 
+interface CustomModalProps {
+  title: string;
+  message: string;
+  isOpen: boolean;
+  onClose?: () => void;  // 단순 닫기용으로 optional로 변경
+  onConfirm?: () => Promise<void>;  // '예' 버튼용, Promise<void>로 수정
+  onCancel?: () => void;   // '아니오' 버튼용
+  showConfirmButtons?: boolean;  // 예/아니오 버튼 표시 여부
+}
+
 interface ControlsProps {
   fontSize: FontSize;
   setFontSize: (size: FontSize) => void;
-  showFontControls: boolean;
-  setShowFontControls: (show: boolean) => void;
   toggleListening: () => void;
   clearTranscripts: () => void;
   isLoading: boolean;
   isListening: boolean;
+  onEndChat: () => void;
 }
+
 
 // AWS Polly 클라이언트 설정
 const pollyClient = new PollyClient({
@@ -62,43 +73,34 @@ const RobotImage: React.FC<RobotImageProps> = ({ isListening, isSpeaking }) => {
 const Controls: React.FC<ControlsProps> = ({
   fontSize,
   setFontSize,
-  showFontControls,
-  setShowFontControls,
   toggleListening,
   clearTranscripts,
   isLoading,
-  isListening
+  isListening,
+  onEndChat
 }) => (
   <div className="controls-container">
     <div className="controls-row">
-      <button
-        onClick={() => setShowFontControls(!showFontControls)}
-        className="control-button"
-      >
-        {showFontControls ? '숨기기' : '글자 크기'}
-      </button>
-      {showFontControls && (
-        <div className="font-size-controls">
-          <button
-            onClick={() => setFontSize('small')}
-            className={`font-size-button ${fontSize === 'small' ? 'active' : ''}`}
-          >
-            작게
-          </button>
-          <button
-            onClick={() => setFontSize('medium')}
-            className={`font-size-button ${fontSize === 'medium' ? 'active' : ''}`}
-          >
-            보통
-          </button>
-          <button
-            onClick={() => setFontSize('large')}
-            className={`font-size-button ${fontSize === 'large' ? 'active' : ''}`}
-          >
-            크게
-          </button>
-        </div>
-      )}
+      <div className="font-size-controls">
+        <button
+          onClick={() => setFontSize('small')}
+          className={`font-size-button ${fontSize === 'small' ? 'active' : ''}`}
+        >
+          작게
+        </button>
+        <button
+          onClick={() => setFontSize('medium')}
+          className={`font-size-button ${fontSize === 'medium' ? 'active' : ''}`}
+        >
+          보통
+        </button>
+        <button
+          onClick={() => setFontSize('large')}
+          className={`font-size-button ${fontSize === 'large' ? 'active' : ''}`}
+        >
+          크게
+        </button>
+      </div>
     </div>
     <div className="controls-row">
       <button
@@ -115,30 +117,94 @@ const Controls: React.FC<ControlsProps> = ({
       >
         기록 지우기
       </button>
+      <button
+        onClick={onEndChat}
+        className="control-button end-chat-button"
+        disabled={isLoading}
+      >
+        대화 종료
+      </button>
     </div>
   </div>
 );
-
 const SpeechToText = () => {
+  const navigate = useNavigate();
   const [userId] = useState<number>(() => {
     const storedUserId = localStorage.getItem('userId');
     return storedUserId ? parseInt(storedUserId) : 7;
   });
-
+  
+  const [showEndModal, setShowEndModal] = useState(false);  // 모달 상태 추가
   const [fontSize, setFontSize] = useState<FontSize>(() => {
-    return (localStorage.getItem('chatFontSize') as FontSize) || 'medium';
+    return (localStorage.getItem('chatFontSize') as FontSize) || 'small'; // 기본값을 'small'로 변경
   });
-
-  const [showFontControls, setShowFontControls] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [savedTranscripts, setSavedTranscripts] = useState<Array<{ text: string, isUser: boolean }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const isComponentMounted = useRef(true);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   const transcriptsEndRef = useRef<HTMLDivElement>(null);
   const transcriptsListRef = useRef<HTMLDivElement>(null);
+
+  const modalOverlayStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000
+  };
+
+  const modalContentStyle: React.CSSProperties = {
+    backgroundColor: '#c8e6c9',
+    // display : 'flex'
+    padding: '20px',
+    borderRadius: '10px',
+    textAlign: 'center',
+    maxWidth: '400px',
+    width: '90%',
+    height:'200px'
+  };
+
+  const modalButtonStyle: React.CSSProperties = {
+    margin: '10px',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer'
+  };
+  // endChat 함수 정의
+  const handleEndChat = async () => {
+    try {
+      await axios.post(`${BASE_URL}/talktalk/end`, null, {
+        params: { userId }
+      });
+      setShowEndModal(false);  // 모달 닫기
+      navigate('/');  // 메인 페이지로 이동
+    } catch (error) {
+      console.error('대화 종료 중 오류:', error);
+      alert('대화 종료 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleEndChatClick = () => {
+    setShowEndModal(true);
+  };
+
+  const handleModalCancel = () => {
+    setShowEndModal(false);
+  };
+
+  const handleModalClose = async () => {
+    await handleEndChat();
+    setShowEndModal(false);
+  };
 
   const fontSizeMap = {
     small: '16px',
@@ -317,6 +383,21 @@ const SpeechToText = () => {
   };
 
   useEffect(() => {
+    // 페이지 첫 진입 시 무조건 모달 표시
+    setShowWelcomeModal(true);
+  }, []); 
+
+  useEffect(() => {
+    const savedTranscripts = localStorage.getItem('savedTranscripts');
+    if (savedTranscripts) {
+      setSavedTranscripts(JSON.parse(savedTranscripts));
+    }
+    
+    // startChat 호출 시 모달 상태를 건드리지 않도록 수정
+    startChat();
+  }, []);
+
+  useEffect(() => {
     return () => {
       isComponentMounted.current = false;
       if (audio) {
@@ -365,36 +446,46 @@ const SpeechToText = () => {
     }
   };
 
-  const sendTranscriptToServer = async (text: string) => {
-    try {
-      setIsLoading(true);
-      stopListening();
+const sendTranscriptToServer = async (text: string) => {
+  try {
+    setIsLoading(true);
+    stopListening();
 
+    // 현재 대화를 추가
+    setSavedTranscripts(prev => [
+      ...prev,
+      { text, isUser: true }
+    ]);
+
+    // 이전 대화 내용을 포함하여 전송
+    const response = await axios.get(`${BASE_URL}/talktalk/chat`, {
+      params: { 
+        response: text, 
+        userId,
+        // 이전 대화 내용을 포함
+        context: savedTranscripts.map(msg => ({
+          text: msg.text,
+          isUser: msg.isUser
+        }))
+      },
+      timeout: 100000
+    });
+
+    if (response.data && response.data.body) {
       setSavedTranscripts(prev => [
         ...prev,
-        { text, isUser: true }
+        { text: response.data.body, isUser: false }
       ]);
-
-      const response = await axios.get(`${BASE_URL}/talktalk/chat`, {
-        params: { response: text, userId },
-        timeout: 100000
-      });
-
-      if (response.data && response.data.body) {
-        setSavedTranscripts(prev => [
-          ...prev,
-          { text: response.data.body, isUser: false }
-        ]);
-        await synthesizeSpeech(response.data.body);
-      }
-
-    } catch (error) {
-      console.error('전송 중 에러:', error);
-    } finally {
-      setIsLoading(false);
-      startListening();
+      await synthesizeSpeech(response.data.body);
     }
-  };
+
+  } catch (error) {
+    console.error('전송 중 에러:', error);
+  } finally {
+    setIsLoading(false);
+    startListening();
+  }
+};
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -480,14 +571,14 @@ const SpeechToText = () => {
             <h2>톡톡이와 즐거운 대화를 나눠보세요!</h2>
           </div>
         </div>
-  
+
         <div className="chat-container">
           <div className="speech-to-text-section">
             <div className="speech-recognition-container">
               <RobotImage isListening={isListening} isSpeaking={isSpeaking} />
             </div>
           </div>
-  
+
           <div className="chat-content-section">
             <div className="saved-transcripts">
               <div ref={transcriptsListRef} className="transcripts-list">
@@ -503,20 +594,56 @@ const SpeechToText = () => {
                 <div ref={transcriptsEndRef} />
               </div>
             </div>
-  
+
             <Controls
               fontSize={fontSize}
               setFontSize={setFontSize}
-              showFontControls={showFontControls}
-              setShowFontControls={setShowFontControls}
               toggleListening={toggleListening}
               clearTranscripts={clearTranscripts}
               isLoading={isLoading}
               isListening={isListening}
+              onEndChat={handleEndChatClick}
             />
           </div>
         </div>
       </div>
+      {showEndModal && (
+        <div style={modalOverlayStyle}>
+          <div style={modalContentStyle}>
+            <h3>대화 종료</h3>
+            <p
+            style={{ marginTop: '20px' }}>정말로 대화를 종료하시겠습니까?</p>
+            <div>
+              <button 
+                onClick={handleEndChat}
+                style={{
+                  ...modalButtonStyle,
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  marginTop:'40px',
+                  width:'90px'
+                }}
+              >
+                예
+              </button>
+              <button 
+                onClick={() => setShowEndModal(false)}
+                style={{
+                  ...modalButtonStyle,
+                  backgroundColor: '#f44336',
+                  color: 'white',
+                  border: 'none',
+                  width:'90px'
+
+                }}
+              >
+                아니오
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

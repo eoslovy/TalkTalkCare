@@ -3,20 +3,25 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Phone, GamepadIcon, FileText, User } from 'lucide-react';
 import '../../styles/components/MenuItem.css';
+import CustomModal from "../CustomModal";
 
 const MainMenu: React.FC<{ isFriendListOpen: boolean }> = ({ isFriendListOpen }) => {
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId');  // 로그인 상태 확인
+  const userId = localStorage.getItem('userId');
+  const [isModalOpen, setIsModalOpen] = useState(false);// 로그인 상태 확인
 
   const handleNavigation = (path: string, requiresAuth: boolean = false) => {
     if (requiresAuth && !userId) {
-      alert('로그인이 필요한 서비스입니다.');
-      navigate('/login');
+      setIsModalOpen(true);
       return;
     }
     navigate(path);
   };
 
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    navigate('/login');
+  };
   return (
     <div className={`menu ${isFriendListOpen ? 'compressed' : ''}`}>
       <nav className={`menu-grid ${isFriendListOpen ? 'compressed-grid' : ''}`}>
@@ -48,6 +53,13 @@ const MainMenu: React.FC<{ isFriendListOpen: boolean }> = ({ isFriendListOpen })
           <p className="menu-item-text">마이 페이지</p>
         </div>
       </nav>
+
+      <CustomModal
+        title="알림"
+        message="로그인이 필요한 서비스입니다."
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+      />
     </div>
   );
 };

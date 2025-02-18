@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../../styles/components/GameList.css';
 import logicGames from './page/Logic/LogicalGame.ts';
 import concentrationGames from './page/Concentration/Concentration.ts';
 import thinkingGames from './page/Thinking/Thinking.ts';
 import quicknessGames from './page/Quickness/Quickness.ts';
 import memoryGames from './page/Memory/Memory.ts';
-import GamePage from './page/GamePage.tsx';
-import GameList from './page/GameList.tsx';
 
 interface Game {
   id: string;
@@ -18,6 +17,7 @@ interface Game {
 }
 
 const GameListPage = () => {
+  const location = useLocation();
   const [selectedSkill, setSelectedSkill] = useState<string>('all');
   const [activeGame, setActiveGame] = useState<Game | null>(null);
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
@@ -40,6 +40,14 @@ const GameListPage = () => {
       : games.filter((game) => game.skill.trim() === selectedSkill.trim());
     setFilteredGames(filtered);
   }, [selectedSkill]);
+
+  // 게임 목록으로 강제 이동 (GamePage에서 '나가기' 클릭했을 때)
+  useEffect(() => {
+    if (location.state?.exit) {
+      console.log("📌 나가기 버튼 클릭 감지, 목록으로 돌아갑니다.");
+      setActiveGame(null);
+    }
+  }, [location]);
 
   // 🔹 게임 클릭 시 해당 게임만 표시
   const handleGameClick = (game: Game) => {
