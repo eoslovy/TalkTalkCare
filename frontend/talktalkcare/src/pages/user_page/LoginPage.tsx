@@ -8,9 +8,10 @@ import CustomModal from '../../components/CustomModal';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { setIsLoggedIn, setUserName } = useAuth(); // 디스트럭처링 변경
+  const { setAuthLoggedIn, setUserName } = useAuth();
+  const {setIsLoggedIn: setWsLoggedIn} = useWebSocket();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [modalMessage, setModalMessage] = useState<string>('');
+  const [modalMessage, setModalMessage] = useState<string>('');
   const [formData, setFormData] = useState({
     userLoginId: '',
     password: '',
@@ -36,8 +37,9 @@ const Login: React.FC = () => {
         localStorage.setItem('profile-image', response.body.s3Filename);
         localStorage.setItem('token', response.body.token);
   
-        setIsLoggedIn(true);
+        setAuthLoggedIn(true);
         setUserName(response.body.username);
+        setWsLoggedIn(true);
 
         navigate('/', { replace: true });
         
