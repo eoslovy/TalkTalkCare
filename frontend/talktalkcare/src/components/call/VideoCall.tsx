@@ -28,48 +28,18 @@ const VideoCall: React.FC = () => {
   const [connectionState, setConnectionState] = useState<string>('');
   const [isReconnecting, setIsReconnecting] = useState<boolean>(false);
 
-  const handleStreamCreated = async (event: any) => {
-    if (!sessionRef.current) return;
-    
-    console.log('새 스트림 생성됨:', event.stream.streamId);
-    
-    try {
-      // 기존 동일 ID 스트림 정리
-      setSubscribers(prev => {
-        const existingSubscriber = prev.find(
-          sub => sub.stream?.streamId === event.stream.streamId
-        );
-        if (existingSubscriber) {
-          try {
-            existingSubscriber.stream?.disposeWebRtcPeer();
-            existingSubscriber.stream?.disposeMediaStream();
-          } catch (e) {
-            console.warn('기존 스트림 정리 중 에러:', e);
-          }
-        }
-        return prev.filter(sub => sub.stream?.streamId !== event.stream.streamId);
-      });
+  const subscribedStreams = useRef(new Set<string>());
 
-      // 새 스트림 구독
-      const subscriber = await subscribeStream(sessionRef.current, event.stream);
-      if (!subscriber) return;
-      
-      setSubscribers(prev => [...prev, subscriber]);
-      console.log('✅ 스트림 구독 완료:', event.stream.streamId);
-
-    } catch (error) {
-      console.error('스트림 처리 중 에러:', error);
-    }
-  };
+  let mounted = true;
 
   const handleIceCandidate = async (pc: RTCPeerConnection, event: RTCPeerConnectionIceEvent) => {
     try {
-      if (pc.connectionState === 'closed') {
-        console.log('PeerConnection이 닫힌 상태여서 ICE candidate 추가 건너뜀');
+      if (!pc || pc.connectionState === 'closed' || !sessionRef.current || !mounted) {
+        console.log('ICE candidate 추가 건너뜀 - 연결 상태:', pc?.connectionState);
         return;
       }
       
-      if (event.candidate && sessionRef.current) {
+      if (event.candidate) {
         await sessionRef.current.signal({
           type: 'iceCandidate',
           data: JSON.stringify(event.candidate)
@@ -80,45 +50,44 @@ const VideoCall: React.FC = () => {
     }
   };
 
-  const forceResubscribe = async (stream: any) => {
-    if (!sessionRef.current) return;
-    
-    try {
-      // 기존 구독 정리
-      setSubscribers(prev => {
-        prev.forEach(sub => {
-          try {
-            sub.stream?.disposeWebRtcPeer();
-            sub.stream?.disposeMediaStream();
-          } catch (e) {
-            console.warn('스트림 정리 중 에러:', e);
-          }
-        });
-        return [];
-      });
+  const addSubscriber = (subscriber: Subscriber) => {
+    setSubscribers(prev => {
+      const existingIds = new Set(prev.map(sub => sub.stream?.streamId));
+      if (!existingIds.has(subscriber.stream?.streamId)) {
+        return [...prev, subscriber];
+      }
+      return prev;
+    });
+  };
 
-      // 새 스트림 구독
-      const subscriber = await subscribeStream(sessionRef.current, stream);
-      if (!subscriber) return;
+  const handleStreamCreated = async (event: any) => {
+    if (!sessionRef.current || !mounted) return;
+    
+    const streamId = event.stream.streamId;
+    if (subscribedStreams.current.has(streamId)) {
+      console.warn('이미 구독 중인 스트림:', streamId);
+      return;
+    }
+
+    try {
+      const subscriber = await subscribeStream(sessionRef.current, event.stream);
+      if (!subscriber || !mounted) return;
       
-      setSubscribers(prev => [...prev, subscriber]);
-      console.log('✅ 스트림 강제 재구독 완료:', stream.streamId);
+      subscribedStreams.current.add(streamId);
+      addSubscriber(subscriber);
+      console.log('✅ 스트림 구독 완료:', streamId);
     } catch (error) {
-      console.error('스트림 재구독 실패:', error);
+      console.error('스트림 처리 중 에러:', error);
     }
   };
 
   useEffect(() => {
-    let mounted = true;
-
     const joinSession = async () => {
       try {
         setIsReconnecting(true);
 
-        // 3. 기존 세션 정리 시 타이밍 조정
         if (sessionRef.current) {
           try {
-            // 모든 구독자 정리
             setSubscribers(prev => {
               prev.forEach(sub => {
                 try {
@@ -130,10 +99,7 @@ const VideoCall: React.FC = () => {
               });
               return [];
             });
-
-            // 세션 연결 해제
             await sessionRef.current.disconnect();
-            // 충분한 대기 시간 확보
             await new Promise(resolve => setTimeout(resolve, 2000));
           } catch (error) {
             console.warn('기존 세션 정리 중 에러:', error);
@@ -147,13 +113,32 @@ const VideoCall: React.FC = () => {
         publisherRef.current = publisher;
         retryCountRef.current = 0;
 
-        // 4. WebRTC 연결 상태 모니터링 개선
+        const handleStreamCreatedWrapper = (event: any) => handleStreamCreated(event);
+        const handleStreamDestroyedWrapper = (event: any) => {
+          console.log('스트림 종료:', event.stream.streamId);
+          subscribedStreams.current.delete(event.stream.streamId);
+          setSubscribers(prev => 
+            prev.filter(sub => sub.stream?.streamId !== event.stream.streamId)
+          );
+        };
+        const handleSessionDisconnectedWrapper = () => {
+          console.log('세션 연결 종료');
+          subscribedStreams.current.clear();
+          setSubscribers([]);
+          if (mounted) {
+            handleLeaveSession();
+          }
+        };
+
+        session.on('streamCreated', handleStreamCreatedWrapper);
+        session.on('streamDestroyed', handleStreamDestroyedWrapper);
+        session.on('sessionDisconnected', handleSessionDisconnectedWrapper);
+
         if (publisher.stream?.getWebRtcPeer()) {
           const rtcPeer = publisher.stream.getWebRtcPeer();
           const pc = (rtcPeer as any).peerConnection;
           
           if (pc) {
-            // ICE candidate 핸들러 등록
             pc.addEventListener('icecandidate', (event: RTCPeerConnectionIceEvent) => 
               handleIceCandidate(pc, event)
             );
@@ -165,7 +150,6 @@ const VideoCall: React.FC = () => {
               
               if (currentState === 'connected') {
                 setIsReconnecting(false);
-                // 연결 성공 시 상대방에게 알림
                 session.signal({
                   type: 'connectionStateChange',
                   data: JSON.stringify({
@@ -184,48 +168,23 @@ const VideoCall: React.FC = () => {
           }
         }
 
-        // 5. 스트림 이벤트 핸들러 개선
-        session.on('streamCreated', async (event) => {
-          if (!mounted) return;
-          
-          console.log('새 스트림 생성됨:', event.stream.streamId);
-          await forceResubscribe(event.stream);
-        });
-
-        // 6. 연결 상태 변경 신호 처리
-        session.on('signal:connectionStateChange', (event) => {
+        session.on('signal:connectionStateChange', (event: any) => {
           try {
             if (!event.data) return;
             const { userId, state } = JSON.parse(event.data);
             console.log(`상대방(${userId})의 연결 상태 변경: ${state}`);
             
-            // 상대방이 재연결된 경우 강제 재구독 시도
-            if (state === 'connected') {
+            if (state === 'connected' && session) {
               const remoteStream = session.streamManagers
                 .find(sm => sm.stream?.connection?.connectionId !== session.connection?.connectionId)
                 ?.stream;
                 
               if (remoteStream) {
-                forceResubscribe(remoteStream);
+                handleStreamCreated({ stream: remoteStream });
               }
             }
           } catch (error) {
             console.warn('연결 상태 신호 처리 중 에러:', error);
-          }
-        });
-
-        session.on('streamDestroyed', event => {
-          console.log('스트림 종료:', event.stream.streamId);
-          setSubscribers(prev => 
-            prev.filter(sub => sub.stream?.streamId !== event.stream.streamId)
-          );
-        });
-
-        session.on('sessionDisconnected', () => {
-          console.log('세션 연결 종료');
-          setSubscribers([]);
-          if (mounted) {
-            handleLeaveSession();
           }
         });
 
@@ -249,6 +208,11 @@ const VideoCall: React.FC = () => {
       mounted = false;
       if (sessionRef.current) {
         const session = sessionRef.current;
+        
+        session.off('streamCreated');
+        session.off('streamDestroyed');
+        session.off('sessionDisconnected');
+        
         setSubscribers(prev => {
           prev.forEach(sub => {
             try {
@@ -261,9 +225,25 @@ const VideoCall: React.FC = () => {
           return [];
         });
         session.disconnect();
+        subscribedStreams.current.clear();
       }
     };
   }, [sessionId, navigate]);
+
+  useEffect(() => {
+    const cleanup = () => {
+      if (sessionRef.current) {
+        sessionRef.current.disconnect();
+      }
+      subscribedStreams.current.clear();
+    };
+
+    window.addEventListener('beforeunload', cleanup);
+    return () => {
+      cleanup();
+      window.removeEventListener('beforeunload', cleanup);
+    };
+  }, []);
 
   const handleToggleCamera = async () => {
     if (publisherRef.current) {
@@ -366,33 +346,37 @@ const VideoCall: React.FC = () => {
         <div className="video-section">
           <div className="video-row local">
             {publisherRef.current && (
-              <video
-                autoPlay
-                playsInline
-                ref={(video) => {
-                  if (video && publisherRef.current) {
-                    publisherRef.current.addVideoElement(video);
-                  }
-                }}
-              />
-            )}
-            <p>나</p>
-          </div>
-
-          <div className="video-row remote">
-            {subscribers.length > 0 ? (
-              <>
+              <div className="local-video-container">
                 <video
                   autoPlay
                   playsInline
                   ref={(video) => {
-                    if (video && subscribers[0]) {
-                      subscribers[0].addVideoElement(video);
+                    if (video && publisherRef.current) {
+                      publisherRef.current.addVideoElement(video);
                     }
                   }}
                 />
-                <p>상대방</p>
-              </>
+                <p>나</p>
+              </div>
+            )}
+          </div>
+
+          <div className="video-row remote">
+            {subscribers.length > 0 ? (
+              subscribers.map((sub, index) => (
+                <div key={sub.stream?.streamId} className="remote-video-container">
+                  <video
+                    autoPlay
+                    playsInline
+                    ref={(video) => {
+                      if (video) {
+                        sub.addVideoElement(video);
+                      }
+                    }}
+                  />
+                  <p>상대방 {index + 1}</p>
+                </div>
+              ))
             ) : (
               <p style={{ color: '#fff' }}>상대방 대기중...</p>
             )}
