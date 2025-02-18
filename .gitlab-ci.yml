@@ -66,7 +66,13 @@ deploy-backend:
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+      # ✅ Let’s Encrypt 디렉터리가 없으면 임시 폴더 생성
+    - mkdir -p /etc/letsencrypt/live/talktalkcare.com
+    - echo "Fake Cert" > /etc/letsencrypt/live/talktalkcare.com/fullchain.pem
+    - echo "Fake Key" > /etc/letsencrypt/live/talktalkcare.com/privkey.pem
   script:
+    - echo "Copying Let's Encrypt certificates..."
+    - scp -r /etc/letsencrypt $SSH_USER@$SSH_HOST:/etc/turnserver/certs
     # `.env` 파일을 생성하여 EC2로 전송
     - |
       cat << EOF > .env
@@ -177,10 +183,6 @@ deploy-backend:
       no-loopback-peers
       no-multicast-peers
       EOF
-      
-      # Let's Encrypt 인증서 전송
-    - echo "Copying Let's Encrypt certificates..."
-    - scp -r /etc/letsencrypt $SSH_USER@$SSH_HOST:/etc/turnserver/certs
 
       # Coturn 설정파일 전송
     - echo "Copying Coturn turnserver.conf..."
