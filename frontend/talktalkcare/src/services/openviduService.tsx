@@ -9,34 +9,51 @@ class OpenviduService {
     constructor() {
       this.OV = new OpenVidu();
       this.OV.enableProdMode();
+      
+      // ICE 서버 구성 개선
+      this.OV.setAdvancedConfiguration({
+        iceServers: [
+          { urls: ['stun:stun.l.google.com:19302'] },
+          {
+            urls: ['turn:54.180.148.155:3478'],
+            username: 'turnuser',
+            credential: 'turnpassword'
+          },
+          {
+            urls: ['turns:54.180.148.155:5349'],
+            username: 'turnuser',
+            credential: 'turnpassword'
+          }
+        ]
+      });
     }
   
 
     async joinSession(sessionId: string): Promise<{ session: Session; publisher: Publisher }> {
-      // 만약 기존 세션이 있다면 종료
+      // 세션 재사용 로직 추가
+      if (this.session && this.session.sessionId === sessionId) {
+        console.log('⚠️ 이미 연결된 세션 재사용:', sessionId);
+        return { session: this.session, publisher: this.publisher! };
+      }
+
       if (this.session) {
         await this.leaveSession();
       }
-      // 세션 생성
+
       this.session = this.OV.initSession();
-  
-      // (필요 시) session 이벤트 핸들러 추가
-      this.session.on('streamCreated', (event) => {
-        // 구독자 생성 등 외부에서 별도로 처리할 수 있도록 이벤트 전달
-        console.log('새 스트림 생성됨:', event.stream.streamId);
+
+      // 재연결 관련 이벤트 리스너 추가
+      this.session.on('reconnecting', () => {
+        console.log('🔄 세션 재연결 중...');
       });
-  
-      this.session.on('streamDestroyed', (event) => {
-        console.log('스트림 종료:', event.stream.streamId);
+
+      this.session.on('reconnected', () => {
+        console.log('✅ 세션 재연결 성공');
       });
-  
-      // 토큰 발급 (세션이 이미 존재하면 409 에러가 발생해도 sessionId를 그대로 사용)
+
       const token = await this.getToken(sessionId);
-  
-      // 세션에 연결
       await this.session.connect(token);
-  
-      // 퍼블리셔 생성 (caller/receiver 모두 자신의 미디어 발행)
+
       this.publisher = await this.OV.initPublisherAsync(undefined, {
         audioSource: undefined,
         videoSource: undefined,
@@ -47,10 +64,8 @@ class OpenviduService {
         insertMode: 'APPEND',
         mirror: false
       });
-  
-      // 퍼블리셔 발행
+
       await this.session.publish(this.publisher);
-  
       return { session: this.session, publisher: this.publisher };
     }
   

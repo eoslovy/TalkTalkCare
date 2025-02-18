@@ -50,7 +50,7 @@ services:
       - KURENTO_KEY_FILE=/etc/letsencrypt/live/talktalkcare.com/privkey.pem
       - KMS_STUN_IP=54.180.148.155
       - KMS_STUN_PORT=3478
-      - KMS_TURN_URL=turnuser:turnpassword@54.180.148.155:3478
+      - KMS_TURN_URL=turnuser:turnpassword@54.180.148.155:3478?transport=udp,turnuser:turnpassword@54.180.148.155:3478?transport=tcp
       - KMS_NETWORK_INTERFACES=eth0
       - KMS_ICE_TCP=1
       - KMS_MIN_PORT=40000
@@ -67,13 +67,18 @@ services:
     ports:
       - "3478:3478/udp"
       - "3478:3478/tcp"
+      - "5349:5349/tcp"
+      - "5349:5349/udp"
+      - "40000-40400:40000-40400/udp"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./turnserver.conf:/etc/turnserver/turnserver.conf
     environment:
       - REALM=talktalkcare.com
       - USER=turnuser:turnpassword
       - CERT_FILE=/etc/letsencrypt/live/talktalkcare.com/fullchain.pem
       - KEY_FILE=/etc/letsencrypt/live/talktalkcare.com/privkey.pem
+    command: ["-c", "/etc/turnserver/turnserver.conf", "-v"]
     networks:
       - cicd_network
     restart: on-failure:3

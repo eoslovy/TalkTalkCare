@@ -138,6 +138,45 @@ deploy-backend:
       VITE_AWS_SECRET_ACCESS_KEY=${VITE_AWS_SECRET_ACCESS_KEY}
       VITE_AWS_REGION=${VITE_AWS_REGION}
       EOF
+    - |
+      cat <<EOF > turnserver.conf
+      # 기본 포트 설정
+      listening-port=3478
+      tls-listening-port=5349
+      alt-listening-port=80
+      alt-tls-listening-port=443
+
+      # SSL 인증서 경로 지정
+      cert=/etc/letsencrypt/live/talktalkcare.com/fullchain.pem
+      pkey=/etc/letsencrypt/live/talktalkcare.com/privkey.pem
+
+      # 인증 방식 설정 (static-auth-secret 기반)
+      lt-cred-mech
+      realm=talktalkcare.com
+      user=turnuser:turnpassword
+
+      # 외부 IP 및 리스너 설정 (CHANGE_REQUEST 경고 해결)
+      external-ip=54.180.148.155
+      relay-ip=172.19.0.5
+      listening-ip=0.0.0.0
+
+      # 포트 범위 설정 (TURN 리소스 최적화)
+      min-port=40000
+      max-port=40400
+
+      # CLI 인터페이스 비밀번호 설정
+      cli-password=securepassword123
+
+      # 로깅 및 디버그 설정
+      verbose
+      log-file=/var/log/turnserver.log
+
+      # 보안 최적화
+      fingerprint
+      stale-nonce
+      no-loopback-peers
+      no-multicast-peers
+      EOF
 
     - echo "Transferring files to EC2..."
     - scp .env docker-compose.yml $SSH_USER@$SSH_HOST:~/
