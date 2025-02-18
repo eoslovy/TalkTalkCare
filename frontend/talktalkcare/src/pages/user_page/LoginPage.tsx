@@ -7,7 +7,8 @@ import { useWebSocket } from '../../contexts/WebSocketContext';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { setIsLoggedIn, setUserName } = useAuth(); // 디스트럭처링 변경
+  const { setIsLoggedIn: setAuthLoggedIn, setUserName } = useAuth();
+  const { setIsLoggedIn: setWsLoggedIn } = useWebSocket();
   const [formData, setFormData] = useState({
     userLoginId: '',
     password: '',
@@ -33,8 +34,12 @@ const Login: React.FC = () => {
         localStorage.setItem('profile-image', response.body.s3Filename);
         localStorage.setItem('token', response.body.token);
   
-        setIsLoggedIn(true);
+        // Auth Context 업데이트
+        setAuthLoggedIn(true);
         setUserName(response.body.username);
+        
+        // WebSocket Context 업데이트
+        setWsLoggedIn(true);
      
         alert('로그인 성공!');
       } else {
