@@ -34,7 +34,7 @@ build-backend:
     - docker build -t eoslovy/talktalkcare-backend:latest .
     - docker push eoslovy/talktalkcare-backend:latest
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH == "feat/openvidu-custom"
       changes:
         - backend/**
         - .gitlab-ci.yml
@@ -48,7 +48,7 @@ build-frontend:
     - cd frontend && docker build --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} --build-arg VITE_API_WS_URL=${VITE_API_WS_URL} --build-arg VITE_AWS_ACCESS_KEY_ID=${VITE_AWS_ACCESS_KEY_ID} --build-arg VITE_AWS_SECRET_ACCESS_KEY=${VITE_AWS_SECRET_ACCESS_KEY} --build-arg VITE_AWS_REGION=${VITE_AWS_REGION} -t eoslovy/talktalkcare-nginx:latest .
     - docker push eoslovy/talktalkcare-nginx:latest
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH == "feat/openvidu-custom"
       changes:
         - frontend/**
         - nginx.conf
@@ -212,7 +212,7 @@ deploy-backend:
         echo 'Deployment completed successfully!'
       "
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH == "feat/openvidu-custom"
       changes:
         - backend/**
         - .gitlab-ci.yml
@@ -253,7 +253,7 @@ deploy-frontend:
         echo 'Frontend Deployment Completed!'
       "
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH == "feat/openvidu-custom"
       changes:
         - frontend/**
         - nginx.conf

@@ -16,6 +16,25 @@ const VideoCall: React.FC = () => {
 
   const sessionId = localStorage.getItem('currentSessionId') || 'default-session';
 
+  const MAX_RETRY_COUNT = 3;  // 최대 재시도 횟수
+
+  const subscribeStream = async (session: Session, stream: any, retryCount = 0) => {
+    try {
+      const subscriber = session.subscribe(stream, undefined);
+      console.log('✅ 신규 스트림 구독 성공:', stream.streamId);
+      return subscriber;
+    } catch (error) {
+      console.error(`구독 실패 (시도 ${retryCount}):`, error);
+      if (retryCount < MAX_RETRY_COUNT) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        return subscribeStream(session, stream, retryCount + 1);
+      } else {
+        console.error('최대 재시도 횟수 초과:', stream.streamId);
+        throw error;
+      }
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
 
@@ -30,33 +49,41 @@ const VideoCall: React.FC = () => {
         sessionRef.current = session;
         publisherRef.current = publisher;
 
-        session.on('streamCreated', (event) => {
+        session.on('streamCreated', async (event) => {
           try {
-            const subscriber = session.subscribe(event.stream, undefined);
-            console.log('✅ 신규 스트림 추가됨:', event.stream.streamId);
-            setSubscribers((prev) => [...prev, subscriber]);
+            const subscriber = await subscribeStream(session, event.stream);
+            if (!mounted) return;
+            
+            setSubscribers(prev => {
+              const exists = prev.some(sub => sub.stream?.streamId === event.stream.streamId);
+              if (!exists) {
+                return [...prev, subscriber];
+              }
+              return prev;
+            });
           } catch (error) {
-            console.error('신규 스트림 구독 중 에러:', error);
+            console.error('신규 스트림 구독 중 최종 에러:', error);
           }
         });
 
         session.on('streamDestroyed', (event) => {
           console.log('❌ 스트림 종료:', event.stream.streamId);
-          setSubscribers((prev) =>
-            prev.filter((sub) => sub.stream?.streamId !== event.stream.streamId)
+          setSubscribers(prev => 
+            prev.filter(sub => sub.stream?.streamId !== event.stream.streamId)
           );
         });
 
-        session.on('connectionDestroyed', (event) => {
-          try {
-            const destroyedId = event.connection.connectionId;
-            console.log('연결 종료됨:', destroyedId);
-            setSubscribers((prev) =>
-              prev.filter((sub) => sub.stream?.connection?.connectionId !== destroyedId)
-            );
-          } catch (err) {
-            console.error('connectionDestroyed 처리 중 에러:', err);
+        session.on('sessionDisconnected', (event) => {
+          console.log('세션 연결 종료:', event.reason);
+          setSubscribers([]);
+          if (event.reason !== 'disconnect') {
+            handleLeaveSession();
           }
+        });
+
+        session.on('exception', (event) => {
+          console.error('세션 에러:', event);
+          handleLeaveSession();
         });
       } catch (error) {
         console.error('세션 접속 실패:', error);
@@ -72,6 +99,7 @@ const VideoCall: React.FC = () => {
       if (sessionRef.current) {
         try {
           sessionRef.current.disconnect();
+          setSubscribers([]);
         } catch (error) {
           console.error('세션 종료 중 에러:', error);
         }
@@ -103,15 +131,14 @@ const VideoCall: React.FC = () => {
     }
   };
 
-  // (A) 화면 공유 예시: 브라우저 탭 or 앱 전체 공유
   const handleStartScreenShare = async () => {
     if (!sessionRef.current) return;
 
     try {
       const OV = sessionRef.current.openvidu;
       const screenPublisher = await OV.initPublisherAsync(undefined, {
-        videoSource: 'screen', // 화면 공유
-        publishAudio: false,   // 필요하다면 true
+        videoSource: 'screen',
+        publishAudio: false,
         publishVideo: true,
         mirror: false
       });
@@ -130,14 +157,12 @@ const VideoCall: React.FC = () => {
           <button onClick={handleToggleCamera}>
             {isVideoEnabled ? '카메라 끄기' : '카메라 켜기'}
           </button>
-          {/* 화면 공유 버튼 예시 */}
           <button onClick={handleStartScreenShare}>화면 공유</button>
           <button onClick={handleLeaveSession}>세션 나가기</button>
         </div>
       </header>
 
       <div className="videocall-content">
-        {/* 왼쪽: 위(내화면), 아래(상대방화면) */}
         <div className="video-section">
           <div className="video-row local">
             {publisherRef.current && (
@@ -174,7 +199,6 @@ const VideoCall: React.FC = () => {
           </div>
         </div>
 
-        {/* 오른쪽: 게임 리스트 */}
         <div className="game-section">
           <GameListPage />
         </div>
