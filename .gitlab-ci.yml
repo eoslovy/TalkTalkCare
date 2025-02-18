@@ -71,8 +71,13 @@ deploy-backend:
     - echo "Fake Cert" > /etc/letsencrypt/live/talktalkcare.com/fullchain.pem
     - echo "Fake Key" > /etc/letsencrypt/live/talktalkcare.com/privkey.pem
   script:
+    # ✅ EC2에서 필요한 디렉터리 사전 생성
+    - echo "Creating target directory on EC2..."
+    - ssh $SSH_USER@$SSH_HOST "sudo mkdir -p /etc/turnserver/certs || exit 1"
+
+    # Let's Encrypt 인증서 전송
     - echo "Copying Let's Encrypt certificates..."
-    - scp -r /etc/letsencrypt $SSH_USER@$SSH_HOST:/etc/turnserver/certs
+    - scp -r /etc/letsencrypt $SSH_USER@$SSH_HOST:/etc/turnserver/certs || exit 1
     # `.env` 파일을 생성하여 EC2로 전송
     - |
       cat << EOF > .env
