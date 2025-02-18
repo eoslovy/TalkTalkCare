@@ -79,6 +79,15 @@ const VideoCall: React.FC = () => {
           try {
             const subscriber = session.subscribe(event.stream, undefined);
             console.log('✅ 신규 스트림 추가됨:', event.stream.streamId);
+            
+            // trackPlaying 이벤트 추가
+            subscriber.on('videoElementCreated', (event) => {
+              console.log('비디오 엘리먼트 생성됨:', event.element);
+              event.element.addEventListener('play', () => {
+                console.log('🎉 비디오 재생 시작');
+              });
+            });
+
             setSubscribers(prev => {
               if (prev.some(sub => sub.stream?.streamId === event.stream.streamId)) {
                 return prev;
@@ -134,6 +143,22 @@ const VideoCall: React.FC = () => {
       }
     };
   }, [sessionId, navigate]);
+
+  useEffect(() => {
+    if (publisherRef.current) {
+      const localVideo = document.getElementById('local-video') as HTMLVideoElement;
+      if (localVideo) {
+        publisherRef.current.addVideoElement(localVideo);
+      }
+    }
+
+    subscribers.forEach((sub, index) => {
+      const remoteVideo = document.getElementById(`remote-video-${index}`) as HTMLVideoElement;
+      if (remoteVideo) {
+        sub.addVideoElement(remoteVideo);
+      }
+    });
+  }, [subscribers]);
 
   const handleToggleCamera = async () => {
     if (publisherRef.current) {
@@ -193,38 +218,29 @@ const VideoCall: React.FC = () => {
       </header>
 
       <div className="videocall-content">
-        {/* 왼쪽: 위(내화면), 아래(상대방화면) */}
         <div className="video-section">
           <div className="video-row local">
-            {publisherRef.current && (
-              <video
-                autoPlay
-                playsInline
-                ref={(video) => {
-                  if (video && publisherRef.current) {
-                    publisherRef.current.addVideoElement(video);
-                  }
-                }}
-              />
-            )}
+            <video
+              id="local-video"
+              autoPlay
+              playsInline
+              muted // 자기 소리는 음소거
+            />
             <p>나</p>
           </div>
 
           <div className="video-row remote">
-            {subscribers.length > 0 ? (
-              <>
+            {subscribers.map((subscriber, index) => (
+              <div key={subscriber.stream?.streamId} className="remote-video-container">
                 <video
+                  id={`remote-video-${index}`}
                   autoPlay
                   playsInline
-                  ref={(video) => {
-                    if (video && subscribers[0]) {
-                      subscribers[0].addVideoElement(video);
-                    }
-                  }}
                 />
-                <p>상대방</p>
-              </>
-            ) : (
+                <p>상대방 {index + 1}</p>
+              </div>
+            ))}
+            {subscribers.length === 0 && (
               <p style={{ color: '#fff' }}>상대방 대기중...</p>
             )}
           </div>
