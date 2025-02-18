@@ -5,6 +5,7 @@ import { authService } from '../../services/authService';
 import { UserSignupRequest } from '../../types/user';
 import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
+const pwCondition = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/;
 
 const SignUp = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);

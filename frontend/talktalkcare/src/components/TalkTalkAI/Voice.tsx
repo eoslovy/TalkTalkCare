@@ -530,7 +530,7 @@ const sendTranscriptToServer = async (text: string) => {
   }, []);
 
   const startListening = async () => {
-    if (!recognition || isLoading || isListening) return;
+    if (isLoading || isListening) return;
 
     try {
       await startChat();

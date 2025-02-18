@@ -158,16 +158,16 @@ export const authService = {
     }
   },
 
-  logout: async (): Promise<LogoutResponse> => {
-    try {
-      const response: AxiosResponse<LogoutResponse> = await axios.post(
+  logout: async () => {
+    const response = await axios.post(
         `${BASE_URL}/users/logout`, 
         {}, 
         { 
           withCredentials: true 
         }
-      );
+    );
       
+    if(response.data.msg==='success')  {
       // localStorage 초기화
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
@@ -176,12 +176,8 @@ export const authService = {
    
       // navigate를 위해 현재 라우터 이용
       window.location.href = '/'; // 직접 로그인 페이지로 리다이렉트
-   
-      return response.data;
-    } catch (error) {
-      console.error('Logout failed:', error);
-      throw error;
     }
+      return response;
    }
 };
 

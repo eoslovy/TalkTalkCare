@@ -21,6 +21,8 @@ const questions = [
   "가스불이나 전기불 끄는 것을 기억하기 어렵나요?",
   "자주 사용하는 전화번호(자신 혹은 자녀)를 기억하기 어렵나요?"
 ];
+const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+const [modalMessage, setModalMessage] = useState<string>('');
 
 const submitSurvey = async (userId: number, testId: number, testResult: string) => {
   const response = await fetch(`${BASE_URL}/dementia-test/result`, { 
@@ -35,8 +37,10 @@ const submitSurvey = async (userId: number, testId: number, testResult: string) 
     }),
   }); 
 
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
+  const data = await response.json();
+  if(data.result.msg !== 'success')  {
+    setModalMessage(data.result.msg || '설문조사 제출에 실패했습니다.');
+    setIsModalOpen(true);
   }
 
   return response.json();

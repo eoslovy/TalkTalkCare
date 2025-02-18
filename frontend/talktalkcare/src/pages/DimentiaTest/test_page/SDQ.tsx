@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import '../../../styles/components/sdq.css';
 import CustomModal from '../../../components/CustomModal';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-console.log(import.meta.env.VITE_API_BASE_URL);
 
 // 문항 데이터 배열 정의
 const questions = [
@@ -41,6 +40,9 @@ const questions = [
   "과거에 쓰던 기구 사용이 서툴러졌다."
 ];
 
+const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+const [modalMessage, setModalMessage] = useState<string>('');
+
 const submitSurvey = async (
   userId: number | null, 
   testId: number, 
@@ -55,7 +57,6 @@ const submitSurvey = async (
     return { message: '비로그인 사용자입니다. 결과가 저장되지 않았습니다.' };
   }
 
-  try {
     const response = await fetch(`${BASE_URL}/dementia-test/result`,{ 
       method: 'POST',
       headers: {
@@ -64,15 +65,14 @@ const submitSurvey = async (
       body: JSON.stringify({ userId, testId, testResult }), 
     }); 
 
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+    const data = await response.json();
+
+    if(data.result.msg !== 'success')  {
+      setModalMessage(data.result.msg || '설문조사 제출에 실패했습니다.');
+      setIsModalOpen(true);
     }
 
-    return response.json();
-  } catch (error) {
-    console.error('Survey submission error:', error);
-    throw error;
-  }
+    return data;
 };
 
 const SDQ: React.FC = () => {

@@ -1,18 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
+import CustomModal from '../../../components/CustomModal';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface GameMiddleTermModalProps {
   open: boolean;
   stage: number;
-  stageResults: { stage: number; timeLeft: number; }[];  // 각 스테이지 완료 시점의 고정된 시간값
+  timeLeft: number;
+  stageResults: { stage: number; timeLeft: number; }[];
   message: string;
   onNext?: () => void;
   onExit: () => void;
 }
 
+const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+const [modalMessage, setModalMessage] = useState<string>('');
+
 const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({ 
   open, 
   stage,
+  timeLeft,
   stageResults,
   message,
   onNext,
@@ -29,7 +35,7 @@ const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({
       // 기본 점수 계산 (스테이지 * 10)
       const baseScore = result.stage * 10;
       
-      // 시간 보너스 계산 (저장된 남은 시간 비율에 따른 기본 점수의 추가 점수)
+      // 시간 보너스 계산 (남은 시간 비율에 따른 기본 점수의 추가 점수)
       const timePercentage = (result.timeLeft / stageConfig[result.stage as keyof typeof stageConfig].time);
       const bonusScore = baseScore * timePercentage;
       
@@ -39,7 +45,6 @@ const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({
   };
 
   const handleExit = async () => {
-    try {
       const score = Math.round(calculateScore());
       const response = await fetch(`${BASE_URL}/games/save-result`, {
         method: 'POST',
@@ -53,22 +58,15 @@ const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({
         })
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to save game result');
-      }
+      const data = await response.json();
 
-      console.log('Game result saved successfully');
-      onExit();
-    } catch (error) {
-      console.error('Error saving game result:', error);
-      onExit(); // 에러가 발생해도 게임은 종료
-    }
+      if(data.result.msg !== 'success')  {
+        setModalMessage(data.result.msg || '게임 결과 저장에 실패 했습니다다.');
+        setIsModalOpen(true);
+      }
   };
 
   if (!open) return null;
-
-  // 현재 스테이지의 결과 찾기
-  const currentStageResult = stageResults.find(result => result.stage === stage);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent">
@@ -78,7 +76,7 @@ const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({
         
         <div className="text-center text-2xl font-bold my-4">
           현재 단계: {stage}단계<br />
-          남은 시간: {currentStageResult?.timeLeft || 0}초
+          남은 시간: {timeLeft}초
         </div>
         
         <div className="flex justify-center gap-4">
@@ -98,6 +96,12 @@ const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({
           </button>
         </div>
       </div>
+      <CustomModal
+      title="알림"
+      message={modalMessage}
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

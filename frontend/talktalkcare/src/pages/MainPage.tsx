@@ -10,6 +10,7 @@ import { useWebSocket } from '../contexts/WebSocketContext';
 import { Friend } from '../types/friend';  // 타입 임포트 추가
 import { useFriendList } from '../contexts/FriendListContext' // ✅ 추가
 import LoadingModal from '../components/LoadingModal'; // 🔥 로딩 모달 추가
+import CustomModal from '../components/CustomModal';
 
 
 const MainPage: React.FC = () => {
@@ -22,6 +23,8 @@ const MainPage: React.FC = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const { isFriendListOpen, setIsFriendListOpen } = useFriendList();
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalMessage, setModalMessage] = useState<string>('');
 
   useEffect(() => {
     setIsFriendListOpen(false);
@@ -135,16 +138,15 @@ const MainPage: React.FC = () => {
   }, [friends]);
   
   const handleLogout = async () => {
-    try {
-      await authService.logout();
-      localStorage.removeItem('userId');
-      localStorage.removeItem('token');
-      localStorage.removeItem('username');
-      navigate('/login');
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
-      alert('로그아웃 중 오류가 발생했습니다.');
-    }
+
+      const response = await authService.logout();
+
+      if(response.data.msg === 'success')  {
+        navigate('/login'); 
+      } else{
+        setModalMessage('로그아웃에 실패했습니다.');
+        setIsModalOpen(true);
+      } 
   };
 
   return (
@@ -178,6 +180,12 @@ const MainPage: React.FC = () => {
           />
         </div>
       )}
+      <CustomModal
+      title="알림"
+      message={modalMessage}
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

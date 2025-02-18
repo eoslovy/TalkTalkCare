@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Loader2 } from 'lucide-react';
 import PentagonGraph from '../../components/my_page/graph/PentagonGraph';
 import '../../styles/components/MyPage.css';
-import ResultPage from '../DimentiaTest/Result.tsx'
+import CustomModal from '../../components/CustomModal';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface UserInfo {
@@ -34,6 +34,9 @@ const MyPage = () => {
   const userId = localStorage.getItem('userId');
   const isLoggedIn = Boolean(userId);
 
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalMessage, setModalMessage] = useState<string>('');
+
   useEffect(() => {
     if (isLoggedIn) {
       fetchUserInfo();
@@ -51,45 +54,47 @@ const MyPage = () => {
   const fetchUserInfo = async () => {
     if (!userId) return;
 
-    try {
-      const response = await fetch(`${BASE_URL}/users/infos/${userId}`, {
+      let response = await fetch(`${BASE_URL}/users/infos/${userId}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
-
-      if (!response.ok) throw new Error('사용자 정보를 가져오지 못했습니다.');
       
       const data = await response.json();
-      setUserInfo(data.body);
-    } catch (error) {
-      console.error('사용자 정보 조회 중 오류:', error);
-    }
+
+      if(data.result.msg === 'success')  {
+        setUserInfo(data.body);
+      }else{
+        setModalMessage(data.result.msg || '사용자 정보를 불러오지 못했습니다.');
+        setIsModalOpen(true);
+      }
+
   }
 
   // 게임 점수 가져오기
   const fetchGameScores = async () => {
     if (!userId) return;
 
-    try {
       const response = await fetch(`${BASE_URL}/games/monthly-stats/${userId}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
-
-      if (!response.ok) throw new Error('게임 점수를 가져오지 못했습니다.');
       
-      const data = await response.json();
-      
-      // 응답 데이터를 gameScores 형식으로 변환
-      const scores = data.body.reduce((acc: { [key: number]: number }, item: any) => {
-        acc[item.categoryId] = item.average;
-        return acc;
-      }, {});
+    
+        const data = await response.json();
 
-      setGameScores(scores);
-    } catch (error) {
-      console.error('게임 점수 조회 중 오류:', error);
-    }
+        if(data.result.msg === 'success')  {
+        
+        // 응답 데이터를 gameScores 형식으로 변환
+        const scores = data.body.reduce((acc: { [key: number]: number }, item: any) => {
+          acc[item.categoryId] = item.average;
+          return acc;
+        }, {});
+
+          setGameScores(scores);
+        }else{
+          setModalMessage(data.result.msg || '게임 점수를 불러오지 못했습니다.');
+          setIsModalOpen(true);
+        }
   };
 
 
@@ -97,7 +102,6 @@ const MyPage = () => {
   const fetchAiAnalyses = async () => {
     if (!userId) return;
 
-    try {
       // 이용자용 AI 분석 요청
       setIsUserAnalysisLoading(true);
       const userResponse = await fetch(`${BASE_URL}/dementia-test/get-ai-result?userId=${userId}&testType=1`, {
@@ -105,10 +109,16 @@ const MyPage = () => {
         headers: { 'Content-Type': 'application/json' }
       });
 
-      if (!userResponse.ok) throw new Error('이용자 분석 데이터를 가져오지 못했습니다.');
-      const userData = await userResponse.json();
-      setUserAiAnalysis(userData.body); // 이용자용 결과 저장
-      setIsUserAnalysisLoading(false);
+      const userdata = await userResponse.json();
+
+      if(userdata.result.msg === 'success')  {
+        setUserAiAnalysis(userdata.body); // 이용자용 결과 저장
+        setIsUserAnalysisLoading(false);
+      }else{
+        setModalMessage(userdata.result.msg || '이용자 분석 데이터를 가져오지 못했습니다.');
+        setIsModalOpen(true);
+        setIsUserAnalysisLoading(false);
+      }
 
       // 보호자용 AI 분석 요청
       setIsGuardianAnalysisLoading(true);
@@ -117,16 +127,17 @@ const MyPage = () => {
         headers: { 'Content-Type': 'application/json' }
       });
 
-      if (!guardianResponse.ok) throw new Error('보호자 분석 데이터를 가져오지 못했습니다.');
-      const guardianData = await guardianResponse.json();
-      setGuardianAiAnalysis(guardianData.body); // 보호자용 결과 저장
-      setIsGuardianAnalysisLoading(false);
+      const data = await guardianResponse.json();
 
-    } catch (error) {
-      console.error(error);
-      setIsUserAnalysisLoading(false);
-      setIsGuardianAnalysisLoading(false);
-    }
+      if (data.result.msg === 'success') {
+        setGuardianAiAnalysis(data.body); // 보호자용 결과 저장
+        setIsGuardianAnalysisLoading(false);
+      }else{
+        setModalMessage(data.result.msg || '보호자 분석 데이터를 가져오지 못했습니다.');
+        setIsModalOpen(true);
+        setIsGuardianAnalysisLoading(false);
+      }
+
   };
 
   useEffect(() => {
@@ -245,6 +256,12 @@ const MyPage = () => {
           </div>
         )}
       </div>
+      <CustomModal
+      title="알림"
+      message={modalMessage}
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };
