@@ -53,120 +53,104 @@ const VideoCall: React.FC = () => {
     };
   }, []);
 
-  /** 🟢 OpenVidu 세션 연결 */
-  useEffect(() => {
-    let mounted = true;
+  // 이벤트 핸들러 함수들
+  const handleStreamCreated = (event: any) => {
+    const streamId = event.stream.streamId;
+    console.log(`📥 신규 스트림 수신: ${streamId}`);
 
-    const joinSession = async () => {
-      try {
-        if (sessionRef.current) {
-          sessionRef.current.disconnect();
-        }
+    // 이미 구독된 스트림인지 체크
+    const isAlreadySubscribed = subscribers.some(
+      (sub) => sub.stream?.streamId === streamId
+    );
+    if (isAlreadySubscribed) {
+      console.warn(`⚠️ 이미 구독 중인 스트림: ${streamId}`);
+      return;
+    }
 
-        const { session, publisher } = await openviduService.joinSession(sessionId);
-        if (!mounted) return;
+    // 새 구독자 등록
+    const subscriber = sessionRef.current!.subscribe(event.stream, undefined);
+    console.log(`✅ 구독 성공: ${streamId}`);
 
-        sessionRef.current = session;
-        publisherRef.current = publisher;
+    // 구독자 비디오 바인딩
+    const videoElement = videoRefs.current.get(streamId);
+    if (videoElement && !videoElement.dataset.bound) {
+      subscriber.addVideoElement(videoElement);
+      videoElement.dataset.bound = 'true';
+      console.log(`📡 비디오 바인딩 완료: ${streamId}`);
 
-        // ✅ 로컬 비디오 즉시 바인딩
-        if (localVideoRef.current && publisher) {
-          publisher.addVideoElement(localVideoRef.current);
-          console.log('✅ 로컬 비디오 바인딩 완료');
-        }
-
-        // ✅ WebRTC ICE 연결 상태 모니터링
-        if (publisher.stream?.getWebRtcPeer()) {
-          const rtcPeer = publisher.stream.getWebRtcPeer();
-          const pc = (rtcPeer as any).peerConnection;
-          
-          if (pc) {
-            pc.oniceconnectionstatechange = async () => {
-              console.log(`🧊 ICE 상태: ${pc.iceConnectionState}`);
-              if (pc.iceConnectionState === 'failed') {
-                console.log('⚠️ ICE 연결 실패: 재연결 시도');
-                await pc.restartIce();
-              }
-            };
-          }
-        }
-
-        // ✅ 구독 이벤트
-        session.on('streamCreated', (event) => {
-          const streamId = event.stream.streamId;
-          console.log(`📥 신규 스트림 수신: ${streamId}`);
-
-          // 중복 구독 방지
-          if (subscribers.some(sub => sub.stream?.streamId === streamId)) {
-            console.warn(`⚠️ 이미 구독 중인 스트림: ${streamId}`);
-            return;
-          }
-
-          const subscriber = session.subscribe(event.stream, undefined);
-
-          // ✅ 비디오 즉시 바인딩
-          const videoElement = videoRefs.current.get(streamId);
-          if (videoElement) {
-            subscriber.addVideoElement(videoElement);
-            videoElement.dataset.bound = 'true';
-            console.log(`🎥 구독자 비디오 즉시 바인딩 완료: ${streamId}`);
-          }
-
-          // ✅ 구독자 상태 업데이트 (중복 제거)
-          setSubscribers(prev => {
-            const unique = new Map(prev.map(sub => [sub.stream?.streamId, sub]));
-            unique.set(streamId, subscriber);
-            return Array.from(unique.values());
+      // 비디오 트랙 상태 확인
+      const stream = subscriber.stream?.getMediaStream();
+      if (stream) {
+        stream.getVideoTracks().forEach(track => {
+          console.log('📹 비디오 트랙 상태:', {
+            streamId,
+            enabled: track.enabled,
+            muted: track.muted,
+            readyState: track.readyState
           });
         });
-
-        // ✅ 스트림 종료 처리
-        session.on('streamDestroyed', (event) => {
-          const streamId = event.stream.streamId;
-          console.log(`❌ 스트림 종료됨: ${streamId}`);
-          setSubscribers(prev => prev.filter(sub => sub.stream?.streamId !== streamId));
-          videoRefs.current.delete(streamId);
-        });
-
-        // ✅ 예외 처리
-        session.on('exception', (exception) => {
-          console.warn('⚠️ 세션 예외 발생:', exception);
-          if (exception.name === 'ICE_CONNECTION_FAILED') {
-            setModalMessage('네트워크 연결에 문제가 발생했습니다.');
-            setIsModalOpen(true);
-          }
-        });
-
-        // ✅ 세션 종료 처리
-        session.on('sessionDisconnected', () => {
-          console.log('🧹 세션 종료: videoRefs 초기화');
-          videoRefs.current.clear();
-          setSubscribers([]);
-        });
-
-      } catch (error) {
-        console.error('🚨 세션 접속 실패:', error);
-        if (!((error as any)?.response?.status === 409)) {
-          setModalMessage('연결 중 오류가 발생했습니다.');
-          setIsModalOpen(true);
-        }
       }
-    };
+    }
 
-    joinSession();
+    // subscribers 상태 업데이트 (중복 제거)
+    setSubscribers((prev) => {
+      const unique = new Map(prev.map((sub) => [sub.stream?.streamId, sub]));
+      unique.set(streamId, subscriber);
+      return Array.from(unique.values());
+    });
+  };
 
+  const handleStreamDestroyed = (event: any) => {
+    const streamId = event.stream.streamId;
+    console.log(`❌ 스트림 종료: ${streamId}`);
+    setSubscribers(prev => 
+      prev.filter(sub => sub.stream?.streamId !== streamId)
+    );
+    videoRefs.current.delete(streamId);
+  };
+
+  const handleSessionException = (exception: any) => {
+    console.warn('⚠️ 세션 예외 발생:', exception);
+    if (exception.name === 'ICE_CONNECTION_FAILED') {
+      setModalMessage('네트워크 연결에 문제가 발생했습니다.');
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleSessionDisconnected = () => {
+    console.log('🧹 세션 종료: 리소스 정리');
+    videoRefs.current.clear();
+    setSubscribers([]);
+  };
+
+  // 세션 이벤트 리스너 관리
+  useEffect(() => {
+    const session = sessionRef.current;
+    if (!session) return;
+
+    // 기존 모든 리스너 제거
+    session.off('streamCreated');
+    session.off('streamDestroyed');
+    session.off('exception');
+    session.off('sessionDisconnected');
+    console.log('🧹 기존 세션 리스너 제거 완료');
+
+    // 리스너 재등록
+    session.on('streamCreated', handleStreamCreated);
+    session.on('streamDestroyed', handleStreamDestroyed);
+    session.on('exception', handleSessionException);
+    session.on('sessionDisconnected', handleSessionDisconnected);
+    console.log('✅ 세션 리스너 등록 완료');
+
+    // useEffect 클린업
     return () => {
-      mounted = false;
-      if (sessionRef.current) {
-        try {
-          sessionRef.current.disconnect();
-        } catch (error) {
-          console.error('🧹 세션 종료 중 에러:', error);
-        }
-      }
-      videoRefs.current.clear();
+      session.off('streamCreated');
+      session.off('streamDestroyed');
+      session.off('exception');
+      session.off('sessionDisconnected');
+      console.log('🧹 모든 세션 리스너 클린업 완료');
     };
-  }, [sessionId, navigate]);
+  }, [subscribers]);
 
   /** 🎥 카메라 ON/OFF */
   const handleToggleCamera = async () => {
