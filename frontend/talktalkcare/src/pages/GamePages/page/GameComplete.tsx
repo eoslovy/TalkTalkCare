@@ -1,51 +1,108 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ReactCanvasConfetti from 'react-canvas-confetti';
+import type { CreateTypes } from 'canvas-confetti';
 import './GameComplete.css';
 
-interface Reward {
-  image: string;
-  name: string;
-}
-
 interface GameCompleteProps {
-  rewards: Reward[];
-  onRestart: () => void;
-  onHome: () => void;
   isForceQuit?: boolean;
-  currentLevel?: number;
   completedLevel?: number;
+  onRestart?: () => void;
+  previousGame?: string;
 }
 
-const GameComplete: React.FC<GameCompleteProps> = ({ 
-  rewards, 
-  onRestart, 
-  onHome,
-  isForceQuit = false,
-  currentLevel = 1,
-  completedLevel = 0
-}) => {
-  const earnedRewards = rewards.slice(0, completedLevel);
+const GameComplete: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isForceQuit = false, completedLevel = 0, previousGame } = location.state || {};
+
+  const handleRestart = () => {
+    navigate('/game', { 
+      state: { 
+        gameId: previousGame, 
+      } 
+    });
+  };
+
+  const handleHome = () => {
+    navigate('/game');
+  };
+
+  const allMedals = [
+    {
+      src: '/images/bronzebrain.png',
+      alt: 'Bronze Medal',
+      level: 1,
+      delay: 0
+    },
+    {
+      src: '/images/silverbrain.png',
+      alt: 'Silver Medal',
+      level: 2,
+      delay: 0.5
+    },
+    {
+      src: '/images/goldbrain.png',
+      alt: 'Gold Medal',
+      level: 3,
+      delay: 1
+    }
+  ];
 
   return (
-    <div className="completion-screen">
-      <h2>{isForceQuit ? "고생하셨습니다!" : "축하합니다!"}</h2>
-      
-      <div className="rewards">
-        {earnedRewards.map((reward, index) => (
-          <img 
-            key={index}
-            src={reward.image} 
-            alt={reward.name} 
-            className="reward-icon" 
-          />
-        ))}
-      </div>
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-grow flex items-center justify-center bg-gray-100 py-8">
+        <div className="bg-white rounded-lg p-12 shadow-xl max-w-2xl w-full text-center m-4">
+          <h2 className={`text-4xl font-bold mb-8 ${completedLevel === 3 && !isForceQuit ? 'animate-bounce' : ''}`}>
+            {isForceQuit ? "고생하셨습니다!" : 
+             completedLevel === 3 ? "축하합니다! 모든 단계를 클리어하셨습니다!" : "고생하셨습니다!"}
+          </h2>
+          
+          <div className="my-12 flex justify-center gap-16">
+            {allMedals
+              .filter(medal => medal.level <= completedLevel)
+              .map((medal, index) => (
+                <div 
+                  key={index} 
+                  className={`w-48 h-48 transition-all duration-500 opacity-0 scale-50
+                    animate-medal
+                  `}
+                  style={{
+                    animationDelay: `${medal.delay}s`,
+                    animationFillMode: 'forwards'
+                  }}
+                >
+                  <img 
+                    src={medal.src}
+                    alt={medal.alt}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      console.error('Image failed to load:', medal.src);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+            ))}
+          </div>
 
-      <div className="completion-buttons">
-        <button onClick={onHome}>메인으로 가기</button>
-        <button onClick={onRestart}>한번 더 하기</button>
-      </div>
+          <div className="flex justify-center gap-6 mt-8">
+            <button
+              onClick={handleRestart}
+              className="bg-blue-500 text-white px-8 py-3 text-lg rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              다시 한번 게임하기
+            </button>
+            <button
+              onClick={handleHome}
+              className="bg-gray-500 text-white px-8 py-3 text-lg rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              목록으로 나가기
+            </button>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
 
-export default GameComplete; 
+export default GameComplete;

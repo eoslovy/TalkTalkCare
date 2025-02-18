@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './MemoryGame.css';
-import goldBrain from '../assets/goldbrain.png';
-import silverBrain from '../assets/silverbrain.png';
-import bronzeBrain from '../assets/bronzebrain.png';
 import GameComplete from '../GameComplete';
 import GamePage from '../GamePage';
 

@@ -8,6 +8,7 @@ interface GamePageProps {
   children: React.ReactNode;
   onRestart?: () => void;
   gameStarted?: boolean;
+  onTimeUpdate?: (currentTime: number) => void;
 }
 
 const DEFAULT_TIME_LIMIT = 60;
@@ -17,7 +18,8 @@ const GamePage: React.FC<GamePageProps> = ({
   timeLimit, 
   children, 
   onRestart,
-  gameStarted = false 
+  gameStarted = false,
+  onTimeUpdate 
 }) => {
   const navigate = useNavigate();
   const actualTimeLimit = timeLimit || DEFAULT_TIME_LIMIT;
@@ -40,17 +42,20 @@ const GamePage: React.FC<GamePageProps> = ({
     if (gameStarted && currentTime > 0) {
       const interval = setInterval(() => {
         setCurrentTime(prev => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            return 0;
+          const newTime = prev <= 1 ? 0 : prev - 1;
+          if (onTimeUpdate) {
+            onTimeUpdate(newTime);
           }
-          return prev - 1;
+          if (newTime === 0) {
+            clearInterval(interval);
+          }
+          return newTime;
         });
       }, 1000);
 
       return () => clearInterval(interval);
     }
-  }, [gameStarted, currentTime]);
+  }, [gameStarted, currentTime, onTimeUpdate]);
 
   useEffect(() => {
     setTimePercentage((currentTime / actualTimeLimit) * 100);

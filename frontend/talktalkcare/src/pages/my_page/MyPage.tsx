@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Loader2 } from 'lucide-react';
 import PentagonGraph from '../../components/my_page/graph/PentagonGraph';
@@ -28,6 +28,7 @@ const MyPage = () => {
   const [isGuardianAnalysisLoading, setIsGuardianAnalysisLoading] = useState(false);
 
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  
   const [gameScores, setGameScores] = useState<{ [key: number]: number }>({});
 
   const userId = localStorage.getItem('userId');
@@ -40,11 +41,12 @@ const MyPage = () => {
   }, [isLoggedIn]);
 
   const handleUserInfoClick = () => {
+    console.log('회원 정보 버튼 클릭됨'); // 로그 확인용
     if (userInfo) {
+      console.log('이동할 userInfo:', userInfo); // userInfo 값 확인
       navigate('/userinfopage', { state: { userInfo } });
     }
-  };
-
+  };  
 
   const fetchUserInfo = async () => {
     if (!userId) return;
@@ -141,21 +143,22 @@ const MyPage = () => {
     }
   }, [isLoggedIn, activeTab]);
 
+
   return (
     <div className="my-page-container">
       <div className="profile-section">
-        <div 
-          className="profile-image-container" 
-          onClick={handleUserInfoClick}
-          style={{ cursor: 'pointer' }}
-        >
+        <div className="profile-image-container">
+          <input
+            type="file"
+            style={{ display: "none" }}
+            accept="image/*"
+          />
           <div className="profile-image">
-            <User size={64} />
             {userInfo?.s3Filename ? (
               <img 
                 src={userInfo.s3Filename} 
                 alt="프로필" 
-                style={{ width: '64px', height: '64px', borderRadius: '50%' }}
+                style={{ width: '120px', height: '120px', borderRadius: '50%' }}
               />
             ) : (
               <User size={64} />
@@ -186,10 +189,10 @@ const MyPage = () => {
         </button>
       </div>
 
-      <div className="analysis-content" style={{backgroundColor: 'white'}}>
+      <div className="analysis-content">
         {activeTab === 'game' && (
           <div className="game-analysis">
-            <h3>게임 역량별 점수</h3>
+            <h3 className='score-name'>게임 역량별 점수</h3>
             <div className="pentagon-graph-container">
               <PentagonGraph scores={gameScores} />
             </div>
@@ -198,7 +201,7 @@ const MyPage = () => {
 
         {activeTab === 'test' && (
           <div className="test-analysis">
-            <div className="test-tabs">
+            <div className="small-test-tabs">
               <button
                 className={`test-tab-button ${activeTestTab === 'user' ? 'active' : ''}`}
                 onClick={() => setActiveTestTab('user')}

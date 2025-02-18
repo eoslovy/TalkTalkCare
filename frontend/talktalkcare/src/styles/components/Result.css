@@ -119,6 +119,7 @@
   background-color: #a5d6a7;
   box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.3);
   transform: scale(1.05);
+  cursor: pointer;
 }
 
 /* 게임 버튼 크기 조정 및 글자 박스 내 정렬 */

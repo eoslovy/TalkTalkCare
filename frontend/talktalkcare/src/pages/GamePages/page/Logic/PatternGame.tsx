@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './PatternGame.css';
 import GamePage from '../GamePage';
-import GameOverModal from '../GameOverModal'; // GameOverModal 컴포넌트를 임포트
+import GameMiddleTermModal from '../GameMiddleTermModal.tsx';
 import { gameService } from '../../../../services/gameService';
 import { GAME_IDS } from '../../gameIds';
 
@@ -30,6 +30,7 @@ const PatternGame: React.FC = () => {
   const [currentPattern, setCurrentPattern] = useState<CurrentPattern | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false); // 게임 오버 모달 표시 여부
+  const [showMiddleTermModal, setShowMiddleTermModal] = useState<boolean>(false);
 
   const patterns: Pattern[] = [
     {
@@ -278,10 +279,12 @@ const PatternGame: React.FC = () => {
           )}
         </div>
       )}
-      <GameOverModal 
+      <GameMiddleTermModal 
         open={showGameOverModal} 
-        score={score} 
         message="시간이 종료되었습니다!" 
+        stage={level}
+        stageResults={[]}
+        onExit={() => setShowMiddleTermModal(false)}
       />
     </GamePage>
   );

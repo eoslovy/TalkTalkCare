@@ -48,15 +48,15 @@ const PentagonGraph: React.FC<PentagonGraphProps> = ({
 
   return (
     <div className="pentagon-graph">
-      <svg width="300" height="300" viewBox="0 0 300 300">
+      <svg width="400" height="400" viewBox="-50 -50 400 400">
         {/* 배경 오각형들 */}
         {levelPoints.map((points, i) => (
           <polygon
             key={i}
             points={points.map(p => `${p.x},${p.y}`).join(' ')}
             fill="none"
-            stroke="#e5e7eb"
-            strokeWidth="1"
+            stroke="#214005"
+            strokeWidth="3"
           />
         ))}
 
@@ -66,12 +66,12 @@ const PentagonGraph: React.FC<PentagonGraphProps> = ({
           fill="#4CAF50"
           fillOpacity="0.3"
           stroke="#4CAF50"
-          strokeWidth="2"
+          strokeWidth="1"
         />
 
         {/* 라벨 */}
         {angles.map((angle, i) => {
-          const labelPoint = getPoint(angle, radius * 1.2);
+          const labelPoint = getPoint(angle, radius * 1.4);
           const categoryId = i + 1;
           return (
             <text
@@ -80,8 +80,8 @@ const PentagonGraph: React.FC<PentagonGraphProps> = ({
               y={labelPoint.y}
               textAnchor="middle"
               dominantBaseline="middle"
-              fontSize="12"
-              fill="#666"
+              fontSize="20"
+              fill="#214005"
             >
               {categoryLabels[categoryId]}
             </text>

@@ -27,14 +27,6 @@
   position: relative;
 }
 
-.profile-image {
-  width: 120px;
-  height: 120px;
-  border-radius: 50px;
-  object-fit: cover;
-  background-color: #e5e7eb;
-}
-
 .camera-icon {
   position: absolute;
   bottom: 10px;

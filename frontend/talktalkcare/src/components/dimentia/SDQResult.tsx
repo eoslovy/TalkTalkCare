@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import '../../styles/components/Result.css';
+import LoadingModal from '../LoadingModal'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 console.log(import.meta.env.VITE_API_BASE_URL);
@@ -42,6 +43,7 @@ const Result: React.FC = () => {
         if (!userId) return;
     
         try {
+            setIsLoading(true);  // Start loading
             const url = new URL(`${BASE_URL}/dementia-test/analysis`);
             url.searchParams.append('userId', userId);
             url.searchParams.append('requestType', '2');
@@ -67,8 +69,11 @@ const Result: React.FC = () => {
             }  
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsLoading(false);
         }
     };
+
 
     return (
         <div className="result-container">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import '../../styles/components/Result.css';
+import LoadingModal from '../LoadingModal'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 console.log(import.meta.env.VITE_API_BASE_URL);
@@ -42,6 +43,7 @@ const Result: React.FC = () => {
         if (!userId) return;
     
         try {
+            setIsLoading(true);  // Start loading
             const url = new URL(`${BASE_URL}/dementia-test/analysis`);
             url.searchParams.append('userId', userId);
             url.searchParams.append('requestType', '1');
@@ -53,7 +55,7 @@ const Result: React.FC = () => {
     
             // 응답 없으면 메세지
             if (!response.ok) {
-                console.warn("📌 검사 횟수가 1회뿐이므로 AI 분석이 불가능합니다.");
+                // console.warn("📌 검사 횟수가 1회뿐이므로 AI 분석이 불가능합니다.");
                 setAiAnalysisMessage("AI 분석 결과를 제공하려면 최소 2번의 검사가 필요합니다. \n다음 검사 후 결과를 확인할 수 있습니다. \n톡톡케어의 게임을 먼저 즐겨주세요!");
                 return;
             }
@@ -68,11 +70,15 @@ const Result: React.FC = () => {
             }  
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsLoading(false);
         }
     };
     
     return (
         <div className="result-container">
+            {isLoading && <LoadingModal />}
+
             <div className="content-section">
                 <h2 className='result-title'>치매진단<br />테스트 결과</h2>
                 
@@ -91,6 +97,8 @@ const Result: React.FC = () => {
                 <div className="button-group" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
                     {isLoggedIn ? (
                         <>
+                                                    {/* {state?.testType === 'SDQ' && ( */}
+
                             <button 
                                 className="ai-analysis-button" 
                                 onClick={fetchAiAnalysis}
