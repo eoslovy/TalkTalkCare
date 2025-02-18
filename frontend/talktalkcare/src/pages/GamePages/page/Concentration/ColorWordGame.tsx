@@ -126,12 +126,12 @@ const ColorWordGame: React.FC = () => {
     // 보기 순서 섞기
     const shuffledChoices = shuffleArray(choices);
 
+    setTimeLeft(stageConfig[stage as keyof typeof stageConfig].time);
     setCurrentWord(newWord);
     setCurrentChoices(shuffledChoices);
     setCurrentQuestion(`이 단어${questionType} 색상을 선택하세요`);
     setMessage('');
     setGameStarted(true);
-    setTimeLeft(stageConfig[stage as keyof typeof stageConfig].time);
   };
 
   const checkAnswer = (selectedColor: string): void => {
@@ -276,10 +276,10 @@ const ColorWordGame: React.FC = () => {
       ) : (
         <GamePage 
           title="색깔 단어 읽기"
-          timeLimit={timeLeft ?? undefined}
+          timeLimit={stageConfig[stage as keyof typeof stageConfig].time}
           onRestart={handleRestart}
           gameStarted={gameStarted}
-          onTimeUpdate={handleTimeUpdate}  // 시간 업데이트 콜백 추가
+          onTimeUpdate={handleTimeUpdate}
         >
           {!gameStarted ? (
             <div className="instructions">
