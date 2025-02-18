@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import GameListPage from '../../pages/GamePages/GameListPage'; // 실제 경로
 import '../../styles/components/VideoCall.css';
 
+interface StreamReconnectData {
+  streamId: string;
+  userId: string | null;
+}
+
 const VideoCall: React.FC = () => {
   const navigate = useNavigate();
 
@@ -16,68 +21,192 @@ const VideoCall: React.FC = () => {
 
   const sessionId = localStorage.getItem('currentSessionId') || 'default-session';
 
-  const MAX_RETRY_COUNT = 3;  // 최대 재시도 횟수
+  const MAX_RETRY_COUNT = 3;
+  const RETRY_DELAY = 2000;
+  
+  const retryCountRef = useRef<number>(0);
+  const [connectionState, setConnectionState] = useState<string>('');
+  const [isReconnecting, setIsReconnecting] = useState<boolean>(false);
 
   const subscribeStream = async (session: Session, stream: any, retryCount = 0) => {
+    if (!stream || !stream.streamId || !session.connection) {
+      console.log('유효하지 않은 스트림 또는 세션:', stream?.streamId);
+      return null;
+    }
+
+    if (connectionState === 'closed' || connectionState === 'failed') {
+      console.log('연결이 이미 종료됨');
+      return null;
+    }
+
     try {
       const subscriber = session.subscribe(stream, undefined);
       console.log('✅ 신규 스트림 구독 성공:', stream.streamId);
       return subscriber;
     } catch (error) {
       console.error(`구독 실패 (시도 ${retryCount}):`, error);
+      
       if (retryCount < MAX_RETRY_COUNT) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const streamExists = session.streamManagers.some(
+          sm => sm.stream?.streamId === stream.streamId
+        );
+        
+        if (!streamExists) {
+          console.log('스트림이 더 이상 존재하지 않음:', stream.streamId);
+          return null;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
         return subscribeStream(session, stream, retryCount + 1);
       } else {
         console.error('최대 재시도 횟수 초과:', stream.streamId);
-        throw error;
+        return null;
       }
     }
   };
 
   useEffect(() => {
     let mounted = true;
+    let retryTimeout: NodeJS.Timeout;
 
     const joinSession = async () => {
+      if (retryCountRef.current >= MAX_RETRY_COUNT) {
+        console.log('최대 재연결 시도 횟수 초과');
+        handleLeaveSession();
+        return;
+      }
+
       try {
+        setIsReconnecting(true);
+
         if (sessionRef.current) {
-          sessionRef.current.disconnect();
+          await sessionRef.current.disconnect();
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
+
         const { session, publisher } = await openviduService.joinSession(sessionId);
         if (!mounted) return;
 
         sessionRef.current = session;
         publisherRef.current = publisher;
+        retryCountRef.current = 0;
+        setIsReconnecting(false);
+
+        if (publisher.stream && publisher.stream.getWebRtcPeer()) {
+          const rtcPeer = publisher.stream.getWebRtcPeer();
+          const pc = (rtcPeer as any).peerConnection;
+          
+          if (pc) {
+            pc.addEventListener('connectionstatechange', () => {
+              const currentState = pc.connectionState;
+              if (currentState) {
+                setConnectionState(currentState);
+                console.log('WebRTC 연결 상태 변경:', currentState);
+              }
+            });
+          }
+        }
 
         session.on('streamCreated', async (event) => {
+          if (!mounted) return;
+          
+          console.log('새 스트림 생성됨:', event.stream.streamId);
+          
           try {
+            if (connectionState === 'closed' || connectionState === 'failed') {
+              console.log('연결이 유효하지 않아 구독 건너뜀');
+              return;
+            }
+
             const subscriber = await subscribeStream(session, event.stream);
-            if (!mounted) return;
+            if (!mounted || !subscriber) return;
             
             setSubscribers(prev => {
-              const exists = prev.some(sub => sub.stream?.streamId === event.stream.streamId);
-              if (!exists) {
-                return [...prev, subscriber];
-              }
-              return prev;
+              const filteredPrev = prev.filter(sub => {
+                if (sub.stream?.streamId === event.stream.streamId) {
+                  try {
+                    sub.stream.disposeWebRtcPeer();
+                    sub.stream.disposeMediaStream();
+                  } catch (e) {
+                    console.warn('스트림 정리 중 에러:', e);
+                  }
+                  return false;
+                }
+                return true;
+              });
+              return [...filteredPrev, subscriber];
             });
+
+            session.signal({
+              type: 'streamReconnected',
+              data: JSON.stringify({
+                streamId: event.stream.streamId,
+                userId: localStorage.getItem('userId')
+              })
+            });
+
           } catch (error) {
             console.error('신규 스트림 구독 중 최종 에러:', error);
+            if (mounted && retryCountRef.current < MAX_RETRY_COUNT) {
+              retryCountRef.current++;
+              retryTimeout = setTimeout(() => {
+                console.log(`세션 재연결 시도 (${retryCountRef.current}/${MAX_RETRY_COUNT})...`);
+                joinSession();
+              }, RETRY_DELAY);
+            }
+          }
+        });
+
+        session.on('signal:streamReconnected', (event) => {
+          try {
+            if (!event.data) {
+              throw new Error('신호 데이터가 없습니다');
+            }
+            const data = JSON.parse(event.data) as StreamReconnectData;
+            console.log(`상대방(${data.userId})이 재연결됨. 스트림 ID: ${data.streamId}`);
+          } catch (error) {
+            console.error('재연결 신호 파싱 에러:', error);
           }
         });
 
         session.on('streamDestroyed', (event) => {
           console.log('❌ 스트림 종료:', event.stream.streamId);
+          
           setSubscribers(prev => 
-            prev.filter(sub => sub.stream?.streamId !== event.stream.streamId)
+            prev.filter(sub => {
+              if (sub.stream?.streamId === event.stream.streamId) {
+                try {
+                  sub.stream.disposeWebRtcPeer();
+                  sub.stream.disposeMediaStream();
+                } catch (e) {
+                  console.warn('스트림 정리 중 에러:', e);
+                }
+                return false;
+              }
+              return true;
+            })
           );
         });
 
-        session.on('sessionDisconnected', (event) => {
+        session.on('sessionDisconnected', async (event) => {
           console.log('세션 연결 종료:', event.reason);
-          setSubscribers([]);
-          if (event.reason !== 'disconnect') {
-            handleLeaveSession();
+          setSubscribers(prev => {
+            prev.forEach(sub => {
+              try {
+                sub.stream?.disposeWebRtcPeer();
+                sub.stream?.disposeMediaStream();
+              } catch (e) {
+                console.warn('스트림 정리 중 에러:', e);
+              }
+            });
+            return [];
+          });
+          
+          if (event.reason !== 'disconnect' && mounted) {
+            retryTimeout = setTimeout(() => {
+              console.log('세션 재연결 시도...');
+              joinSession();
+            }, 2000);
           }
         });
 
@@ -87,19 +216,45 @@ const VideoCall: React.FC = () => {
         });
       } catch (error) {
         console.error('세션 접속 실패:', error);
-        alert('세션 접속에 실패했습니다.');
-        navigate('/');
+        if (mounted && retryCountRef.current < MAX_RETRY_COUNT) {
+          retryCountRef.current++;
+          retryTimeout = setTimeout(() => {
+            console.log(`세션 재연결 시도 (${retryCountRef.current}/${MAX_RETRY_COUNT})...`);
+            joinSession();
+          }, RETRY_DELAY);
+        } else {
+          alert('연결 실패가 반복되어 세션을 종료합니다.');
+          handleLeaveSession();
+        }
       }
     };
 
-    joinSession();
+    // 페이지 로드 시 세션 ID가 있으면 자동 연결
+    if (sessionId && sessionId !== 'default-session') {
+      joinSession();
+    }
 
     return () => {
       mounted = false;
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+      retryCountRef.current = MAX_RETRY_COUNT;
+      
       if (sessionRef.current) {
         try {
+          setSubscribers(prev => {
+            prev.forEach(sub => {
+              try {
+                sub.stream?.disposeWebRtcPeer();
+                sub.stream?.disposeMediaStream();
+              } catch (e) {
+                console.warn('스트림 정리 중 에러:', e);
+              }
+            });
+            return [];
+          });
           sessionRef.current.disconnect();
-          setSubscribers([]);
         } catch (error) {
           console.error('세션 종료 중 에러:', error);
         }
@@ -151,6 +306,11 @@ const VideoCall: React.FC = () => {
 
   return (
     <div className="videocall-container">
+      {isReconnecting && (
+        <div className="reconnecting-overlay">
+          <p>재연결 중...</p>
+        </div>
+      )}
       <header className="videocall-header">
         <h1>화상 통화 중</h1>
         <div className="control-buttons">
