@@ -2,9 +2,7 @@
 .videocall-container {
   display: flex;
   flex-direction: column;
-  /* Footer가 있으므로 전체 높이를 조금 줄이거나,
-     calc(100vh - 푸터높이) 형태로 조절 가능 */
-  height: calc(100vh - 80px); /* 예: Footer 높이가 대략 80px이라 가정 */
+  height: auto;
 }
 
 /* 상단 헤더 */
@@ -28,6 +26,7 @@
   flex: 1;
   display: flex;
   margin: 0 50px; /* 좌우에 20px의 마진 추가 */
+  height: auto;
 }
 
 /* 왼쪽: 화상통화 섹션 (위아래 2분할) */
