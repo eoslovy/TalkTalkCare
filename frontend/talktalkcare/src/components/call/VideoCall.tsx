@@ -8,17 +8,17 @@ import CustomModal from '../CustomModal';
 
 const VideoCall: React.FC = () => {
   const navigate = useNavigate();
-
+  const sessionId = localStorage.getItem('currentSessionId') || 'default-session';
+  
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string>('');
-
-  const sessionRef = useRef<Session | null>(null);
-  const publisherRef = useRef<Publisher | null>(null);
-
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [isVideoEnabled, setIsVideoEnabled] = useState<boolean>(true);
 
-  const sessionId = localStorage.getItem('currentSessionId') || 'default-session';
+  const sessionRef = useRef<Session | null>(null);
+  const publisherRef = useRef<Publisher | null>(null);
+  const videoRefs = useRef<HTMLVideoElement[]>([]);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -40,38 +40,28 @@ const VideoCall: React.FC = () => {
           const pc = (rtcPeer as any).peerConnection;
           
           if (pc) {
-            // ICE 연결 상태 모니터링
-            pc.addEventListener('iceconnectionstatechange', () => {
-              console.log('ICE 연결 상태:', pc.iceConnectionState);
+            pc.oniceconnectionstatechange = async () => {
+              console.log(`🧊 ICE 상태: ${pc.iceConnectionState}`);
               if (pc.iceConnectionState === 'failed') {
-                console.log('TURN 서버를 통한 재연결 시도...');
-                pc.restartIce();
-                setModalMessage('네트워크 연결 문제가 발생했습니다. 재연결을 시도합니다.');
-                setIsModalOpen(true);
+                console.log('⚠️ ICE 연결 실패: 재연결 시도');
+                await pc.restartIce();
               }
-            });
+            };
 
-            // 연결 상태 모니터링
-            pc.addEventListener('connectionstatechange', () => {
-              console.log('연결 상태:', pc.connectionState);
-              if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-                setModalMessage('연결이 끊어졌습니다. 재연결을 시도합니다.');
-                setIsModalOpen(true);
-              }
-            });
+            pc.onconnectionstatechange = () => {
+              console.log(`🔌 Connection 상태: ${pc.connectionState}`);
+            };
 
-            pc.addEventListener('icegatheringstatechange', () => {
-              console.log('ICE Gathering 상태:', pc.iceGatheringState);
-            });
-
-            pc.addEventListener('icecandidate', (event: RTCPeerConnectionIceEvent) => {
-              if (event.candidate) {
-                console.log('ICE candidate:', event.candidate.candidate);
-              } else {
-                console.log('ICE 후보 수집 완료');
-              }
-            });
+            pc.ontrack = (event: RTCTrackEvent) => {
+              console.log(`🎥 트랙 수신: ${event.track.kind}, 상태: ${event.track.readyState}`);
+            };
           }
+        }
+
+        // 로컬 비디오 바인딩
+        if (localVideoRef.current && publisher) {
+          publisher.addVideoElement(localVideoRef.current);
+          console.log('✅ 로컬 비디오 바인딩 완료');
         }
 
         // OpenVidu 세션 이벤트
@@ -79,21 +69,28 @@ const VideoCall: React.FC = () => {
           try {
             const subscriber = session.subscribe(event.stream, undefined);
             console.log('✅ 신규 스트림 추가됨:', event.stream.streamId);
-            
-            // trackPlaying 이벤트 추가
-            subscriber.on('videoElementCreated', (event) => {
-              console.log('비디오 엘리먼트 생성됨:', event.element);
-              event.element.addEventListener('play', () => {
-                console.log('🎉 비디오 재생 시작');
+
+            subscriber.on('videoElementCreated', (ev) => {
+              const videoElement = ev.element as HTMLVideoElement;
+              videoElement.setAttribute('playsinline', 'true');
+              videoElement.autoplay = true;
+              videoElement.controls = false;
+              console.log('🎥 구독자 비디오 엘리먼트 바인딩 완료');
+
+              // 비디오 트랙 상태 확인
+              const stream = subscriber.stream.getMediaStream();
+              stream.getVideoTracks().forEach((track) => {
+                console.log('📹 구독자 비디오 트랙 상태:', {
+                  enabled: track.enabled,
+                  muted: track.muted,
+                  readyState: track.readyState,
+                });
               });
+
+              // 구독자 목록에 추가
+              setSubscribers(prev => [...prev, subscriber]);
             });
 
-            setSubscribers(prev => {
-              if (prev.some(sub => sub.stream?.streamId === event.stream.streamId)) {
-                return prev;
-              }
-              return [...prev, subscriber];
-            });
           } catch (error) {
             console.error('신규 스트림 구독 중 에러:', error);
           }
@@ -125,7 +122,7 @@ const VideoCall: React.FC = () => {
 
       } catch (error) {
         console.error('세션 접속 실패:', error);
-        setModalMessage('일시적인 서버 오류가 발생했습니다.');
+        setModalMessage('연결 중 오류가 발생했습니다.');
         setIsModalOpen(true);
       }
     };
@@ -143,22 +140,6 @@ const VideoCall: React.FC = () => {
       }
     };
   }, [sessionId, navigate]);
-
-  useEffect(() => {
-    if (publisherRef.current) {
-      const localVideo = document.getElementById('local-video') as HTMLVideoElement;
-      if (localVideo) {
-        publisherRef.current.addVideoElement(localVideo);
-      }
-    }
-
-    subscribers.forEach((sub, index) => {
-      const remoteVideo = document.getElementById(`remote-video-${index}`) as HTMLVideoElement;
-      if (remoteVideo) {
-        sub.addVideoElement(remoteVideo);
-      }
-    });
-  }, [subscribers]);
 
   const handleToggleCamera = async () => {
     if (publisherRef.current) {
@@ -221,10 +202,10 @@ const VideoCall: React.FC = () => {
         <div className="video-section">
           <div className="video-row local">
             <video
-              id="local-video"
+              ref={localVideoRef}
               autoPlay
               playsInline
-              muted // 자기 소리는 음소거
+              muted
             />
             <p>나</p>
           </div>
@@ -233,7 +214,7 @@ const VideoCall: React.FC = () => {
             {subscribers.map((subscriber, index) => (
               <div key={subscriber.stream?.streamId} className="remote-video-container">
                 <video
-                  id={`remote-video-${index}`}
+                  ref={el => videoRefs.current[index] = el!}
                   autoPlay
                   playsInline
                 />
@@ -246,11 +227,16 @@ const VideoCall: React.FC = () => {
           </div>
         </div>
 
-        {/* 오른쪽: 게임 리스트 */}
         <div className="game-section">
           <WsGameListPage />
         </div>
       </div>
+
+      <CustomModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        message={modalMessage}
+      />
     </div>
   );
 };
