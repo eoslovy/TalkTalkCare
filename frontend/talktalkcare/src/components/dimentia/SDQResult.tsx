@@ -77,6 +77,8 @@ const Result: React.FC = () => {
 
     return (
         <div className="result-container">
+            {isLoading && <LoadingModal />}
+
             <div className="content-section">
                 <h2 className='result-title'>치매진단<br />테스트 결과</h2>
 
@@ -117,21 +119,20 @@ const Result: React.FC = () => {
                             </p>
                             <button 
                                 onClick={() => navigate('/login')}
-                                className="login-button-1"
-                            >
+                                className="login-button-1">
                                 로그인
                             </button>
                             
                             <button 
                                 onClick={() => navigate('/sign-up')}
-                                className="signup-button-1"                                >
+                                className="signup-button-1">
                                 회원가입
                             </button>
                         </>
                     )}
                 </div>
 
-                {aiAnalysis && (
+                {isLoggedIn && aiAnalysis && (
                     <div className="ai-analysis-result" style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', wordBreak: 'break-word' }}>
                         <h3>AI 분석 결과</h3>
                         <p>{aiAnalysis}</p>

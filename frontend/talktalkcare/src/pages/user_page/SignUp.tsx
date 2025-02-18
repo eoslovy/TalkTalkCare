@@ -6,7 +6,6 @@ import { UserSignupRequest } from '../../types/user';
 import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-
 const SignUp = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState(1);
@@ -21,6 +20,11 @@ const SignUp = () => {
     birthdate: '',
     passwordConfirm: ''
   });
+  // 모달 관련 선언
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+
   const navigate = useNavigate();
   const [smsVerificationCode, setSmsVerificationCode] = useState('');
   const [isSmsVerificationSent, setIsSmsVerificationSent] = useState(false);
@@ -43,24 +47,29 @@ const SignUp = () => {
       reader.readAsDataURL(file);
     }
   };
+  const openModal = (title: string, message: string) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalOpen(true);
+  };
 
   // 아이디 중복 확인
   const checkLoginId = async () => {
     try {
       const isAvailable = await authService.checkIdDuplicate(formData.loginId);
       if (isAvailable) {
-        alert('사용 가능한 아이디입니다.');
+        openModal('아이디 중복 확인', '사용 가능한 아이디입니다.');
         setIsLoginIdDuplicate(false);
         setIsLoginIdConfirmed(true); 
   
         // ✅ 아이디 중복 확인 후 "이름 입력 단계(step 2)"로 이동
         setStep(2);
       } else {
-        alert('이미 가입된 사용자입니다.');
+        openModal('아이디 중복 확인', '이미 가입된 사용자입니다.');
         setIsLoginIdDuplicate(true);
       }
     } catch (error) {
-      alert('아이디 중복 확인에 실패했습니다.');
+      openModal('오류', '아이디 중복 확인에 실패했습니다.');
     }
   };
   
@@ -70,11 +79,11 @@ const SignUp = () => {
       const response = await authService.sendSmsVerification(formData.phoneNumber);
       if(response) {
         setIsSmsVerificationSent(true);
-        alert('인증번호가 전송되었습니다.');
+        openModal('SMS 인증', '인증번호가 전송되었습니다.');
         setStep(4);
       }
     } catch (error) {
-        alert('SMS 인증번호 요청에 실패했습니다.');
+      openModal('오류', 'SMS 인증번호 요청에 실패했습니다.');
     }
   };
 
@@ -82,10 +91,10 @@ const SignUp = () => {
     try {
       await authService.verifySmsCode(formData.phoneNumber, smsVerificationCode);
       setIsSmsVerified(true);
-      alert('SMS 인증이 완료되었습니다.');
+      openModal('SMS 인증', 'SMS 인증이 완료되었습니다.');
       setStep(5);
     } catch (error) {
-      alert('SMS 인증번호가 일치하지 않습니다.');
+      openModal('오류', 'SMS 인증번호가 일치하지 않습니다.');
     }
   };
 
@@ -141,15 +150,15 @@ const SignUp = () => {
       console.log('회원가입 응답:', response);  // 응답 확인용
       
       // 에러가 발생하지 않으면 성공으로 처리
-      alert('회원가입이 완료되었습니다.');
+      openModal('회원가입', '회원가입이 완료되었습니다.');
       navigate('/login');  // 로그인 페이지로 이동
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('에러 응답 데이터:', error.response?.data);
         const errorMessage = error.response?.data?.result?.msg;
-        alert(errorMessage || '회원가입에 실패했습니다.');
+        openModal('오류', errorMessage || '회원가입에 실패했습니다.');
       } else {
-        alert('회원가입에 실패했습니다.');
+        openModal('오류', '회원가입에 실패했습니다.');
       }
     }
   };
@@ -174,9 +183,6 @@ const SignUp = () => {
                   <User size={40} />
                 </div>
               )}
-              <div className="camera-icon">
-                <Camera size={20} />
-              </div>
             </div>
             <input
               type="file"
@@ -185,8 +191,54 @@ const SignUp = () => {
               accept="image/*"
               style={{ display: 'none' }}
             />
-            <p>프로필 사진 등록</p>
+            <p className='profile-notice' onClick={handleImageClick}>프로필 사진 등록</p>
           </div>
+          
+          {modalOpen && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              padding: '20px',
+              borderRadius: '8px',
+              textAlign: 'center',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              maxWidth: '400px',
+              width: '80%'
+            }}>
+              <p className="text-xl" style={{ marginBottom: '20px' }}>{modalMessage}</p>
+              <button 
+                onClick={() => {
+                  setModalOpen(false);
+                  if (modalMessage === '회원가입이 완료되었습니다.') {
+                    navigate('/login');
+                  }
+                }}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#c8e6c9',
+                  color: '#214005',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        )}
 
           {/* 아이디 입력 */}
           {step >= 1 && (
@@ -196,7 +248,7 @@ const SignUp = () => {
               name="loginId"
               value={formData.loginId}
               onChange={handleChange}
-              placeholder="아이디를 입력하세요 (6자 이상)"
+              placeholder="아이디를 입력하세요 (영문, 숫자, 6자 이상)"
               disabled={isLoginIdConfirmed}
             />
             {step === 1 && (
@@ -287,7 +339,7 @@ const SignUp = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="비밀번호를 입력하세요 (8자 이상)"
+                placeholder="비밀번호를 입력하세요 (영문, 숫자, 8자 이상)"
               />
               <input
               type="password"
@@ -317,6 +369,9 @@ const SignUp = () => {
                 name="birthdate"
                 value={formData.birthdate}
                 onChange={handleChange}
+                placeholder="생년월일"
+                onFocus={(e) => (e.target.type = "date")}
+                onBlur={(e) => (e.target.type = "text")}
               />
               {step === 6 && (
                 <button 
@@ -324,7 +379,7 @@ const SignUp = () => {
                   className="next-button"
                   disabled={!formData.birthdate}
                 >
-                  다음
+                  완료
                 </button>
               )}
             </div>

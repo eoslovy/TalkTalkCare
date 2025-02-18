@@ -2,8 +2,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #F5FFEA;
+  padding: 100px;
+  margin-top: 40px;
 }
 
 .login-form {

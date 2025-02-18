@@ -27,34 +27,46 @@ const MainPage: React.FC = () => {
     setIsFriendListOpen(false);
   }, [location, setIsFriendListOpen]);
 
-  useEffect(() => {
-    // 5초 동안 로딩 상태 유지 후 로딩 완료 (데이터 불러오는 시뮬레이션)
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 5000);
-  }, []);
-
-
-  // 실제 API 요청시 걸리는 기간 동안 로딩 모달 띄우기
   // useEffect(() => {
-  //   const fetchFriends = async () => {
+  //   if (!userId) return;
+  //   // 초기 친구 목록 로드
+  //   const loadFriends = async () => {
+  //     if (!userId) return;
+  
   //     try {
   //       setIsLoading(true); // ✅ 로딩 시작
-  //       const response = await fetch('https://api.example.com/friends');
+  //       const response = await fetch(`${apiUrl}/friends/${userId}`, {
+  //         credentials: 'include'
+  //       });
   //       const data = await response.json();
-  //       setIsFriendListOpen(data);
+  //       if (data.result?.msg === 'success') {
+  //         setFriends(data.body || []);
+  //       }
   //     } catch (error) {
-  //       console.error('친구 목록 불러오기 실패:', error);
+  //       console.error('친구 목록 로드 실패:', error);
   //     } finally {
   //       setIsLoading(false); // ✅ 로딩 끝
   //     }
   //   };
+  //   });
+
+  useEffect(() => {
+    if (!userId) {
+      setIsLoading(false); // ✅ 로그인 안 된 경우 로딩 해제
+      return;
+    }
+    loadFriends();
+  }, [userId]);
 
   // 초기 친구 목록 로드
   const loadFriends = async () => {
-    if (!userId) return;
+    if (!userId) {
+      setIsLoading(false); // ✅ userId가 없으면 로딩 해제
+      return;
+    }
 
     try {
+      setIsLoading(true); // ✅ 로딩 시작
       const response = await fetch(`${apiUrl}/friends/${userId}`, {
         credentials: 'include'
       });
@@ -64,6 +76,8 @@ const MainPage: React.FC = () => {
       }
     } catch (error) {
       console.error('친구 목록 로드 실패:', error);
+    } finally {
+      setIsLoading(false); // ✅ 로딩 끝
     }
   };
 
@@ -135,6 +149,7 @@ const MainPage: React.FC = () => {
 
   return (
     <div className={`main-page-container ${isFriendListOpen ? 'friend-list-open' : ''}`}>
+      {isLoading && <LoadingModal />}
       <div className="main-page-content">
         {!isFriendListOpen && userId && (
           <div className="friend-list-toggle">

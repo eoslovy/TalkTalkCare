@@ -97,7 +97,7 @@ export const authService = {
   },
 
   login: async (loginData: LoginRequest) => {
-    try {
+    // try {
       const response = await axios.post(`${BASE_URL}/users/login`, {
         userLoginId: loginData.userLoginId,
         password: loginData.password,
@@ -109,17 +109,19 @@ export const authService = {
         withCredentials: true // 쿠키를 주고받을 수 있도록 설정
       });
 
+      if(response.data.result.msg==='success')  {
       // 응답에서 토큰을 받아와서 axios의 기본 헤더에 설정
       const token = response.data.body.token;
-      if (token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
+        if (token) {
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        }
+    }
 
       return response.data;
-    } catch (error) {
-      console.error('로그인 실패:', error);
-      throw error;
-    }
+    // } catch (error) {
+    //   console.error('로그인 실패:', error);
+    //   throw error;
+    // }
   },
   validateToken: async () => {
     try {

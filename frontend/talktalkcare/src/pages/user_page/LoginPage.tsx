@@ -4,10 +4,13 @@ import { authService } from '../../services/authService';
 import '../../styles/components/Login.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWebSocket } from '../../contexts/WebSocketContext';
+import CustomModal from '../../components/CustomModal';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { setIsLoggedIn, setUserName } = useAuth(); // 디스트럭처링 변경
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [modalMessage, setModalMessage] = useState<string>('');
   const [formData, setFormData] = useState({
     userLoginId: '',
     password: '',
@@ -24,7 +27,7 @@ const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
+    // try {
       const response = await authService.login(formData);
       
       if (response.result.msg === 'success') {
@@ -35,19 +38,18 @@ const Login: React.FC = () => {
   
         setIsLoggedIn(true);
         setUserName(response.body.username);
-     
-        // alert('로그인 성공!');
+
+        navigate('/', { replace: true });
+        
       } else {
-        alert(response.result.msg || '로그인에 실패했습니다.');
+        setModalMessage(response.result.msg || '로그인에 실패했습니다.');
+        setIsModalOpen(true);
       }
-      // 로그인 성공 여부와 관계없이 메인 페이지로 이동
-      navigate('/', { replace: true });
-    } catch (error) {
-      console.error('로그인 실패:', error);
-      alert('로그인 중 오류가 발생했습니다.');
-      // 에러가 발생해도 메인 페이지로 이동
-      navigate('/', { replace: true });
-    }
+    // } catch (error) {
+      // console.error('로그인 실패:', error);
+      // setModalMessage('일시적인 서버 오류가 발생했습니다.');
+      // setIsModalOpen(true);
+    // }
   };
 
   return (
@@ -93,6 +95,12 @@ const Login: React.FC = () => {
           >
             로그인
           </button>
+          <CustomModal
+              title="알림"
+              message={modalMessage}
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+            />
         </form>
 
         <div className="bottom-links">
@@ -100,7 +108,7 @@ const Login: React.FC = () => {
           <span className="divider">|</span>
           <span onClick={() => navigate('/find-password')}>비밀번호 찾기</span>
           <span className="divider">|</span>
-          <span onClick={() => navigate('/signup')}>회원가입</span>
+          <span onClick={() => navigate('/sign-up')}>회원가입</span>
         </div>
       </div>
     </div>

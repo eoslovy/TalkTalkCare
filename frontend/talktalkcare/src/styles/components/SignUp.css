@@ -1,7 +1,4 @@
 .signup-container {
-  width: 450px;              /* 고정된 너비 설정 (signup-content보다 약간 넓게) */
-  margin: 30px auto;         /* 상하 30px, 좌우 auto로 중앙 정렬 */
-  background-color: #F5FFEA;
   position: relative;
 }
 
@@ -15,7 +12,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  padding: 100px;
+  margin-top: 40px;
 }
 
 .signup-form {
@@ -57,6 +55,11 @@
   align-items: center;
   justify-content: center;
   color: #9ca3af;
+  background-color: #f5ffea;
+}
+
+.profile-placeholder:hover {
+  background-color: #c8e6c9;
 }
 
 .profile-preview {
@@ -65,23 +68,15 @@
   object-fit: cover;
 }
 
-.camera-icon {
-  position: absolute;
-  right: 0;
-  bottom: -15px;
-  background-color: #B6F3AA;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  z-index: 3;  /* 가장 높은 z-index */
-  transition: background-color 0.3s ease;
+.profile-notice {
+  background-color: #f5ffea;
+  padding: 5px 10px;
+  border-radius: 10px;
 }
 
-.camera-icon:hover {
-  background-color: #9FE895;
+.profile-notice:hover {
+  cursor: pointer;
+  background-color: #c8e6c9;
 }
 
 .input-group {
@@ -106,7 +101,7 @@
   width: 100%;
   padding: 0.8rem;
   margin-top: 0.5rem;
-  background-color: #B6F3AA;
+  background-color: #f5ffea;
   border: none;
   border-radius: 0.5rem;
   color: #214005;
@@ -117,13 +112,13 @@
 
 .next-button:disabled,
 .submit-button:disabled {
-  background-color: #e5e7eb;
+  background-color: #f5ffea;
   cursor: not-allowed;
 }
 
 .next-button:hover:not(:disabled),
 .submit-button:hover:not(:disabled) {
-  background-color: #9FE895;
+  background-color: #c8e6c9;
 }
 
 .nickname-container {
