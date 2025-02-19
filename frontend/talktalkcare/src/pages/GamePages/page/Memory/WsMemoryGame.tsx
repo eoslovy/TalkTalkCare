@@ -93,15 +93,37 @@ const WsMemoryGame: React.FC = () => {
             setPreviewTime(event.payload.previewTime);
             setCards(event.payload.cards);
             setIsPreview(event.payload.isPreview);
-            setGameStarted(true);  // 추가: 게임 시작 상태 동기화
+            setGameStarted(true);  // 게임 시작 상태 동기화
+          }
+          break;
+        case 'GAME_STATE_REQUEST':
+          // 이미 게임 중이면 현재 상태를 응답
+          if (gameStarted) {
+            sendEvent('GAME_STATE_RESPONSE', {
+              level,
+              timer,
+              previewTime,
+              cards,
+              isPreview,
+              gameStarted
+            });
+          }
+          break;
+        case 'GAME_STATE_RESPONSE':
+          // 아직 게임 시작 상태가 아니라면 업데이트
+          if (!gameStarted && event.payload) {
+            setLevel(event.payload.level);
+            setTimer(event.payload.timer);
+            setPreviewTime(event.payload.previewTime);
+            setCards(event.payload.cards);
+            setIsPreview(event.payload.isPreview);
+            setGameStarted(event.payload.gameStarted);
           }
           break;
         case 'MEMORY_CARD_FLIPPED': {
           const { cardId } = event.payload;
-          // 만약 해당 카드가 아직 뒤집히지 않았다면 반영
           if (!flipped.includes(cardId) && !matched.includes(cardId)) {
             setFlipped(prev => [...prev, cardId]);
-            // 만약 상대방이 이미 한 장 뒤집어 놓은 상태라면 매칭 로직 실행
             if (flipped.length === 1) {
               const firstCard = cards[flipped[0]];
               const secondCard = cards[cardId];
@@ -141,8 +163,17 @@ const WsMemoryGame: React.FC = () => {
           break;
       }
     });
-  // 필요한 상태나 함수가 바뀔 때마다 업데이트 (참고: 상황에 따라 useRef로 최신값 관리 고려)
-  }, [flipped, matched, cards, onGameSelected]);
+  // 필요한 상태나 함수가 바뀔 때마다 업데이트 (최신 값 반영을 위해 필요한 의존성을 추가하세요)
+  }, [flipped, matched, cards, onGameSelected, gameStarted, level, timer, previewTime, isPreview]);
+
+  // --- 컴포넌트 마운트 시 GAME_STATE_REQUEST 전송 ---
+  useEffect(() => {
+    if (!gameStarted) {
+      sendEvent('GAME_STATE_REQUEST');
+    }
+    // 단 한 번만 실행
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // --- 타이머 (게임 진행 중) ---
   useEffect(() => {
@@ -216,23 +247,15 @@ const WsMemoryGame: React.FC = () => {
 
   // --- 카드 클릭 핸들러 ---
   const handleCardClick = (cardId: number): void => {
-    // 프리뷰 중이거나 락 상태이면 무시
     if (isPreview || isLocked) return;
-    if (flipped.length === 2) return;
-    if (flipped.includes(cardId)) return;
-    if (matched.includes(cardId)) return;
-
-    // 로컬 상태 업데이트
+    if (flipped.length === 2 || flipped.includes(cardId) || matched.includes(cardId)) return;
     setFlipped([...flipped, cardId]);
-    // 상대방에게 카드 선택 이벤트 전송
     sendEvent('MEMORY_CARD_FLIPPED', { cardId });
-
     if (flipped.length === 1) {
       setIsLocked(true);
       setMoves(prev => prev + 1);
       const firstCard = cards[flipped[0]];
       const secondCard = cards[cardId];
-
       if (firstCard.content === secondCard.content) {
         setMatched([...matched, flipped[0], cardId]);
         setFlipped([]);
@@ -275,11 +298,7 @@ const WsMemoryGame: React.FC = () => {
     setTimer(levelConfig[1].time);
     setLevel(1);
     setCompletedLevel(0);
-    setRewards({
-      bronze: false,
-      silver: false,
-      gold: false
-    });
+    setRewards({ bronze: false, silver: false, gold: false });
     setGameCompleted(false);
     setIsForceQuit(false);
   };
@@ -298,7 +317,6 @@ const WsMemoryGame: React.FC = () => {
     setIsPreview(true);
     setPreviewTime(10);
     const newCards = initializeGame();
-    // 초기 게임 보드 정보를 상대방에게 전송
     sendEvent('MEMORY_INIT', {
       level,
       timer: levelConfig[level].time,
@@ -337,7 +355,6 @@ const WsMemoryGame: React.FC = () => {
             )}
             <div className={`card-grid level-${level}`}>
               {cards.map((card) => {
-                // 프리뷰 중이거나, 뒤집혔거나, 매칭된 카드 표시
                 const isCardShown = 
                   (isPreview && card.isFlipped) ||
                   (!isPreview && (flipped.includes(card.id) || matched.includes(card.id)));
