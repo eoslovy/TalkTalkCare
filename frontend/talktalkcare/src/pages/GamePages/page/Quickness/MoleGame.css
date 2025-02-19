@@ -8,26 +8,6 @@
   margin: 0 auto;
 }
 
-/* 점수와 시간 등 게임 정보 표시 영역 */
-/* .game-info {
-  display: flex;
-  justify-content: center;
-  width: fit-content;
-  height: fit-content; 
-  margin: 0;
-  padding: 0;
-} */
-
-/* .score {
-  font-size: 0.8em; 
-  line-height: 1;   
-  padding: 3px 8px;  
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  white-space: nowrap;
-  height: auto;   
-} */
-
 .time {
   font-size: 1em;  /* 폰트 크기 더 줄임 */
   font-weight: bold;
