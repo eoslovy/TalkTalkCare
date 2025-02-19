@@ -6,7 +6,7 @@ import logicGames from '../page/Logic/LogicalGame';
 import concentrationGames from '../page/Concentration/WsConcentration';
 import thinkingGames from '../page/Thinking/Thinking';
 import quicknessGames from '../page/Quickness/Quickness';
-import memoryGames from '../page/Memory/Memory';
+import memoryGames from '../page/Memory/WsMemory';
 interface Game {
   id: string;
   name: string;

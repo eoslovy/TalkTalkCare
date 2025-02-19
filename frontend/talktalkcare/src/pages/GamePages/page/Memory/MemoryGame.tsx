@@ -87,11 +87,13 @@ const MemoryGame: React.FC = () => {
       const timer = setInterval(() => {
         setPreviewTime(prev => prev - 1);
       }, 1000);
-
+  
       return () => clearInterval(timer);
     } else if (isPreview && previewTime === 0) {
       setIsPreview(false);
+      // 모든 카드를 뒤집는 과정 명확하게 수정
       setCards(prev => prev.map(card => ({ ...card, isFlipped: false })));
+      setFlipped([]); // 선택된 카드 초기화
     }
   }, [isPreview, previewTime]);
 
@@ -126,28 +128,33 @@ const MemoryGame: React.FC = () => {
     setMatched([]);
     setMoves(0);
     setTimer(currentLevel.time);
+    setIsLocked(false); // 락 상태 해제 추가
   };
 
   const handleCardClick = (cardId: number): void => {
+    // 프리뷰 중이면 클릭 무시
+    if (isPreview) return;
+    
+    // 기존 검증 로직
     if (isLocked) return;
     if (flipped.length === 2) return;
     if (flipped.includes(cardId)) return;
     if (matched.includes(cardId)) return;
-
+  
     setFlipped([...flipped, cardId]);
-
+  
     if (flipped.length === 1) {
       setIsLocked(true);
       setMoves(prev => prev + 1);
       
       const firstCard = cards[flipped[0]];
       const secondCard = cards[cardId];
-
+  
       if (firstCard.content === secondCard.content) {
         setMatched([...matched, flipped[0], cardId]);
         setFlipped([]);
         setIsLocked(false);
-
+  
         if (matched.length + 2 === cards.length) {
           handleLevelComplete();
         }
@@ -166,6 +173,9 @@ const MemoryGame: React.FC = () => {
     if (level < 3) {
       setTimeout(() => {
         setLevel(prev => prev + 1);
+        // 다음 레벨 시작 시 프리뷰 모드 재설정
+        setIsPreview(true);
+        setPreviewTime(10);
         initializeGame();
       }, 1500);
     } else {
@@ -227,32 +237,39 @@ const MemoryGame: React.FC = () => {
           </div>
         ) : (
           <div className="game-board">
-            {isPreview && (
-              <div className="preview-message">
-                {previewTime}초 동안 카드를 확인하세요!
-              </div>
-            )}
-            <div className={`card-grid level-${level}`}>
-              {cards.map((card) => (
+          {isPreview && (
+            <div className="preview-message">
+              {previewTime}초 동안 카드를 확인하세요!
+            </div>
+          )}
+          <div className={`card-grid level-${level}`}>
+            {cards.map((card) => {
+              // 카드가 프리뷰 중이거나, 뒤집혔거나, 매치되었는지 확인
+              const isCardShown = 
+                (isPreview && card.isFlipped) || // 프리뷰 중이면 모든 카드 표시
+                (!isPreview && (flipped.includes(card.id) || matched.includes(card.id))); // 게임 중에는 선택되거나 매치된 카드만 표시
+              
+              return (
                 <div
                   key={card.id}
-                  className={`card ${card.isFlipped || isCardFlipped(card.id) ? 'flipped' : ''}`}
-                  onClick={() => handleCardClick(card.id)}
+                  className={`card ${isCardShown ? 'flipped' : ''}`}
+                  onClick={() => !isPreview && handleCardClick(card.id)} // 프리뷰 중에는 클릭 비활성화
                 >
                   <div className="card-inner">
                     <div className="card-front">❔</div>
                     <div className="card-back">{card.content}</div>
                   </div>
                 </div>
-              ))}
-            </div>
-            {matched.length === cards.length && (
-              <div className="win-message">
-                <h2>축하합니다! {level}단계를 클리어하셨습니다!</h2>
-                <p>총 {moves}번 시도하셨습니다.</p>
-              </div>
-            )}
+              );
+            })}
           </div>
+          {matched.length === cards.length && cards.length > 0 && (
+            <div className="win-message">
+              <h2>축하합니다! {level}단계를 클리어하셨습니다!</h2>
+              <p>총 {moves}번 시도하셨습니다.</p>
+            </div>
+          )}
+        </div>
         )}
       </div>
     </GamePage>
