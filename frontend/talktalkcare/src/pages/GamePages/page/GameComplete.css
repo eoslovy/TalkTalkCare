@@ -1,3 +1,7 @@
+.complete-container {
+  background-color: #c8e6c9;
+}
+
 @keyframes medalAppear {
     0% {
       opacity: 0;

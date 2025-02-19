@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ReactCanvasConfetti from 'react-canvas-confetti';
 import type { CreateTypes } from 'canvas-confetti';
 import './GameComplete.css';
+import successGif from '../../../assets/success.gif';
 
 interface GameCompleteProps {
   isForceQuit?: boolean;
@@ -51,20 +52,20 @@ const GameComplete: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <main className="flex-grow flex items-center justify-center bg-gray-100 py-8">
-        <div className="bg-white rounded-lg p-12 shadow-xl max-w-2xl w-full text-center m-4">
-          <h2 className={`text-4xl font-bold mb-8 ${completedLevel === 3 && !isForceQuit ? 'animate-bounce' : ''}`}>
+      <main className="flex-grow flex items-center justify-center py-8">
+        <div className="complete-container rounded-lg p-12 shadow-xl max-w-2xl w-full text-center m-4">
+          <h2 className={`text-3xl font-bold mb-2 ${completedLevel === 3 && !isForceQuit ? 'animate-bounce' : ''}`}>
             {isForceQuit ? "고생하셨습니다!" : 
              completedLevel === 3 ? "축하합니다! 모든 단계를 클리어하셨습니다!" : "고생하셨습니다!"}
           </h2>
           
-          <div className="my-12 flex justify-center gap-16">
+          <div className=" flex justify-center gap-16">
             {allMedals
               .filter(medal => medal.level <= completedLevel)
               .map((medal, index) => (
                 <div 
                   key={index} 
-                  className={`w-48 h-48 transition-all duration-500 opacity-0 scale-50
+                  className={`w-20 h-20 transition-all duration-500 opacity-0 scale-50
                     animate-medal
                   `}
                   style={{
@@ -85,16 +86,20 @@ const GameComplete: React.FC = () => {
             ))}
           </div>
 
+          <div>
+            <img src={successGif} alt="성공" className='success-img'/>
+          </div>
+
           <div className="flex justify-center gap-6 mt-8">
             <button
               onClick={handleRestart}
-              className="bg-blue-500 text-white px-8 py-3 text-lg rounded-lg hover:bg-blue-600 transition-colors"
+              className="game-control-button restart"
             >
               다시 한번 게임하기
             </button>
             <button
               onClick={handleHome}
-              className="bg-gray-500 text-white px-8 py-3 text-lg rounded-lg hover:bg-gray-600 transition-colors"
+              className="game-control-button restart"
             >
               목록으로 나가기
             </button>

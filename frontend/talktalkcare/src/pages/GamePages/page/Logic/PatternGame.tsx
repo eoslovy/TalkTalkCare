@@ -25,12 +25,13 @@ const PatternGame: React.FC = () => {
   const [score, setScore] = useState<number>(0);
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
-  const [showAnswer, setShowAnswer] = useState<boolean>(true);
   const [timeLeft, setTimeLeft] = useState<number>(60);
   const [currentPattern, setCurrentPattern] = useState<CurrentPattern | null>(null);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [showGameOverModal, setShowGameOverModal] = useState(false); // 게임 오버 모달 표시 여부
   const [showMiddleTermModal, setShowMiddleTermModal] = useState<boolean>(false);
+  const [correctCount, setCorrectCount] = useState(0); // 정답 맞힌 횟수 추가
+  const [stageResults, setStageResults] = useState<{ stage: number; timeLeft: number }[]>([]);
 
   const patterns: Pattern[] = [
     {
@@ -135,12 +136,12 @@ const PatternGame: React.FC = () => {
     };
   }, [gameOver, score]);
 
-  // 게임 시작 시와 레벨 변경 시 문제 생성
+  // 게임 시작 시와 점수 변경 시 문제 생성
   useEffect(() => {
     if (gameStarted && !gameOver) {
       createPattern();
     }
-  }, [gameStarted, level]);
+  }, [gameStarted, score]);
 
   const createPattern = (): void => {
     if (gameOver) return;
@@ -198,9 +199,18 @@ const PatternGame: React.FC = () => {
     }
 
     if(currentPattern && answer === currentPattern.answer) {
-      const newScore = score + (level * 10);
+      const newScore = score + 1;
       setScore(newScore);
-      setLevel(prev => prev + 1);
+      setCorrectCount(prev => prev + 1); // 정답 횟수 증가
+
+      if (correctCount + 1 >= 5) { // 5번 맞혔을 때만 레벨 증가
+        // 5번 맞혔을 때 현재 stage와 남은 시간을 기록
+        setStageResults(prevResults => [...prevResults, { stage: level, timeLeft }]);
+      
+        setLevel(prev => prev + 1);
+        setCorrectCount(0); // 다시 0으로 초기화
+      }
+
       setMessage('정답입니다!');
       setUserAnswer('');
       setTimeout(() => {
@@ -209,9 +219,9 @@ const PatternGame: React.FC = () => {
         }
       }, 1500);
     } else {
-      setMessage('틀렸습니다. 게임이 종료되었습니다.');
-      setGameOver(true);
-      setShowGameOverModal(true); // 게임 오버 시 모달 표시
+      setScore(prev => Math.max(0, prev - 1)); // 점수 깎기 로직 추가 (최소 0점)
+      setMessage('틀렸습니다! 정답 수 하나가 감소합니다.');
+      setUserAnswer('');
     }
   };
 
@@ -235,17 +245,10 @@ const PatternGame: React.FC = () => {
         </div>
       ) : (
         <div className="">
-          <div className="game-info">
-            <div className="score">점수: {score}</div>
-            <div className="level">레벨: {level}</div>
+          <div className="game-info-box">
+            <div className="score">맞춘 문제 수: {score}</div>
+            <div className="game-level">레벨: {level}</div>
           </div>
-
-          {gameOver && (
-            <div className="game-over-message">
-              게임이 종료되었습니다!<br />
-              최종 점수: {score}점
-            </div>
-          )}
 
           <div className="sequence-display">
             {sequence.map((num, idx) => (
@@ -271,6 +274,7 @@ const PatternGame: React.FC = () => {
             <button 
               onClick={checkAnswer}
               disabled={gameOver}
+              className='ok-button'
             >
               확인
             </button>
@@ -285,9 +289,9 @@ const PatternGame: React.FC = () => {
       )}
       <GameMiddleTermModal 
         open={showGameOverModal} 
-        message="시간이 종료되었습니다!" 
+        message="게임이 종료되었습니다!" 
         stage={level}
-        stageResults={[]}
+        stageResults={stageResults}
         onExit={() => setShowMiddleTermModal(false)}
       />
     </GamePage>

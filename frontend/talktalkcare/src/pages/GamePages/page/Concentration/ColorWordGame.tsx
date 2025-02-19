@@ -144,7 +144,7 @@ const ColorWordGame: React.FC = () => {
       setCorrectCount(prev => {
         const newCount = prev + 1;
         // 목표 달성 시 스테이지 완료 처리
-        if (newCount >= stageConfig[stage as keyof typeof stageConfig].target) {
+        if (newCount >= stageConfig[stage as keyof typeof stageConfig].target + 4) {
           handleStageComplete();
           return 0; // 카운트 초기화
         }
@@ -155,7 +155,7 @@ const ColorWordGame: React.FC = () => {
     }
 
     // 스테이지가 완료되지 않았을 때만 다음 문제 생성
-    if (correctCount < stageConfig[stage as keyof typeof stageConfig].target - 1) {
+    if (correctCount < stageConfig[stage as keyof typeof stageConfig].target + 4) {
       setTimeout(generateQuestion, 1500);
     }
   };

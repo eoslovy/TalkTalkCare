@@ -1,5 +1,6 @@
 import React from 'react';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { useNavigate } from 'react-router-dom';
 
 interface GameMiddleTermModalProps {
   open: boolean;
@@ -18,12 +19,16 @@ const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({
   onNext,
   onExit
 }) => {
+  const navigate = useNavigate();
+
   const calculateScore = () => {
     return stageResults.reduce((acc, result) => {
       const stageConfig = {
         1: { time: 60 },
-        2: { time: 40 },
-        3: { time: 30 }
+        2: { time: 50 },
+        3: { time: 40 },
+        4: { time: 30 },
+        5: { time: 20 }
       };
       
       // 기본 점수 계산 (스테이지 * 10)
@@ -59,42 +64,41 @@ const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({
 
       console.log('Game result saved successfully');
       onExit();
+      navigate('/game', { state: { exit: true } }); // 게임 페이지로 이동
     } catch (error) {
       console.error('Error saving game result:', error);
       onExit(); // 에러가 발생해도 게임은 종료
+      navigate('/game', { state: { exit: true } }); // 게임 페이지로 이동
     }
   };
 
   if (!open) return null;
 
-  // 현재 스테이지의 결과 찾기
-  const currentStageResult = stageResults.find(result => result.stage === stage);
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent">
+    <div className="fixed left-15 top-50 inset-0 z-50 flex items-center justify-center bg-transparent">
       <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full">
         <h2 className="text-xl font-bold mb-4 text-center">축하합니다!</h2>
         <p className="text-center mb-4 text-gray-600">{message}</p>
         
         <div className="text-center text-2xl font-bold my-4">
           현재 단계: {stage}단계<br />
-          남은 시간: {currentStageResult?.timeLeft || 0}초
+          점수: {Math.round(calculateScore())}점  {/* 계산된 점수 표시 */}
         </div>
         
         <div className="flex justify-center gap-4">
           {onNext && (
             <button 
               onClick={onNext}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+              className="game-control-button restart"
             >
-              다음 단계 도전하기
+              다음 단계 <br />도전하기
             </button>
           )}
           <button 
             onClick={handleExit}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+            className="game-control-button restart"
           >
-            그만 하기
+            게임 목록 <br/>이동하기
           </button>
         </div>
       </div>

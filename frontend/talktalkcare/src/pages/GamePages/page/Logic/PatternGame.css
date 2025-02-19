@@ -5,14 +5,6 @@
   text-align: center;
 }
 
-/* .game-info {
-  display: flex;
-  justify-content: space-around;
-  margin: 20px 0;
-  font-size: 1.2em;
-  font-weight: bold;
-} */
-
 .sequence-display {
   display: flex;
   justify-content: center;
@@ -23,8 +15,7 @@
 .number-box {
   width: 80px;
   height: 80px;
-  background-color: #4a148c;
-  color: white;
+  background-color: #c8e6c9;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -39,7 +30,7 @@
   font-size: 1.2em;
   margin-right: 10px;
   width: 300px;
-  border: 2px solid #4a148c;
+  border: 2px solid #c8e6c9;
   border-radius: 5px;
 }
 
