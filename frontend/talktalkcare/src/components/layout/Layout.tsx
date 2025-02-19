@@ -14,6 +14,7 @@ const Layout = () => {
   const { isFriendListOpen } = useFriendList();
   const { isLoggedIn } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
+
   const handleChatChatClick = (e: React.MouseEvent) => {
     if (!isLoggedIn) {
       e.preventDefault();
@@ -57,40 +58,28 @@ const Layout = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <>
-      <Navbar />
-      <Outlet />
-      {isMainPage && !isFriendListOpen && ( 
-        <Link 
-          to="/talktalk" 
-          onClick={handleChatChatClick}
-        >
-=======
     <div className="flex flex-col min-h-screen"> {/* 전체 레이아웃 설정 */}
       <Navbar />
       <main className="flex-grow"> {/* 남은 공간을 채우는 메인 콘텐츠 */}
         <Outlet />
       </main>
       {isMainPage && !isFriendListOpen && (
-        <Link to="/talktalk">
->>>>>>> f4822f9e959cb9c18edc3bbeabdaaa81be146067
+        <Link to="/talktalk" onClick={handleChatChatClick}>
           <ChatChat />
         </Link>
       )}
       <Footer />
-<<<<<<< HEAD
 
       {modalOpen && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
             <h2 className="card-title-box">로그인 필요</h2>
             <p className="text-xl">톡톡 서비스를 이용하려면 로그인이 필요합니다.</p>
-            <button 
+            <button
               onClick={() => {
                 setModalOpen(false);
                 navigate('/login');
-              }} 
+              }}
               style={styles.closeButton}
             >
               로그인하러 가기
@@ -98,10 +87,7 @@ const Layout = () => {
           </div>
         </div>
       )}
-    </>
-=======
     </div>
->>>>>>> f4822f9e959cb9c18edc3bbeabdaaa81be146067
   );
 };
 
