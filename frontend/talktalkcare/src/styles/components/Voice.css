@@ -481,3 +481,43 @@
     font-size: 12px;
   }
 }
+
+/* 모달 버튼 스타일 */
+.modal-button {
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  width: 90px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* 예 버튼 기본 스타일 */
+.modal-button.yes {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* 예 버튼 hover 효과: 색상 변경 및 버튼 확대 */
+.modal-button.yes:hover {
+  background-color: #66BB6A; /* 좀 더 밝은 녹색 */
+  transform: scale(1.1);
+}
+
+/* 아니오 버튼 기본 스타일 */
+.modal-button.no {
+  background-color: #f44336;
+  color: white;
+}
+
+/* 아니오 버튼 hover 효과: 색상 변경 및 버튼 확대 */
+.modal-button.no:hover {
+  background-color: #EF5350; /* 좀 더 밝은 빨강 */
+  transform: scale(1.1);
+}
+
+/* 모달 메시지와 버튼 사이의 여백 */
+.modal-message {
+  margin-bottom: 20px;
+}

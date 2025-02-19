@@ -1,11 +1,16 @@
 .game-list-container {
   padding: 2rem;
-  max-width: 900px;
-  margin: 20px 300px;
+  margin: auto;
+  margin-top: 30px;
   background-color: #F5FFEA;
   border-radius: 1rem;
   height: auto;
   min-width: 720px;
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .games-list {
@@ -27,6 +32,7 @@
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
   padding: 10px 0px;
+  width: 100%;
 }
 
 /* 🔹 필터 버튼 스타일 */

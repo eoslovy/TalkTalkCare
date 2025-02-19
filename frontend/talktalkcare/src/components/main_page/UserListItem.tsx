@@ -2,7 +2,10 @@
 import React, { useState } from 'react';
 import { Phone } from 'lucide-react';
 import { Friend } from './friends';
+import CustomModal from '../CustomModal';
 import '../../styles/components/UserListItem.css';
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface FriendItemProps {
   friend: Friend;
@@ -10,24 +13,68 @@ interface FriendItemProps {
   onCall?: () => void;
 }
 
-const FriendItem: React.FC<FriendItemProps> = ({ 
-  friend, 
-  onRemove, 
-  onCall 
-}): JSX.Element => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const FriendItem: React.FC<FriendItemProps> = ({ friend, onRemove, onCall }): JSX.Element => {
+  // 확인 모달 (예/아니오) 상태
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  // API 응답 또는 취소 시 보여줄 커스텀 모달 상태
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const [sessionId, setSessionId] = useState('');
 
+  // 전화 버튼 클릭 시 확인 모달 열기
   const handleCall = () => {
-    setIsModalOpen(true);
+    setIsConfirmModalOpen(true);
   };
 
-  const handleConfirmCall = () => {
-    setIsModalOpen(false);
-    onCall && onCall();
+  // '예' 클릭 시: API 요청 후 결과에 따라 커스텀 모달 메시지 업데이트
+  const handleConfirmCall = async () => {
+    setIsConfirmModalOpen(false);
+    const userId = localStorage.getItem('userId');
+
+    // 호출마다 고유 세션 ID 생성
+    const newSessionId = `session-${Date.now()}`;
+    setSessionId(newSessionId);
+    localStorage.setItem('currentSessionId', newSessionId);
+
+    try {
+      const response = await fetch(`${BASE_URL}/call/request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          callerId: userId, 
+          receiverPhone: friend.phone, 
+          openviduSessionId: newSessionId 
+        }),
+        credentials: 'include',
+      });
+      const data = await response.json();
+
+      if (data.result.msg !== 'success') {
+        setModalTitle('취소됨');
+        setModalMessage(data.result.msg);
+        localStorage.removeItem('currentSessionId');
+      } else {
+        setModalTitle('대기중');
+        setModalMessage('호출 알림을 보냈습니다. 상대방의 응답을 기다려주세요.');
+      }
+    } catch (error) {
+      setModalTitle('오류');
+      setModalMessage('통신 중 오류가 발생했습니다.');
+      localStorage.removeItem('currentSessionId');
+    }
+
+    setIsCustomModalOpen(true);
   };
 
+  // '아니오' 클릭 시: 취소 메시지를 가진 커스텀 모달 열기
   const handleCancelCall = () => {
-    setIsModalOpen(false);
+    setIsConfirmModalOpen(false);
+    setModalTitle('취소됨');
+    setModalMessage('통화 신청이 취소되었습니다.');
+    setIsCustomModalOpen(true);
   };
 
   return (
@@ -48,7 +95,7 @@ const FriendItem: React.FC<FriendItemProps> = ({
         <div className="friend-item-status">
           {friend.status === 'ONLINE' 
             ? '온라인' 
-            : `오프라인 · ${friend.displayStatus}`
+            : `오프라인`
           }
         </div>
         <div className="friend-item-details">
@@ -65,20 +112,22 @@ const FriendItem: React.FC<FriendItemProps> = ({
         </button>
       </div>
 
-      {isModalOpen && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <h2 className="card-title-box"
-             style={styles.cardbox}>전화를 걸시겠습니까?</h2>
+      {/* 확인용 모달 (예/아니오) */}
+      {isConfirmModalOpen && (
+        <div style={confirmationStyles.overlay}>
+          <div style={confirmationStyles.modal}>
+            <h2 className="card-title-box">
+              {friend.name}님에게 화상통화를 신청할까요?
+            </h2>
             <div className="modal-actions">
               <button 
-                style={styles.confirmButton}
+                style={confirmationStyles.confirmButton}
                 onClick={handleConfirmCall}
               >
                 예
               </button>
               <button 
-                style={styles.closeButton}
+                style={confirmationStyles.closeButton}
                 onClick={handleCancelCall}
               >
                 아니오
@@ -87,11 +136,19 @@ const FriendItem: React.FC<FriendItemProps> = ({
           </div>
         </div>
       )}
+
+      {/* 결과/응답용 커스텀 모달 */}
+      <CustomModal
+        title={modalTitle}
+        message={modalMessage}
+        isOpen={isCustomModalOpen}
+        onClose={() => setIsCustomModalOpen(false)}
+      />
     </div>
   );
 };
 
-const styles = {
+const confirmationStyles = {
   overlay: {
     position: "fixed" as "fixed",
     top: 0,
@@ -112,7 +169,6 @@ const styles = {
     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
     maxWidth: "400px",
     width: "80%",
-    height: "30%"
   },
   closeButton: {
     marginTop: "10px",
@@ -122,13 +178,10 @@ const styles = {
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    font: "bold",
-    width:'90px',
-    marginLeft: "15px"
-  },
-  cardbox: {
-    marginTop:"15px"
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    fontWeight: "bold" as "bold",
+    width: "90px",
+    marginLeft: "15px",
   },
   confirmButton: {
     marginTop: "10px",
@@ -138,10 +191,10 @@ const styles = {
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    font: "bold",
-    width:'90px',
-    marginRight: "15px"
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    fontWeight: "bold" as "bold",
+    width: "90px",
+    marginRight: "15px",
   },
 };
 

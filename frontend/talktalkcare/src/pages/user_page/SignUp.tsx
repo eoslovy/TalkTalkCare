@@ -77,7 +77,11 @@ const SignUp = () => {
 
   const requestSmsVerification = async () => {
     try {
-      const response = await authService.sendSmsVerification(formData.phoneNumber);
+      const response = await authService.sendSmsVerification(
+        formData.phoneNumber,
+        setModalMessage,  // 모달 메시지 상태 업데이트
+        setModalOpen      // 모달 열기 상태 업데이트
+      );
       if(response) {
         setIsSmsVerificationSent(true);
         openModal('SMS 인증', '인증번호가 전송되었습니다.');

@@ -13,7 +13,7 @@ import SDQ from '../pages/DimentiaTest/test_page/SDQ.tsx';
 import SMCQ from '../pages/DimentiaTest/test_page/SMCQ.tsx';
 import SignUp from '../pages/user_page/SignUp.tsx';
 import Login from '../pages/user_page/LoginPage.tsx';
-import TalkTalkChat from '../pages/TalkTalkAi.tsx/TalkTalk.tsx';
+import TalkTalkChat from '../pages/TalkTalkAi/TalkTalk.tsx';
 import VideoCall from '../components/call/VideoCall';
 import ChatChat from '../components/layout/ChatChat.tsx';
 import { FriendListProvider } from '../contexts/FriendListContext.tsx';

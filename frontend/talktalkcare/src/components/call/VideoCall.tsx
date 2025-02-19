@@ -104,6 +104,7 @@ const VideoCall: React.FC = () => {
         console.error('세션 종료 중 에러:', error);
       }
       localStorage.removeItem('currentSessionId');
+      localStorage.removeItem('opponentUserId');
       navigate('/');
     }
   };

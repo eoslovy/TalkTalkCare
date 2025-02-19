@@ -1,5 +1,6 @@
 // src/services/authService.ts
 import axios from 'axios';
+import React from 'react';
 import { UserSignupRequest, SignupApiResponse, LoginRequest } from '../types/user';
 import { AxiosResponse } from 'axios';
 import { LogoutResponse } from '../types/user';
@@ -24,7 +25,11 @@ export const authService = {
     }
   },
 
-  sendSmsVerification: async (phoneNumber: string) => {
+  sendSmsVerification: async (
+    phoneNumber: string,
+    setModalMessage: React.Dispatch<React.SetStateAction<string>>,
+    setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
       const response = await axios.post(`${BASE_URL}/sms/send`, 
         { phoneNumber },
         {
@@ -35,7 +40,8 @@ export const authService = {
       );
 
       if (response.data.result.errorCode !== null) {
-        alert(response.data.result.msg);
+        setModalMessage(response.data.result.msg);
+        setModalOpen(true);
         return false;
       }
       return true;

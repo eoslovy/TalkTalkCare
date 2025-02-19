@@ -4,6 +4,7 @@ import axios from 'axios';
 import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import talktalk from "../../assets/talktalk.png";
 import { Mic, MicOff } from "lucide-react";
+import LoadingModal from '../LoadingModal';
 // import CustomModal from '../CustomModal';  // 상위 폴더에서 CustomModal import
 import { useNavigate } from 'react-router-dom';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -134,6 +135,7 @@ const SpeechToText = () => {
     return storedUserId ? parseInt(storedUserId) : 7;
   });
   
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
   const [showEndModal, setShowEndModal] = useState(false);  // 모달 상태 추가
   const [fontSize, setFontSize] = useState<FontSize>(() => {
     return (localStorage.getItem('chatFontSize') as FontSize) || 'small'; // 기본값을 'small'로 변경
@@ -181,15 +183,17 @@ const SpeechToText = () => {
   };
   // endChat 함수 정의
   const handleEndChat = async () => {
+    setShowLoadingModal(true); // API 호출 전 로딩 모달 표시
     try {
       await axios.post(`${BASE_URL}/talktalk/end`, null, {
         params: { userId }
       });
-      setShowEndModal(false);  // 모달 닫기
-      navigate('/');  // 메인 페이지로 이동
+      setShowEndModal(false); // 확인 모달 닫기
+      navigate('/'); // 메인 페이지로 이동
     } catch (error) {
-      console.error('대화 종료 중 오류:', error);
-      alert('대화 종료 중 오류가 발생했습니다.');
+      
+    } finally {
+      setShowLoadingModal(false); // API 호출이 끝나면 로딩 모달 숨김
     }
   };
 
@@ -433,17 +437,9 @@ const SpeechToText = () => {
   }, [savedTranscripts]);
 
   const startChat = async () => {
-    try {
-      const response = await axios.post(`${BASE_URL}/talktalk/start`, null, {
-        params: { userId }
-      });
-
-      if (response.data) {
-        console.log('대화 시작');
-      }
-    } catch (error) {
-      console.error('대화 시작 에러:', error);
-    }
+    const response = await axios.post(`${BASE_URL}/talktalk/start`, null, {
+      params: { userId }
+    });
   };
 
 const sendTranscriptToServer = async (text: string) => {
@@ -532,13 +528,13 @@ const sendTranscriptToServer = async (text: string) => {
   const startListening = async () => {
     if (isLoading || isListening) return;
 
+    
     try {
       await startChat();
       recognition.start();
       setIsListening(true);
       setTranscript('');
     } catch (error) {
-      console.error('시작 에러:', error);
     }
   };
 
@@ -565,6 +561,7 @@ const sendTranscriptToServer = async (text: string) => {
 
   return (
     <div className="chat-background">
+      {showLoadingModal && <LoadingModal />}
       <div className="overall-chat-container">
         <div className="chat-header-container">
           <div className="chat-header-content">
@@ -612,31 +609,18 @@ const sendTranscriptToServer = async (text: string) => {
           <div style={modalContentStyle}>
             <h3>대화 종료</h3>
             <p
-            style={{ marginTop: '20px' }}>정말로 대화를 종료하시겠습니까?</p>
+            style={{ marginTop: '20px' }}>
+              정말로 대화를 종료하시겠습니까?</p>
             <div>
               <button 
                 onClick={handleEndChat}
-                style={{
-                  ...modalButtonStyle,
-                  backgroundColor: '#4CAF50',
-                  color: 'white',
-                  border: 'none',
-                  marginTop:'40px',
-                  width:'90px'
-                }}
+                className='modal-button yes'
               >
                 예
               </button>
               <button 
                 onClick={() => setShowEndModal(false)}
-                style={{
-                  ...modalButtonStyle,
-                  backgroundColor: '#f44336',
-                  color: 'white',
-                  border: 'none',
-                  width:'90px'
-
-                }}
+                className='modal-button no'
               >
                 아니오
               </button>

@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Friend } from '../components/main_page/friends';
-import CustomModal from '../../components/CustomModal';
+import CustomModal from '../components/CustomModal';
 import CallNotificationModal from '../components/CallNotificationModal';
 import openviduService from '../services/openviduService';
 
@@ -39,6 +39,7 @@ interface WebSocketContextType {
   rejectCall: () => Promise<void>;
   sendGameEvent: (data: GameEvent) => void;
   onGameSelected: (callback: (event: GameEvent) => void) => void;
+  wsModalOpen: boolean;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
@@ -50,6 +51,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string>("");
+  const [modalSource, setModalSource] = useState<"ws" | "local" | null>(null);
   const friendStatusCallbackRef = useRef<((friends: Friend[]) => void) | undefined>();
   const gameSelectionCallback = useRef<(event: GameEvent) => void>();
   const [callInvitation, setCallInvitation] = useState<CallInvitationDto | null>(null);
@@ -60,6 +62,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const userId = localStorage.getItem('userId');
     setIsLoggedIn(!!userId);
   }, []);
+
+  
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -99,8 +103,11 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             if (data.message && data.message.includes("거절하였습니다")) {
               const acceptedData = data as CallInvitationDto;
               localStorage.removeItem('currentSessionId');
+              localStorage.removeItem('opponentUserId');
               setModalMessage(`${acceptedData.receiverName}님께서 화상통화 요청을 거절하셨습니다.`);
+              setModalSource("ws");  // WS 출처 지정
               setIsModalOpen(true);
+              
             }
 
             // 친구 상태 업데이트 (옵션)
@@ -231,6 +238,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     rejectCall: handleRejectCall,
     sendGameEvent,
     onGameSelected,
+    wsModalOpen: isModalOpen,
+    modalSource,
   };
 
   return (
@@ -245,8 +254,23 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           onReject={handleRejectCall}
         />
       )}
+  
+      {/* 모달 상태에 따른 CustomModal 렌더링 */}
+      {isModalOpen && (
+        <CustomModal
+          title="알림"
+          message={modalMessage}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setModalSource(null);
+          }}
+          
+        />
+      )}
     </WebSocketContext.Provider>
   );
+  
 };
 
 export const useWebSocket = () => {

@@ -12,16 +12,18 @@ const Layout = () => {
   const { isFriendListOpen } = useFriendList();
 
   return (
-    <>
-      <Navbar /> {/* isLoggedIn props 제거 */}
-      <Outlet />
-      {isMainPage && !isFriendListOpen && ( 
+    <div className="flex flex-col min-h-screen"> {/* 전체 레이아웃 설정 */}
+      <Navbar />
+      <main className="flex-grow"> {/* 남은 공간을 채우는 메인 콘텐츠 */}
+        <Outlet />
+      </main>
+      {isMainPage && !isFriendListOpen && (
         <Link to="/talktalk">
           <ChatChat />
         </Link>
       )}
       <Footer />
-    </>
+    </div>
   );
 };
 

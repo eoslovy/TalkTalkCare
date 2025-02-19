@@ -4,7 +4,9 @@ import '../../styles/components/keypad.css';
 import phone from '../../assets/phoneicon.png';
 import side from '../../assets/side.png';
 import FriendList from '../../components/main_page/FriendList';
-import CustomModal from '../../components/CustomModal';
+import KeyPadModal from '../../components/KeyPadModal';
+import { useWebSocket } from '../../contexts/WebSocketContext';
+
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -17,6 +19,7 @@ const KeyPad: React.FC = () => {
   const [sessionId, setSessionId] = useState<string>('');
   const [friends, setFriends] = useState<any[]>([]); // 친구 목록 상태 추가
 
+  const { wsModalOpen, modalSource } = useWebSocket();
   const userId = localStorage.getItem('userId'); // 사용자 ID를 로컬스토리지에서 가져옴
 
   // 전화번호 포맷팅 함수
@@ -187,12 +190,14 @@ const KeyPad: React.FC = () => {
                 <img src={phone} alt="핸드폰" className="phone-icon" />
                 <span>전화걸기</span>
               </button>
-              <CustomModal
-                title="알림"
-                message={modalMessage}
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-              />
+              {!(wsModalOpen && modalSource === "ws") && (
+                <KeyPadModal
+                  title="알림"
+                  message={modalMessage}
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                />
+              )}
               <button className="contacts-button" onClick={toggleFriendsList}>
                 <img src={side} alt="친구목록" className="contacts-icon" />
                 <span>친구 목록</span>
