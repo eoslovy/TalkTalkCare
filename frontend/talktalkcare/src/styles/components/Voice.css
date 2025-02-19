@@ -202,6 +202,28 @@
   justify-content: space-between;
 }
 
+.controls-container .controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  position: relative;
+}
+
+.status-text {
+  position: absolute;
+  left: 0;
+  color: #4CAF50;
+  font-weight: bold;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
 /* 폰트 크기 조절 */
 .font-size-controls {
   display: flex;

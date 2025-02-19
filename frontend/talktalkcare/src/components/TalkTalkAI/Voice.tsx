@@ -42,6 +42,8 @@ interface ControlsProps {
   isLoading: boolean;
   isListening: boolean;
   onEndChat: () => void;
+  isSpeaking: boolean;
+  isInputting: boolean;  // 추가
 }
 
 
@@ -78,10 +80,18 @@ const Controls: React.FC<ControlsProps> = ({
   clearTranscripts,
   isLoading,
   isListening,
-  onEndChat
+  onEndChat,
+  isSpeaking,
+  isInputting
 }) => (
   <div className="controls-container">
     <div className="controls-row">
+      {isInputting && !isSpeaking && (
+        <span className="status-text">입력중...</span>
+      )}
+      {isSpeaking && (
+        <span className="status-text">응답중...</span>
+      )}
       <div className="font-size-controls">
         <button
           onClick={() => setFontSize('small')}
@@ -147,6 +157,7 @@ const SpeechToText = () => {
   const [isLoading, setIsLoading] = useState(false);
   const isComponentMounted = useRef(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+  const [isInputting, setIsInputting] = useState(false);  // 추가
 
   const transcriptsEndRef = useRef<HTMLDivElement>(null);
   const transcriptsListRef = useRef<HTMLDivElement>(null);
@@ -183,6 +194,7 @@ const SpeechToText = () => {
   };
   // endChat 함수 정의
   const handleEndChat = async () => {
+    localStorage.removeItem('savedTranscripts')
     setShowLoadingModal(true); // API 호출 전 로딩 모달 표시
     try {
       await axios.post(`${BASE_URL}/talktalk/end`, null, {
@@ -254,14 +266,17 @@ const SpeechToText = () => {
       recognition.interimResults = true;
       recognition.lang = 'ko-KR';
   
+      // 음성이 감지되면 즉시 입력중 상태로 변경
       recognition.onresult = (event: any) => {
-        if (!isComponentMounted.current) return;  // 마운트 상태 확인
+        if (!isComponentMounted.current) return;
         
+        setIsInputting(true);  // 음성 입력 감지 시 상태 변경
         const current = event.resultIndex;
         const transcriptText = event.results[current][0].transcript;
-  
+
         if (event.results[current].isFinal) {
           sendTranscriptToServer(transcriptText);
+          setIsInputting(false);  // 입력 완료 시 상태 변경
         } else {
           setTranscript(transcriptText);
         }
@@ -270,6 +285,7 @@ const SpeechToText = () => {
       recognition.onerror = () => {
         if (isComponentMounted.current) {
           setIsListening(false);
+          setIsInputting(false);  // 에러 발생 시 상태 초기화
         }
       };
   
@@ -277,15 +293,15 @@ const SpeechToText = () => {
         if (isComponentMounted.current) {
           setIsListening(false);
           setTranscript('');
+          setIsInputting(false);  // 음성 인식 종료 시 상태 초기화
         }
       };
   
       startListening();
     }
   
-    // cleanup 함수 개선
     return () => {
-      cleanup();  // cleanup 함수 호출
+      cleanup();
     };
   }, []);
   
@@ -494,7 +510,6 @@ const sendTranscriptToServer = async (text: string) => {
       recognition.onresult = (event: any) => {
         const current = event.resultIndex;
         const transcriptText = event.results[current][0].transcript;
-
         if (event.results[current].isFinal) {
           sendTranscriptToServer(transcriptText);
         } else {
@@ -600,6 +615,8 @@ const sendTranscriptToServer = async (text: string) => {
               isLoading={isLoading}
               isListening={isListening}
               onEndChat={handleEndChatClick}
+              isSpeaking={isSpeaking}
+              isInputting={isInputting}  // 추가
             />
           </div>
         </div>

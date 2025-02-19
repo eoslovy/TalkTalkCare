@@ -45,23 +45,20 @@
 }
 
 .controls {
-  display: flex;
-  flex-direction: row;  /* 가로 배치 */
-  justify-content: center;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.controls {
-  width: 50px;
+  width: 200px;
   height: 50px;
-  border-radius: 50%;
+  border-radius: 10%;
   border: none;
   background-color: #4a148c;
   color: white;
   font-size: 1.5em;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: row;  /* 가로 배치 */
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .controls button:disabled {
@@ -98,4 +95,95 @@
 .message.wrong {
   background-color: #ffcdd2;
   color: #c62828;
+}
+
+.square-buttons-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  width: fit-content;
+  border-radius: 8px;
+}
+
+.buttons-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.square-button {
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #cccccc;
+  border: 2px solid #999999;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+}
+
+.square-button:hover:not(:disabled) {
+  background-color: #dddddd;
+}
+
+.square-button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.square-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 각 방향 버튼별 색상 */
+.up-button {
+  color: #555555;
+}
+
+.left-button {
+  color: #555555;
+}
+
+.down-button {
+  color: #555555;
+}
+
+.right-button {
+  color: #555555;
+}
+
+/* 화살표 이미지 2와 같은 레이아웃을 위한 추가 스타일 */
+.top-row {
+  margin-bottom: 5px;
+}
+
+.bottom-row {
+  margin-top: 5px;
+}
+
+.square-button.active-button {
+  transform: scale(0.95);
+  background-color: #4a90e2;
+  color: white;
+  box-shadow: 0 0 8px rgba(74, 144, 226, 0.8);
+  transition: all 0.1s ease;
+}
+
+/* 버튼 기본 스타일에 transition 추가하여 부드러운 효과 */
+.square-button {
+  transition: all 0.2s ease;
+}
+
+/* 마우스로 클릭할 때 활성화 효과 */
+.square-button:active:not(:disabled) {
+  transform: scale(0.95);
+  background-color: #4a90e2;
+  color: white;
 }

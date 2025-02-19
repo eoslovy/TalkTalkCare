@@ -119,9 +119,9 @@ const SignUp = () => {
         return /^\d{10,11}$/.test(formData.phoneNumber.replace(/-/g, ''));
       case 4:
         return isSmsVerified;
-      case 5:  // 비밀번호 검증
-        if (formData.password.length < 8) {
-          setPasswordError('비밀번호는 8자 이상이어야 합니다.');
+        case 5:  // 비밀번호 검증
+        if (!pwCondition.test(formData.password)) {
+          setPasswordError('비밀번호는 영문자와 숫자를 포함하여 8자 이상이어야 합니다.');
           return false;
         }
         if (formData.password !== formData.passwordConfirm) {
@@ -344,8 +344,8 @@ const SignUp = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="비밀번호를 입력하세요 (영문, 숫자, 8자 이상)"
-              />
+                placeholder="비밀번호 입력(영문, 숫자 포함 8자 이상)"
+                />
               <input
               type="password"
               name="passwordConfirm"
@@ -357,9 +357,9 @@ const SignUp = () => {
         {passwordError && <p className="error-message">{passwordError}</p>}
         {step === 5 && (  // step === 6을 step === 5로 수정
           <button 
-            onClick={() => handleNext(5)}  // handleNext(6)을 handleNext(5)로 수정
+            onClick={() => handleNext(5)}
             className="next-button"
-            disabled={formData.password.length < 8 || formData.password !== formData.passwordConfirm}
+            disabled={!pwCondition.test(formData.password) || formData.password !== formData.passwordConfirm}
           >
             다음
           </button>

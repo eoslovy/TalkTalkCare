@@ -7,15 +7,46 @@
   overflow: hidden; /* 불필요한 스크롤 방지 */
 }
 
-/* 상단 헤더 */
+/* 헤더 전체 */
 .videocall-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #333;
-  color: #fff;
+  background: #fff; /* 헤더 배경을 흰색으로 */
   padding: 10px;
-  height: 60px; /* 고정 높이 설정 */
+  height: 60px; /* 고정 높이 */
+  border-bottom: 1px solid #ccc; /* 하단 구분선 (선택 사항) */
+}
+
+/* 헤더 타이틀 (예: "화상 통화 중") */
+.videocall-header h1 {
+  color: #2c3e50; /* 타이틀에 어울리는 다른 색상 */
+  font-size: 1.5em;
+  margin: 0;
+}
+
+/* 컨트롤 버튼들을 담는 컨테이너 */
+.videocall-control-buttons {
+  display: flex;
+  gap: 10px; /* 버튼 사이에 10px 간격 */
+}
+
+/* 버튼 스타일 */
+.videocall-button {
+  background: #C8E6C9; /* 기본 버튼 색상 */
+  color: #214005;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+/* 버튼 hover 효과 */
+.videocall-button:hover {
+  background: #F5FFEA; /* 호버 시 색상 변경 */
+  transform: scale(1.05); /* 살짝 커지는 효과 */
 }
 
 /* 본문: 좌우 2분할 */

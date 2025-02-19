@@ -132,13 +132,16 @@ const VideoCall: React.FC = () => {
     <div className="videocall-container">
       <header className="videocall-header">
         <h1>화상 통화 중</h1>
-        <div className="control-buttons">
-          <button onClick={handleToggleCamera}>
+        <div className="videocall-control-buttons">
+          <button className="videocall-button" onClick={handleToggleCamera}>
             {isVideoEnabled ? '카메라 끄기' : '카메라 켜기'}
           </button>
-          {/* 화면 공유 버튼 예시 */}
-          <button onClick={handleStartScreenShare}>화면 공유</button>
-          <button onClick={handleLeaveSession}>세션 나가기</button>
+          <button className="videocall-button" onClick={handleStartScreenShare}>
+            화면 공유
+          </button>
+          <button className="videocall-button" onClick={handleLeaveSession}>
+            세션 나가기
+          </button>
         </div>
       </header>
 

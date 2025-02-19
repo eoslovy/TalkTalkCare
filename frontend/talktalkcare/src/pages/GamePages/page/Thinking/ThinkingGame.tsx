@@ -54,20 +54,21 @@ const ThinkingGame: React.FC = () => {
   const generateQuestion = useCallback((): void => {
     if (gameOver) return;
     
-    const randomIndex = Math.floor(Math.random() * 3);
-    const randomCondition = Math.floor(Math.random() * conditions.length);
-    setCurrentImage(hands[randomIndex]);
-    setCurrentCondition(conditions[randomCondition]);
+    const randomImage = hands[Math.floor(Math.random() * hands.length)];
+    const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+    
+    setCurrentImage(randomImage);
+    setCurrentCondition(randomCondition);
     setMessage('');
   }, [gameOver, hands, conditions]);
 
   const checkAnswer = useCallback((selectedHand: Hand): void => {
-    if (!currentImage || gameOver) return;
+    if (!currentImage || !currentCondition || gameOver) return;
 
     const result = (currentImage.value - selectedHand.value + 3) % 3;
     let isCorrect = false;
 
-    switch (currentCondition?.id) {
+    switch (currentCondition.id) {
       case 0: // 이기는 경우
         isCorrect = result === 2;
         break;
@@ -90,16 +91,12 @@ const ThinkingGame: React.FC = () => {
 
     if (isCorrect) {
       setScore(prev => prev + 1);
-      // 바로 다음 문제 생성
-      const randomIndex = Math.floor(Math.random() * 3);
-      const randomCondition = Math.floor(Math.random() * conditions.length);
-      setCurrentImage(hands[randomIndex]);
-      setCurrentCondition(conditions[randomCondition]);
+      generateQuestion(); // 다음 문제 생성을 위해 함수 호출
     } else {
       setMessage('틀렸습니다. 게임이 종료되었습니다.');
       setGameOver(true);
     }
-  }, [currentImage, gameOver, currentCondition, hands, conditions]);
+  }, [currentImage, currentCondition, gameOver, generateQuestion]);
 
   // 키보드 이벤트 핸들러
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
@@ -154,11 +151,11 @@ const ThinkingGame: React.FC = () => {
 
   // 시간 관리
   useEffect(() => {
-    if (timeLeft <= 0) {
+    if (timeLeft <= 0 && gameStarted && !gameOver) {
       setMessage('시간이 종료되었습니다!');
       setGameOver(true);
     }
-  }, [timeLeft]);
+  }, [timeLeft, gameStarted, gameOver]);
 
   // 타이머 감소 관리
   useEffect(() => {
@@ -192,22 +189,24 @@ const ThinkingGame: React.FC = () => {
       gameStarted={gameStarted}
       gameOver={gameOver}
       score={score}
-      message={message || '시간이 종료되었습니다!'}
+      message={gameOver ? (message || '시간이 종료되었습니다!') : ''}
     >
       {!gameStarted ? (
         <div className="instructions">
-        <h3 className='instructions-title'>게임 방법</h3>
-        <p className='instructions-content'>1. 화면에 표시되는 가위바위보 이미지를 보세요.
-        <br />2. 주어진 조건에 맞는 선택을 하세요.
-        <br />3. 올바른 선택을 하면 점수가 올라갑니다.</p>
-        <button onClick={() => setGameStarted(true)}  className='instructions-button'>게임 시작</button>
-      </div>
-    
+          <h3 className='instructions-title'>게임 방법</h3>
+          <p className='instructions-content'>
+            1. 화면에 표시되는 가위바위보 이미지를 보세요.
+            <br />2. 주어진 조건에 맞는 선택을 하세요.
+            <br />3. 올바른 선택을 하면 점수가 올라갑니다.
+          </p>
+          <button onClick={startGame} className='instructions-button'>게임 시작</button>
+        </div>
       ) : (
         <div className="think-game-container">
           <div className="top-container">
             <div className="condition">
-              {currentCondition?.text}
+              <h3 style={{ fontSize: '16px' }}>문제:</h3>
+              <p style={{ fontSize: '14px' }}>{currentCondition?.text || '문제 로딩 중...'}</p>
             </div>
             <div className="game-info">
               <div className="score">점수: {score}</div>
@@ -216,9 +215,9 @@ const ThinkingGame: React.FC = () => {
 
           <div className="current-image">
             <div className="image-display">
-              {currentImage?.image}
+              {currentImage?.image || ''}
             </div>
-            <p>현재 이미지</p>
+            <p style={{ fontSize: '14px' }}>현재 이미지</p>
           </div>
 
           <div className="choices">
