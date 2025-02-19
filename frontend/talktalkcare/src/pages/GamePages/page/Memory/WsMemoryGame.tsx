@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './MemoryGame.css';
 import GameComplete from '../GameComplete';
-import GamePage from '../GamePage';
+import GamePage from '../WsGamePage';
 import { sendGameEvent as sendGameEventAPI, GameEvent } from '../../../../services/gameEventService';
 import { useWebSocket } from '../../../../contexts/WebSocketContext';
 
