@@ -216,6 +216,7 @@
   color: #4CAF50;
   font-weight: bold;
   animation: blink 1.5s infinite;
+  margin-left: 20px;
 }
 
 @keyframes blink {

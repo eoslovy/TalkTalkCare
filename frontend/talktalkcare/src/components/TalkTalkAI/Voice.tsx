@@ -90,7 +90,7 @@ const Controls: React.FC<ControlsProps> = ({
         <span className="status-text">입력중...</span>
       )}
       {isSpeaking && (
-        <span className="status-text">응답중...</span>
+        <span className="status-text" style={{ marginLeft: '20px' }}>응답중...</span>
       )}
       <div className="font-size-controls">
         <button

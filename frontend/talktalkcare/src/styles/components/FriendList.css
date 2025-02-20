@@ -11,6 +11,7 @@
   padding-top: 80px;
   z-index: 1000;
   overflow: hidden;
+  margin-right: 200px;
 }
 
 .friend-list-header {
@@ -88,10 +89,6 @@
 
 .empty-message {
   color: #6b7280;
-}
-
-.friend-list-wrapper{
-  margin-top: -60px;
 }
 
 .profile-image-container {

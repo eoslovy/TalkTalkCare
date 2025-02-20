@@ -57,14 +57,21 @@
   transform: scale(1.1);
 }
 
-.friend-list-container {
-  position: sticky;
+.friend-list-container-main {
+  width: 21rem;
+  height: 100%;
+  position: fixed;
+  right: 0;
   top: 0;
-  max-height: calc(110vh); /* 푸터 높이를 고려한 최대 높이 (푸터가 100px 높이라고 가정) */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  background-color: white;
+  z-index: 1000;
+  overflow: hidden;
+  position: sticky;
+  max-height: calc(110vh); 
   overflow-y: auto;
-  align-self: flex-start; /* 컨테이너가 상단에서 시작하도록 */
-  scrollbar-width: thin;
-  z-index: 10;
+  align-self: flex-start; 
 }
 
 .content {
@@ -77,10 +84,10 @@
   min-height: 100vh;
 }
 
-.friend-list-container.hidden {
+.friend-list-container-main.hidden {
   display: none;
 }
 
-.friend-list-container.visible {
+.friend-list-container-main.visible {
   display: block;
 }

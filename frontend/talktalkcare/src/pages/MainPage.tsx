@@ -168,7 +168,7 @@ const MainPage: React.FC = () => {
       </div>
 
       {isFriendListOpen && (
-        <div className="friend-list-container">
+        <div className="friend-list-container-main">
           {isLoading && <LoadingModal />}
           <FriendList
             friends={friends}
