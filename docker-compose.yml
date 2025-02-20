@@ -71,13 +71,13 @@ services:
       - "5349:5349/udp"
       - "41000-41400:41000-41400/udp"
     volumes:
-      - /etc/letsencrypt:/etc/turnserver/certs:ro
-      - ./turnserver.conf:/etc/turnserver/turnserver.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./turnserver.conf:/etc/turnserver/turnserver.conf
     environment:
       - REALM=talktalkcare.com
       - USER=turnuser:turnpassword
-      - CERT_FILE=/etc/turnserver/certs/live/talktalkcare.com/fullchain.pem
-      - KEY_FILE=/etc/turnserver/certs/live/talktalkcare.com/privkey.pem
+      - CERT_FILE=/etc/letsencrypt/live/talktalkcare.com/fullchain.pem
+      - KEY_FILE=/etc/letsencrypt/live/talktalkcare.com/privkey.pem
     command: ["-c", "/etc/turnserver/turnserver.conf", "-v"]
     networks:
       - cicd_network
