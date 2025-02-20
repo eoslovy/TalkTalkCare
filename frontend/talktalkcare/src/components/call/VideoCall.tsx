@@ -113,7 +113,6 @@ const VideoCall: React.FC = () => {
   // --- Publisher 초기화 ---
   const handleInitPublisher = async () => {
     try {
-      // 이미 Publisher가 초기화되어 있다면 재초기화 건너뛰기
       if (publisherRef.current) {
         console.log('Publisher가 이미 초기화되어 있음. 재초기화 생략');
         return;
@@ -127,14 +126,14 @@ const VideoCall: React.FC = () => {
         mirror: true,
       });
       publisherRef.current = publisher;
-  
+
       // 로컬 비디오 즉시 바인딩
       if (localVideoRef.current) {
         publisher.addVideoElement(localVideoRef.current);
         console.log('🎥 로컬 비디오 즉시 바인딩 완료');
       }
-  
-      // 세션에 Publisher 등록 (중복 등록 방지)
+
+      // Publisher 등록 (중복 등록 방지)
       await sessionRef.current!.publish(publisher);
       console.log('✅ Publisher 세션 등록 완료');
     } catch (error) {
@@ -195,16 +194,16 @@ const VideoCall: React.FC = () => {
     let mounted = true;
     const joinSession = async () => {
       try {
-        if (sessionRef.current) {
-          sessionRef.current.disconnect();
-          sessionRef.current = null;
-          publisherRef.current = null;
+        // 세션이 없을 경우에만 새로 연결합니다.
+        if (!sessionRef.current) {
+          const { session } = await openviduService.joinSession(sessionId);
+          if (!mounted) return;
+          sessionRef.current = session;
         }
-        const { session } = await openviduService.joinSession(sessionId);
-        if (!mounted) return;
-        sessionRef.current = session;
-        // Publisher 초기화 (중복 호출 방지)
-        await handleInitPublisher();
+        // Publisher가 아직 초기화되지 않았다면 초기화합니다.
+        if (!publisherRef.current) {
+          await handleInitPublisher();
+        }
       } catch (error) {
         console.error('세션 접속 실패:', error);
         if (!((error as any)?.response?.status === 409)) {
