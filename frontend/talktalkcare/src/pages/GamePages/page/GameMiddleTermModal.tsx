@@ -77,7 +77,6 @@ const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({
   return (
     <div className="fixed left-15 top-50 inset-0 z-50 flex items-center justify-center bg-transparent">
       <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full">
-        <h2 className="text-xl font-bold mb-4 text-center">축하합니다!</h2>
         <p className="text-center mb-4 text-gray-600">{message}</p>
         
         <div className="text-center text-2xl font-bold my-4">

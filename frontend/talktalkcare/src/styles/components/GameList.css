@@ -201,10 +201,6 @@
   border: none;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-.game-detail p {
-  font-size: 30px; /* 원하는 크기로 변경 */
-}
-
 
 .back-button {
   font-size: 30px; /* 텍스트 크기 */

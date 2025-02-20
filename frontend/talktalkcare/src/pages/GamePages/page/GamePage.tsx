@@ -39,7 +39,9 @@ const GamePage: React.FC<GamePageProps> = ({
   };
 
   useEffect(() => {
-    if (gameStarted && currentTime > 0) {
+    if (gameStarted) {
+      setCurrentTime(actualTimeLimit); // 🔥 게임이 시작될 때 타이머 초기화
+      
       const interval = setInterval(() => {
         setCurrentTime(prev => {
           const newTime = prev <= 1 ? 0 : prev - 1;
@@ -55,14 +57,14 @@ const GamePage: React.FC<GamePageProps> = ({
 
       return () => clearInterval(interval);
     }
-  }, [gameStarted, currentTime, onTimeUpdate]);
+  }, [gameStarted]);
 
   useEffect(() => {
     setTimePercentage((currentTime / actualTimeLimit) * 100);
   }, [currentTime, actualTimeLimit]);
 
   useEffect(() => {
-    if (!gameStarted) {
+    if (gameStarted) {
       setCurrentTime(actualTimeLimit);
       setTimePercentage(100);
     }
