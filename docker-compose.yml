@@ -50,7 +50,7 @@ services:
       - KURENTO_KEY_FILE=/etc/letsencrypt/live/talktalkcare.com/privkey.pem
       - KMS_STUN_IP=54.180.148.155
       - KMS_STUN_PORT=3478
-      - KMS_TURN_URL=turnuser:turnpassword@54.180.148.155:3478?transport=udp,turnuser:turnpassword@54.180.148.155:3478?transport=tcp
+      - KMS_TURN_URL=turn:54.180.148.155:3478?transport=udp,turn:54.180.148.155:3478?transport=tcp
       - KMS_NETWORK_INTERFACES=eth0
       - KMS_ICE_TCP=1
       - KMS_MIN_PORT=40000
