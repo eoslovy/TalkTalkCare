@@ -21,9 +21,12 @@
 .menu-card {
   width: 730px;
   height: auto;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding-top: 30px;
+  margin: 0 auto; /* 컨테이너 자체를 부모 요소 내에서 중앙에 배치 */
 }
 
 /* 친구 목록 버튼을 우측 상단에 배치 */
@@ -55,7 +58,13 @@
 }
 
 .friend-list-container {
-  margin-right: 200px;
+  position: sticky;
+  top: 0;
+  max-height: calc(110vh); /* 푸터 높이를 고려한 최대 높이 (푸터가 100px 높이라고 가정) */
+  overflow-y: auto;
+  align-self: flex-start; /* 컨테이너가 상단에서 시작하도록 */
+  scrollbar-width: thin;
+  z-index: 10;
 }
 
 .content {

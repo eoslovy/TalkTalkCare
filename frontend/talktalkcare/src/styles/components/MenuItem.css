@@ -62,6 +62,8 @@
   transform: scale(1.2);
   width: 400px;
   padding-left: 60px;
+  margin-right: 80px;
+
 }
 
 .menu-grid.compressed-grid {
@@ -69,4 +71,5 @@
   grid-template-columns: repeat(2, 160px); /* 2개씩 정렬, 박스 크기 고정 */
   gap: 30px; /* 간격 조정 */
   justify-content: flex-start; /* 왼쪽 정렬 */
+  /* margin-right: 80px; */
 }
