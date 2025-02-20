@@ -25,7 +25,7 @@ const VideoCall: React.FC = () => {
     const streamId = event.stream.streamId;
     console.log(`📥 신규 스트림 수신: ${streamId}`);
 
-    // 이미 구독 중인 스트림이면 등록하지 않음
+    // 이미 구독 중이면 등록하지 않음
     if (subscribers.some(sub => sub.stream?.streamId === streamId)) {
       console.warn(`⚠️ 이미 구독 중인 스트림: ${streamId}`);
       return;
@@ -42,7 +42,7 @@ const VideoCall: React.FC = () => {
       console.log(`📡 비디오 바인딩 완료: ${streamId}`);
     }
 
-    // 중복 방지를 위해 업데이트
+    // 중복 제거 후 업데이트
     setSubscribers(prev => {
       const uniqueSubs = new Map(prev.map(sub => [sub.stream?.streamId, sub]));
       uniqueSubs.set(streamId, subscriber);
@@ -108,7 +108,7 @@ const VideoCall: React.FC = () => {
       session.off('sessionDisconnected');
       console.log('🧹 모든 세션 리스너 클린업 완료');
     };
-  }, []); // 빈 배열: 한 번만 등록
+  }, []); // 한 번만 등록
 
   // --- Publisher 초기화 ---
   const handleInitPublisher = async () => {
@@ -127,13 +127,13 @@ const VideoCall: React.FC = () => {
       });
       publisherRef.current = publisher;
 
-      // 로컬 비디오 바인딩
+      // 로컬 비디오 즉시 바인딩
       if (localVideoRef.current) {
         publisher.addVideoElement(localVideoRef.current);
         console.log('🎥 로컬 비디오 즉시 바인딩 완료');
       }
 
-      // 세션에 Publisher 등록 (중복 등록되지 않도록)
+      // 세션에 Publisher 등록 (중복 등록 방지)
       await sessionRef.current!.publish(publisher);
       console.log('✅ Publisher 세션 등록 완료');
     } catch (error) {
@@ -212,6 +212,7 @@ const VideoCall: React.FC = () => {
     };
 
     joinSession();
+
     return () => {
       mounted = false;
       if (sessionRef.current) {
@@ -259,8 +260,7 @@ const VideoCall: React.FC = () => {
                         videoRefs.current.set(subscriber.stream.streamId, el);
                       }
                     }}
-                    autoPlay
-                    playsInline
+                    autoPlay playsInline
                   />
                   <p>상대방</p>
                 </div>

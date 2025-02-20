@@ -75,7 +75,6 @@ services:
       - ./turnserver.conf:/etc/turnserver/turnserver.conf
     environment:
       - REALM=talktalkcare.com
-      - USER=turnuser:turnpassword
       - CERT_FILE=/etc/letsencrypt/live/talktalkcare.com/fullchain.pem
       - KEY_FILE=/etc/letsencrypt/live/talktalkcare.com/privkey.pem
     command: ["-c", "/etc/turnserver/turnserver.conf", "-v"]

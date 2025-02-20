@@ -153,7 +153,7 @@ deploy-backend:
       # 인증 방식 설정 (static-auth-secret 기반)
       lt-cred-mech
       realm=talktalkcare.com
-      user=turnuser:turnpassword
+      static-auth-secret=talktalkcare
 
       # 외부 IP 및 리스너 설정 (CHANGE_REQUEST 경고 해결)
       external-ip=54.180.148.155
