@@ -71,24 +71,24 @@ class OpenViduComponent extends Component<{}, State> {
     };
 
     this.websocket.onopen = () => {
-      console.log('OpenVidu 서버 연결 성공');
+      //console.log('OpenVidu 서버 연결 성공');
       this.setState({ isConnected: true });
     };
 
     this.websocket.onmessage = (event) => {
-      console.log('OpenVidu 메시지 수신:', event.data);
+      //console.log('OpenVidu 메시지 수신:', event.data);
       this.setState(prevState => ({
         wsMessages: [...prevState.wsMessages, event.data]
       }));
     };
 
     this.websocket.onerror = (error) => {
-      console.error('OpenVidu 서버 에러:', error);
+      //console.error('OpenVidu 서버 에러:', error);
       this.setState({ isConnected: false });
     };
 
     this.websocket.onclose = () => {
-        console.log('WebSocket 연결 종료');
+        //console.log('WebSocket 연결 종료');
         tryReconnect();
     };
   }
@@ -160,7 +160,7 @@ class OpenViduComponent extends Component<{}, State> {
       });
 
     } catch (error) {
-      console.error('세션 참가 중 오류:', error);
+      //console.error('세션 참가 중 오류:', error);
       this.leaveSession();
     }
   }
@@ -178,22 +178,22 @@ class OpenViduComponent extends Component<{}, State> {
         credentials: 'include'
     });
 
-    console.log('세션 생성 응답:', response.status);
+    //console.log('세션 생성 응답:', response.status);
     
     // 409 에러 (세션이 이미 존재) - 정상 케이스
     if (response.status === 409) {
-        console.log('세션이 이미 존재함:', sessionId);
+        //console.log('세션이 이미 존재함:', sessionId);
         return sessionId;
     }
 
     // 다른 에러 발생 시
     if (!response.ok) {
-        console.error('세션 생성 실패:', response.status, await response.text());
+        //console.error('세션 생성 실패:', response.status, await response.text());
         return sessionId;
     }
 
     const data = await response.json();
-    console.log('세션 생성 성공:', data.id);
+    //console.log('세션 생성 성공:', data.id);
     return data.id;
   }
 
@@ -209,14 +209,14 @@ class OpenViduComponent extends Component<{}, State> {
         credentials: 'include'
     });
 
-    console.log('토큰 생성 응답:', response.status);
+    //console.log('토큰 생성 응답:', response.status);
     if (!response.ok) {
-        console.error('토큰 생성 실패:', response.status, await response.text());
+        //console.error('토큰 생성 실패:', response.status, await response.text());
         throw new Error(`토큰 생성 실패: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('토큰 생성 성공:', data.token);
+    //console.log('토큰 생성 성공:', data.token);
     return data.token;
   }
 
@@ -276,7 +276,7 @@ class OpenViduComponent extends Component<{}, State> {
         }
       }
     } catch (error) {
-      console.error('카메라 전환 에러:', error);
+      //console.error('카메라 전환 에러:', error);
     }
   }
 
@@ -288,9 +288,9 @@ class OpenViduComponent extends Component<{}, State> {
   // 세션 참여 처리
   handleJoinSession = async () => {
     try {
-        console.log('세션 참여 시작');
+        //console.log('세션 참여 시작');
         const sessionId = this.state.sessionInput.trim() || `session-${Date.now()}`;
-        console.log('사용할 세션 ID:', sessionId);
+        //console.log('사용할 세션 ID:', sessionId);
         
         await this.joinSession(sessionId);
         
@@ -300,11 +300,11 @@ class OpenViduComponent extends Component<{}, State> {
         });
         
         if (!this.state.sessionInput.trim()) {
-            console.log('새 세션 생성됨:', sessionId);
+            //console.log('새 세션 생성됨:', sessionId);
             alert(`새로운 세션이 생성되었습니다: ${sessionId}`);
         }
     } catch (error) {
-        console.error('세션 참여 실패:', error);
+        //console.error('세션 참여 실패:', error);
         alert('세션 참여에 실패했습니다. 콘솔을 확인해주세요.');
     }
   }
@@ -321,7 +321,7 @@ class OpenViduComponent extends Component<{}, State> {
             isVideoEnabled: newVideoState
         });
     } catch (error) {
-        console.error('카메라 토글 에러:', error);
+        //console.error('카메라 토글 에러:', error);
     }
   }
 

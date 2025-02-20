@@ -51,8 +51,8 @@ const ColorWordGame: React.FC = () => {
 
   const stageConfig = {
     1: { time: 60, target: 1, choices: 3 },
-    2: { time: 40, target: 1, choices: 4 },
-    3: { time: 30, target: 1, choices: 5 }
+    2: { time: 40, target: 3, choices: 4 },
+    3: { time: 30, target: 5, choices: 5 }
   };
 
   useEffect(() => {
@@ -144,7 +144,7 @@ const ColorWordGame: React.FC = () => {
       setCorrectCount(prev => {
         const newCount = prev + 1;
         // 목표 달성 시 스테이지 완료 처리
-        if (newCount >= stageConfig[stage as keyof typeof stageConfig].target + 4) {
+        if (newCount >= stageConfig[stage as keyof typeof stageConfig].target) {
           handleStageComplete();
           return 0; // 카운트 초기화
         }
@@ -155,7 +155,7 @@ const ColorWordGame: React.FC = () => {
     }
 
     // 스테이지가 완료되지 않았을 때만 다음 문제 생성
-    if (correctCount < stageConfig[stage as keyof typeof stageConfig].target + 4) {
+    if (correctCount < stageConfig[stage as keyof typeof stageConfig].target - 1) {
       setTimeout(generateQuestion, 1500);
     }
   };
@@ -207,7 +207,7 @@ const ColorWordGame: React.FC = () => {
           }
         });
       }).catch(error => {
-        console.error('Error saving game result:', error);
+        //console.error('Error saving game result:', error);
         navigate('/game/complete', {
           state: {
             isForceQuit: false,

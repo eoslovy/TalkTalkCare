@@ -62,11 +62,11 @@ const GameMiddleTermModal: React.FC<GameMiddleTermModalProps> = ({
         throw new Error('Failed to save game result');
       }
 
-      console.log('Game result saved successfully');
+      //console.log('Game result saved successfully');
       onExit();
       navigate('/game', { state: { exit: true } }); // 게임 페이지로 이동
     } catch (error) {
-      console.error('Error saving game result:', error);
+      //console.error('Error saving game result:', error);
       onExit(); // 에러가 발생해도 게임은 종료
       navigate('/game', { state: { exit: true } }); // 게임 페이지로 이동
     }

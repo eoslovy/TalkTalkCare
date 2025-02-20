@@ -144,14 +144,14 @@ const ThinkingGame: React.FC = () => {
           const userId = localStorage.getItem('userId');
           
           if (!userId) {
-            console.error('사용자 ID를 찾을 수 없습니다.');
+            //console.error('사용자 ID를 찾을 수 없습니다.');
             return;
           }
 
           await gameService.saveGameResult(Number(userId), GAME_IDS.THINKING_GAME, score*10);
-          console.log('게임 결과 저장 완료 - 점수:', score);
+          //console.log('게임 결과 저장 완료 - 점수:', score);
         } catch (error) {
-          console.error('게임 결과 저장 중 오류:', error);
+          //console.error('게임 결과 저장 중 오류:', error);
           setMessage('점수 저장에 실패했습니다.');
         }
       }

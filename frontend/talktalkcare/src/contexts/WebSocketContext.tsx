@@ -72,20 +72,20 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const connectWebSocket = () => {
       if (reconnectAttempts.current >= maxReconnectAttempts) {
-        console.log('최대 재연결 시도 횟수 도달');
+        //console.log('최대 재연결 시도 횟수 도달');
         return;
       }
       try {
         const websocket = new WebSocket(`${WS_URL}?userId=${userId}`);
         websocket.onopen = () => {
-          console.log('✅ WebSocket 연결됨');
+          //console.log('✅ WebSocket 연결됨');
           setIsConnected(true);
           reconnectAttempts.current = 0;
         };
         websocket.onmessage = async (event) => {
           try {
             const data = JSON.parse(event.data);
-            console.log("WebSocket 메시지 수신:", data);
+            //console.log("WebSocket 메시지 수신:", data);
 
             // 화상통화 요청 처리
             if (data.message && data.message.includes("화상통화")) {
@@ -116,30 +116,30 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             }
             // 게임 이벤트 수신 처리
             if (data.eventType) {
-              console.log("게임 이벤트 수신:", data);
+              //console.log("게임 이벤트 수신:", data);
               if (gameSelectionCallback.current) {
                 gameSelectionCallback.current(data);
               }
             }
           } catch (error) {
-            console.error('WebSocket 메시지 처리 오류:', error);
+            //console.error('WebSocket 메시지 처리 오류:', error);
           }
         };
         websocket.onclose = (event) => {
-          console.log('❌ WebSocket 연결 종료');
+          //console.log('❌ WebSocket 연결 종료');
           setIsConnected(false);
           setWs(null);
           if (event.code !== 1000) {
             reconnectAttempts.current += 1;
             if (reconnectAttempts.current < maxReconnectAttempts) {
-              console.log(`재연결 시도 ${reconnectAttempts.current}/${maxReconnectAttempts}`);
+              //console.log(`재연결 시도 ${reconnectAttempts.current}/${maxReconnectAttempts}`);
               setTimeout(connectWebSocket, 3000);
             }
           }
         };
         setWs(websocket);
       } catch (error) {
-        console.error('웹소켓 연결 중 오류:', error);
+        //console.error('웹소켓 연결 중 오류:', error);
         reconnectAttempts.current += 1;
       }
     };
@@ -155,7 +155,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const handleAcceptCall = async () => {
     if (callInvitation) {
-      console.log('화상통화 수락:', callInvitation);
+      //console.log('화상통화 수락:', callInvitation);
       try {
         // receiver
         await openviduService.joinSession(callInvitation.openviduSessionId);
@@ -179,7 +179,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         navigate('/videocall');
 
       } catch (error) {
-        console.error('Receiver 세션 접속 실패:', error);
+        //console.error('Receiver 세션 접속 실패:', error);
       }
       setCallInvitation(null);
     }
@@ -188,7 +188,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
    // 거절 버튼 클릭 시, /call/reject 요청을 보내 caller에게 알림
    const handleRejectCall = async () => {
     if (callInvitation) {
-      console.log('화상통화 거절:', callInvitation);
+      //console.log('화상통화 거절:', callInvitation);
       try {
         await fetch(`${BASE_URL}/call/reject`, {
           method: 'POST',
@@ -203,7 +203,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           credentials: 'include',
         });
       } catch (error) {
-        console.error('call/reject 요청 중 에러:', error);
+        //console.error('call/reject 요청 중 에러:', error);
       }
       setCallInvitation(null);
     }
@@ -215,16 +215,16 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (ws && isConnected) {
       const userId = localStorage.getItem('userId');
       const enrichedData = { ...data, senderId: userId };
-      console.log('📤 WebSocket 이벤트 전송:', enrichedData);
+      //console.log('📤 WebSocket 이벤트 전송:', enrichedData);
       ws.send(JSON.stringify(enrichedData));
     } else {
-      console.log('⚠️ WebSocket 연결 안됨: 이벤트 전송 실패');
+      //console.log('⚠️ WebSocket 연결 안됨: 이벤트 전송 실패');
     }
   };
 
   // onGameSelected 콜백 등록
   const onGameSelected = useCallback((callback: (event: GameEvent) => void) => {
-    console.log('🟢 onGameSelected() 실행됨, 콜백 등록:', callback);
+    //console.log('🟢 onGameSelected() 실행됨, 콜백 등록:', callback);
     gameSelectionCallback.current = callback;
   }, []);
 

@@ -108,10 +108,10 @@ const SDQ: React.FC = () => {
 
     try {
       const result = await submitSurvey(userId, testId, testResult, navigate, answers);
-      console.log('Survey submitted:', result);
+      //console.log('Survey submitted:', result);
       navigate('/result', { state: { answers, testType: 'SDQ' } });
     } catch (error) {
-      console.error('Error:', error);
+      //console.error('Error:', error);
       setModalMessage('설문조사 제출에 실패했습니다. 다시 시도해 주세요.');
       setIsModalOpen(true);
     }

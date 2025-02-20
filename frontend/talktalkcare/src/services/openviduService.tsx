@@ -23,11 +23,11 @@ class OpenviduService {
       // (필요 시) session 이벤트 핸들러 추가
       this.session.on('streamCreated', (event) => {
         // 구독자 생성 등 외부에서 별도로 처리할 수 있도록 이벤트 전달
-        console.log('새 스트림 생성됨:', event.stream.streamId);
+        //console.log('새 스트림 생성됨:', event.stream.streamId);
       });
   
       this.session.on('streamDestroyed', (event) => {
-        console.log('스트림 종료:', event.stream.streamId);
+        //console.log('스트림 종료:', event.stream.streamId);
       });
   
       // 토큰 발급 (세션이 이미 존재하면 409 에러가 발생해도 sessionId를 그대로 사용)
@@ -74,21 +74,21 @@ class OpenviduService {
         credentials: 'include'
       });
   
-      console.log('세션 생성 응답:', response.status);
+      //console.log('세션 생성 응답:', response.status);
   
       // 409: 이미 존재하는 경우 정상 처리
       if (response.status === 409) {
-        console.log('세션이 이미 존재함:', sessionId);
+        //console.log('세션이 이미 존재함:', sessionId);
         return sessionId;
       }
   
       if (!response.ok) {
-        console.error('세션 생성 실패:', response.status, await response.text());
+        //console.error('세션 생성 실패:', response.status, await response.text());
         return sessionId;
       }
   
       const data = await response.json();
-      console.log('세션 생성 성공:', data.id);
+      //console.log('세션 생성 성공:', data.id);
       return data.id;
     }
   
@@ -103,14 +103,14 @@ class OpenviduService {
         credentials: 'include'
       });
   
-      console.log('토큰 생성 응답:', response.status);
+      //console.log('토큰 생성 응답:', response.status);
       if (!response.ok) {
-        console.error('토큰 생성 실패:', response.status, await response.text());
+        //console.error('토큰 생성 실패:', response.status, await response.text());
         throw new Error(`토큰 생성 실패: ${response.status}`);
       }
   
       const data = await response.json();
-      console.log('토큰 생성 성공:', data.token);
+      //console.log('토큰 생성 성공:', data.token);
       return data.token;
     }
   

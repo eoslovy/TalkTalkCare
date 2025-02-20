@@ -31,7 +31,7 @@
 //       audio.play();
 
 //     } catch (error) {
-//       console.error('❌ TTS 변환 실패:', error);
+//       //console.error('❌ TTS 변환 실패:', error);
 //       await fallbackTextToSpeech(text);
 //     }
 //   }

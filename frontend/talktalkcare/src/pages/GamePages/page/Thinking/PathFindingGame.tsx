@@ -3,6 +3,7 @@ import './PathFindingGame.css';
 import GamePage from '../GamePage';
 import { gameService } from '../../../../services/gameService';
 import { GAME_IDS } from '../../gameIds';
+import { useNavigate } from 'react-router-dom'; 
 
 interface Direction {
   key: string;
@@ -30,6 +31,7 @@ const PathFindingGame: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number>(60);
   const [activeButton, setActiveButton] = useState<string | null>(null); // 활성화된 버튼 상태 추가
   const sequenceCancelRef = React.useRef<boolean>(false);
+  const navigate = useNavigate();
 
   const directions: Direction[] = [
     { key: '←', value: 'left', icon: '←' },
@@ -71,15 +73,15 @@ const PathFindingGame: React.FC = () => {
           const userId = localStorage.getItem('userId');
           
           if (!userId) {
-            console.error('사용자 ID를 찾을 수 없습니다.');
+            //console.error('사용자 ID를 찾을 수 없습니다.');
             return;
           }
 
           await gameService.saveGameResult(Number(userId), GAME_IDS.THINKING_GAME, score);
-          console.log('게임 결과 저장 완료 - 점수:', score);
+          //console.log('게임 결과 저장 완료 - 점수:', score);
           setIsPlaying(false);
         } catch (error) {
-          console.error('게임 결과 저장 중 오류:', error);
+          //console.error('게임 결과 저장 중 오류:', error);
           setMessage('점수 저장에 실패했습니다.');
         }
       }
@@ -292,6 +294,7 @@ const PathFindingGame: React.FC = () => {
       const isCorrect = newUserSequence.every(
         (dir, i) => dir.value === sequence[i].value
       );
+      
   
       if (isCorrect) {
         // 즉시 플레이 중지하고 메시지 표시
@@ -319,11 +322,36 @@ const PathFindingGame: React.FC = () => {
           }
         }, 1500); // 정답 메시지 1.5초 표시
       } else {
-        setMessage('틀렸습니다. 게임이 종료되었습니다.');
-        setGameOver(true);
+        const newScore = Math.max(0, score - (level * 5));
+        setScore(newScore);
+        setLevel(prev => Math.max(0, prev - 1));
+        setMessage('틀렸습니다. 점수가 감점됩니다.');
+        // 정답 확인 후 초기 위치로 돌아간 후 완전히 새 시퀀스를 생성하는 과정을 분리
+        setTimeout(() => {
+          if (!gameOver) {
+            // 초기 위치로 돌아가기
+            setCurrentPosition({ x: 2, y: 2 });
+            setMessage('');
+            
+            // 잠시 대기 후 직접 새 시퀀스 생성 - useEffect에 의존하지 않음
+            setTimeout(() => {
+              if (!gameOver) {
+                // 명시적으로 새 시퀀스 생성 및 표시
+                const newSeq = createSequence();
+                showSequence(newSeq);
+              }
+            }, 1000); // 초기 위치로 돌아간 후 1초 대기
+          }
+        }, 1500); // 정답 메시지 1.5초 표시
       }
     }
   };
+
+  useEffect(() => {
+    if (score >= 140) {
+      navigate('/game/complete');
+    }
+  }, [score, navigate]);
 
   const handleKeyDown = React.useCallback((event: KeyboardEvent) => {
     if (!isPlaying || showingSequence || gameOver) return;
@@ -422,7 +450,6 @@ const PathFindingGame: React.FC = () => {
           {gameOver && (
             <div className="game-over-message">
               게임이 종료되었습니다!<br />
-              최종 점수: {score}점
             </div>
           )}
 

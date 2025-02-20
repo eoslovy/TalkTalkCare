@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../../styles/components/smcq.css';
 import CustomModal from '../../../components/CustomModal';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-console.log(import.meta.env.VITE_API_BASE_URL);
+//console.log(import.meta.env.VITE_API_BASE_URL);
 
 const questions = [
   "기억력에 문제가 있다고 생각하나요?",
@@ -82,7 +82,7 @@ const SMCQ: React.FC = () => {
       // 로그인 여부와 관계없이 결과 페이지로 이동
       navigate('/result', { state: { answers, testType: 'SMCQ' } });
     } catch (error) {
-      console.error('Error:', error);
+      //console.error('Error:', error);
       setModalMessage('설문조사 제출에 실패했습니다. 다시 시도해 주세요.');
       setIsModalOpen(true);
     }

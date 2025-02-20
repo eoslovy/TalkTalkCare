@@ -15,12 +15,12 @@ export const authService = {
         params: { userLoginId }
       });
 
-      console.log('아이디 중복 확인 응답:', response.data);
+      //console.log('아이디 중복 확인 응답:', response.data);
 
       const { msg } = response.data.result;
       return msg === 'success'; // "success"이면 true, 아니면 false 반환
     } catch (error) {
-      console.error('아이디 중복 확인 중 오류:', error);
+      //console.error('아이디 중복 확인 중 오류:', error);
       return false; // 예외 발생 시 false 반환 (예외 방지)
     }
   },
@@ -80,7 +80,7 @@ export const authService = {
   
       // FormData 내용 확인용 로그
       for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
+        //console.log(pair[0], pair[1]);
       }
   
       const response = await axios.post<SignupApiResponse>(
@@ -94,9 +94,9 @@ export const authService = {
       );
       return response.data;
     } catch (error) {
-      console.error('회원가입 실패:', error);
+      //console.error('회원가입 실패:', error);
       if (axios.isAxiosError(error)) {
-        console.error('서버 응답 데이터:', error.response?.data);
+        //console.error('서버 응답 데이터:', error.response?.data);
       }
       throw error;
     }
@@ -125,7 +125,7 @@ export const authService = {
 
       return response.data;
     // } catch (error) {
-    //   console.error('로그인 실패:', error);
+    //   //console.error('로그인 실패:', error);
     //   throw error;
     // }
   },
@@ -133,14 +133,14 @@ export const authService = {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.log('토큰이 존재하지 않습니다.');
+        //console.log('토큰이 존재하지 않습니다.');
         return false;
       }
   
       // 토큰 디코딩 및 만료 확인
       const tokenParts = token.split('.');
       if (tokenParts.length !== 3) {
-        console.log('토큰 형식이 잘못되었습니다.');
+        //console.log('토큰 형식이 잘못되었습니다.');
         return false;
       }
   
@@ -152,14 +152,14 @@ export const authService = {
           withCredentials: true
         });
   
-        console.log('토큰 검증 응답:', response.data);
+        //console.log('토큰 검증 응답:', response.data);
         return response.data.result.msg === 'success';
       } catch (error) {
-        console.error('토큰 검증 API 호출 중 오류:', error);
+        //console.error('토큰 검증 API 호출 중 오류:', error);
         return false;
       }
     } catch (error) {
-      console.error('토큰 검증 중 예상치 못한 오류:', error);
+      //console.error('토큰 검증 중 예상치 못한 오류:', error);
       return false;
     }
   },

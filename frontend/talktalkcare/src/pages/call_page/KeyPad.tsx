@@ -125,7 +125,7 @@ const KeyPad: React.FC = () => {
         setFriends(data.body || []);
       }
     } catch (error) {
-      console.error('친구 목록 로드 실패:', error);
+      //console.error('친구 목록 로드 실패:', error);
     }
   };
 

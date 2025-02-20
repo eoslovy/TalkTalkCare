@@ -62,7 +62,7 @@ export const ttsService = {
       });
 
     } catch (error) {
-      console.error('❌ AWS Polly 음성 변환 오류:', error);
+      //console.error('❌ AWS Polly 음성 변환 오류:', error);
       return fallbackTextToSpeech(text);
     }
   }

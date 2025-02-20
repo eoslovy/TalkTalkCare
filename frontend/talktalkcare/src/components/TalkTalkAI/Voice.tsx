@@ -352,7 +352,7 @@ const SpeechToText = () => {
           });
 
           audio.addEventListener('error', (error) => {
-            console.error('Audio playback error:', error);
+            //console.error('Audio playback error:', error);
             setIsSpeaking(false);
             reject(error);
           });
@@ -371,7 +371,7 @@ const SpeechToText = () => {
         });
       }
     } catch (error) {
-      console.error('Speech synthesis failed:', error);
+      //console.error('Speech synthesis failed:', error);
       setIsSpeaking(false);
       return fallbackTextToSpeech(text);
     }
@@ -492,7 +492,7 @@ const sendTranscriptToServer = async (text: string) => {
     }
 
   } catch (error) {
-    console.error('전송 중 에러:', error);
+    //console.error('전송 중 에러:', error);
   } finally {
     setIsLoading(false);
     startListening();

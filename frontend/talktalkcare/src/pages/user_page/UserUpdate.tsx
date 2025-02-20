@@ -31,7 +31,7 @@ const ProfileEdit: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // API 호출 로직 구현
-    console.log('수정된 프로필:', profileData);
+    //console.log('수정된 프로필:', profileData);
   };
 
   return (

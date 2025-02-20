@@ -48,7 +48,7 @@ const FriendList: React.FC<FriendListProps> = ({
         setFriends(data.body || []);
       }
     } catch (error) {
-      console.error('Failed to load friends:', error);
+      //console.error('Failed to load friends:', error);
       setError('친구 목록을 불러오는데 실패했습니다.');
     } finally {
       setIsLoading(false);
@@ -60,7 +60,7 @@ const FriendList: React.FC<FriendListProps> = ({
   }, []);
 
   useEffect(() => {
-    console.log('FriendList에 전달된 friends:', friends);
+    //console.log('FriendList에 전달된 friends:', friends);
   }, [friends]);
 
   const renderContent = () => {
@@ -147,7 +147,7 @@ const FriendList: React.FC<FriendListProps> = ({
         <AddFriendModal
           onClose={() => setShowAddModal(false)}
           onFriendAdded={() => {
-            console.log('친구 추가됨');
+            //console.log('친구 추가됨');
             loadFriends();
           }}
         />

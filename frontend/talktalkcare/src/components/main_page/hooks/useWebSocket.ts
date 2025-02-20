@@ -23,18 +23,18 @@ export const useWebSocket = (
     }
 
     try {
-      // console.log(`🔄 웹소켓 연결 시도 (${reconnectAttempts.current + 1}/${maxReconnectAttempts}): ${WS_URL}?userId=${userId}`);
+      // //console.log(`🔄 웹소켓 연결 시도 (${reconnectAttempts.current + 1}/${maxReconnectAttempts}): ${WS_URL}?userId=${userId}`);
       
       ws.current = new WebSocket(`${WS_URL}?userId=${userId}`);
 
       ws.current.onopen = () => {
-        // console.log("✅ 웹소켓 연결 성공!");
+        // //console.log("✅ 웹소켓 연결 성공!");
         setIsConnected(true);
         reconnectAttempts.current = 0;
       };
 
       ws.current.onclose = (event) => {
-        // console.log("❌ 웹소켓 연결 종료", event.code, event.reason);
+        // //console.log("❌ 웹소켓 연결 종료", event.code, event.reason);
         
         // 이전 연결 정리
         if (ws.current) {
@@ -51,21 +51,21 @@ export const useWebSocket = (
       };
 
       ws.current.onerror = (error) => {
-        // console.error("🚫 웹소켓 에러:", error);
+        // //console.error("🚫 웹소켓 에러:", error);
       };
 
       ws.current.onmessage = (event) => {
-        // console.log("📨 웹소켓 메시지 수신:", event.data);
+        // //console.log("📨 웹소켓 메시지 수신:", event.data);
         const data = JSON.parse(event.data);
         if (data.message && data.message.includes("화상통화")) {
-          console.log('화상통화 요청')
+          //console.log('화상통화 요청')
         }
 
         onStatusUpdate(data);
       };
 
     } catch (error) {
-      // console.error("🚫 웹소켓 연결 실패:", error);
+      // //console.error("🚫 웹소켓 연결 실패:", error);
       setIsConnected(false);
     }
   }, [userId, onStatusUpdate]);

@@ -75,7 +75,7 @@ const WsMemoryGame: React.FC = () => {
     const currentUserId = Number(localStorage.getItem('userId'));
     const opponentUserId = Number(localStorage.getItem('opponentUserId'));
     const event: GameEvent = { eventType, senderId: currentUserId, opponentUserId, payload };
-    console.log("보내는 이벤트:", event);
+    //console.log("보내는 이벤트:", event);
     sendGameEventAPI(event);
   };
 
@@ -84,7 +84,7 @@ const WsMemoryGame: React.FC = () => {
     const localUserId = localStorage.getItem('userId');
     onGameSelected((event: GameEvent) => {
       if (event.senderId.toString() === localUserId) return;
-      console.log('상대방으로부터 수신한 이벤트:', event);
+      //console.log('상대방으로부터 수신한 이벤트:', event);
       switch (event.eventType) {
         case 'MEMORY_INIT':
           if (event.payload) {

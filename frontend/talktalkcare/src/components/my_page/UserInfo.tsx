@@ -32,7 +32,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ userInfo, onEdit }) => {
   }, [userInfo.s3Filename]);
 
   const handleSignOut = () => {
-    console.log('Sign out clicked');
+    //console.log('Sign out clicked');
   };
 
   const handleImageClick = () => {
@@ -42,7 +42,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ userInfo, onEdit }) => {
   const uploadImage = async (file: File) => {
 
     if (!userId) {
-      console.error('사용자 ID를 찾을 수 없습니다.');
+      //console.error('사용자 ID를 찾을 수 없습니다.');
       return;
     }
 
@@ -68,7 +68,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ userInfo, onEdit }) => {
         throw new Error(data.result.errorCode || '이미지 업로드 실패');
       }
     } catch (error) {
-      console.error('이미지 업로드 실패:', error);
+      //console.error('이미지 업로드 실패:', error);
       throw error;
     }
   };
@@ -80,7 +80,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ userInfo, onEdit }) => {
         const imageUrl = await uploadImage(file);
         setImage(imageUrl);
       } catch (error) {
-        console.error('이미지 업로드 실패:', error);
+        //console.error('이미지 업로드 실패:', error);
       }
     }
   };

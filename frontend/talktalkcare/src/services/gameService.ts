@@ -11,7 +11,7 @@ export const gameService = {
         score
       };
 
-      console.log('전송 데이터:', data); // 전송 데이터 콘솔 출력
+      //console.log('전송 데이터:', data); // 전송 데이터 콘솔 출력
 
       const response = await axios.post(`${BASE_URL}/games/save-result`, data, {
         headers: {
@@ -19,11 +19,11 @@ export const gameService = {
         }
       });
 
-      console.log('응답 데이터:', response.data); // 응답 데이터 콘솔 출력
+      //console.log('응답 데이터:', response.data); // 응답 데이터 콘솔 출력
 
       return response.data;
     } catch (error) {
-      console.error('게임 결과 저장 실패:', error);
+      //console.error('게임 결과 저장 실패:', error);
       throw error;
     }
   }

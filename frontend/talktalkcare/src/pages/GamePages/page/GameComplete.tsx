@@ -81,7 +81,7 @@ const GameComplete: React.FC = () => {
                     alt={medal.alt}
                     className="w-full h-full object-contain"
                     onError={(e) => {
-                      console.error('Image failed to load:', medal.src);
+                      //console.error('Image failed to load:', medal.src);
                       e.currentTarget.style.display = 'none';
                     }}
                   />

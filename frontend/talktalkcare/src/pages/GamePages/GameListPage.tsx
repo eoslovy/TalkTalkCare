@@ -44,7 +44,7 @@ const GameListPage = () => {
   // 게임 목록으로 강제 이동 (GamePage에서 '나가기' 클릭했을 때)
   useEffect(() => {
     if (location.state?.exit) {
-      console.log("📌 나가기 버튼 클릭 감지, 목록으로 돌아갑니다.");
+      //console.log("📌 나가기 버튼 클릭 감지, 목록으로 돌아갑니다.");
       setActiveGame(null);
     }
   }, [location]);
@@ -52,12 +52,12 @@ const GameListPage = () => {
   // 🔹 게임 클릭 시 해당 게임만 표시
   const handleGameClick = (game: Game) => {
     setActiveGame(game);
-    console.log(`🕹️ 선택된 게임: ${game.id}`);
+    //console.log(`🕹️ 선택된 게임: ${game.id}`);
   };
 
   // 🔹 목록으로 돌아가기
   const handleBackToList = () => {
-    console.log(`🔄 목록으로 돌아가기`);
+    //console.log(`🔄 목록으로 돌아가기`);
     setActiveGame(null);
   };
 

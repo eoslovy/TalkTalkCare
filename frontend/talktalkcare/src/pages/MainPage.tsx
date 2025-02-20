@@ -46,7 +46,7 @@ const MainPage: React.FC = () => {
   //         setFriends(data.body || []);
   //       }
   //     } catch (error) {
-  //       console.error('친구 목록 로드 실패:', error);
+  //       //console.error('친구 목록 로드 실패:', error);
   //     } finally {
   //       setIsLoading(false); // ✅ 로딩 끝
   //     }
@@ -78,7 +78,7 @@ const MainPage: React.FC = () => {
         setFriends(data.body || []);
       }
     } catch (error) {
-      console.error('친구 목록 로드 실패:', error);
+      //console.error('친구 목록 로드 실패:', error);
     } finally {
       setIsLoading(false); // ✅ 로딩 끝
     }
@@ -90,7 +90,7 @@ const MainPage: React.FC = () => {
   }, []);
 
   const handleFriendUpdate = (updatedFriends: Friend[]) => {
-    console.log('상태 업데이트 시도:', updatedFriends);
+    //console.log('상태 업데이트 시도:', updatedFriends);
     if (Array.isArray(updatedFriends) && updatedFriends.length > 0) {
       setFriends(prev => {
         const updatedList = [...prev];
@@ -111,21 +111,21 @@ const MainPage: React.FC = () => {
         });
         return updatedList;
       });
-      console.log('친구 목록 업데이트 완료');
+      //console.log('친구 목록 업데이트 완료');
     }
   };
 
   // WebSocket 업데이트 리스너 설정
   useEffect(() => {
-    console.log('WebSocket 업데이트 리스너 설정 시작');
+    //console.log('WebSocket 업데이트 리스너 설정 시작');
     
     if (onFriendStatusUpdate) {
-      console.log('🎯 콜백 함수 등록');
+      //console.log('🎯 콜백 함수 등록');
       onFriendStatusUpdate(handleFriendUpdate);
     }
 
     return () => {
-      console.log('🧹 WebSocket 리스너 정리');
+      //console.log('🧹 WebSocket 리스너 정리');
       if (onFriendStatusUpdate) {
         onFriendStatusUpdate(undefined);
       }
@@ -134,7 +134,7 @@ const MainPage: React.FC = () => {
 
   // friends 상태가 변경될 때마다 로그
   useEffect(() => {
-    console.log('🔄 친구 목록 상태 실제 변경됨:', friends);
+    //console.log('🔄 친구 목록 상태 실제 변경됨:', friends);
   }, [friends]);
   
   const handleLogout = async () => {

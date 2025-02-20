@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './SequenceMemoryGame.css';
 import GamePage from '../GamePage';
+import { useNavigate } from 'react-router-dom';
+import { gameService } from '../../../../services/gameService';
+import { GAME_IDS } from '../../gameIds';
 
 //순서 기억하기 게임
 interface ColorButton {
@@ -22,6 +25,10 @@ const SequenceMemoryGame: React.FC = () => {
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [showingSequence, setShowingSequence] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
+  const [showGameOverModal, setShowGameOverModal] = useState(false); 
+  const navigate = useNavigate();
+  const [timeLeft, setTimeLeft] = useState<number>(60);
+  const [gameOver, setGameOver] = useState<boolean>(false);
 
   const colors: ColorButton[] = [
     { id: 1, color: '#FF5252', sound: 'C4' },
@@ -53,6 +60,53 @@ const SequenceMemoryGame: React.FC = () => {
     oscillator.start();
     oscillator.stop(audioContext.currentTime + 0.5);
   };
+
+  // 타이머 관리
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+  
+    if (gameStarted && !gameOver) {
+      timer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            //console.log('⏳ 타이머 종료! setGameOver(true) 호출');
+            setGameOver(true); // 게임 오버 상태 설정
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+  
+    return () => {
+      clearInterval(timer);
+    };
+  }, [gameStarted, gameOver]); // gameOver가 true가 되면 타이머 멈춤
+  
+
+  // 게임 오버 처리와 점수 저장
+  useEffect(() => {
+    if (gameOver) {
+      const handleGameOver = async () => {
+        try {
+          const userId = localStorage.getItem('userId');
+          if (!userId) {
+            //console.error('사용자 ID를 찾을 수 없습니다.');
+            return;
+          }
+          await gameService.saveGameResult(Number(userId), GAME_IDS.LOGICAL_GAME, score);
+          //console.log('게임 결과 저장 완료 - 점수:', score);
+          setGameStarted(false);
+        } catch (error) {
+          //console.error('게임 결과 저장 중 오류:', error);
+          setMessage('점수 저장에 실패했습니다.');
+        }
+      };
+  
+      handleGameOver();
+      setShowGameOverModal(true); // 게임 오버 모달 표시
+    }
+  }, [gameOver, score]);
 
   const createSequence = (): ColorButton[] => {
     const length = Math.min(2 + level, 9);
@@ -99,6 +153,8 @@ const SequenceMemoryGame: React.FC = () => {
 
     const currentIndex = newUserSequence.length - 1;
     if (color.id !== sequence[currentIndex].id) {
+      const newScore = Math.max(0, score - (level * 5));
+      setScore(newScore);
       setMessage('틀렸습니다. 다시 시도하세요.');
       setIsPlaying(false);
       setTimeout(() => {
@@ -122,11 +178,18 @@ const SequenceMemoryGame: React.FC = () => {
   };
 
   useEffect(() => {
-    if (gameStarted && !isPlaying && !showingSequence) {
+    if (gameStarted && !gameOver && !isPlaying && !showingSequence) {
+      //console.log('📌 새로운 시퀀스를 생성합니다.');
       const newSeq = createSequence();
       showSequence(newSeq);
     }
-  }, [gameStarted]);
+  }, [gameStarted, gameOver]);
+
+  useEffect(() => {
+      if (score >= 200) {
+        navigate('/game/complete');
+      }
+    }, [score, navigate]);
 
   return (
     <GamePage 

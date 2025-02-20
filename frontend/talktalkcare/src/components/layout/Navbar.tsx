@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
       // 메인 페이지로 이동
       navigate('/', { replace: true });
     } catch (error) {
-      console.error('로그아웃 실패:', error);
+      //console.error('로그아웃 실패:', error);
     }
   };
 

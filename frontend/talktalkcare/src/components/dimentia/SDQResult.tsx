@@ -4,7 +4,7 @@ import '../../styles/components/Result.css';
 import LoadingModal from '../LoadingModal'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-console.log(import.meta.env.VITE_API_BASE_URL);
+//console.log(import.meta.env.VITE_API_BASE_URL);
 
 // 상태 타입 정의
 interface LocationState {
@@ -60,15 +60,15 @@ const Result: React.FC = () => {
             }
 
             const data = await response.json();
-            console.log("📌 백엔드 응답:", data);
+            //console.log("📌 백엔드 응답:", data);
 
             if (data?.body) {
                 setAiAnalysis(data.body);
             } else {
-                console.error("📌 예상과 다른 응답 구조:", data);
+                //console.error("📌 예상과 다른 응답 구조:", data);
             }  
         } catch (error) {
-            console.error(error);
+            //console.error(error);
         } finally {
             setIsLoading(false);
         }

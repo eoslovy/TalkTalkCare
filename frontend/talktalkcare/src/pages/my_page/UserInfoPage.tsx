@@ -9,7 +9,7 @@ const UserInfoPage = () => {
 
   const handleEdit = () => {
     // 정보 수정 로직 구현
-    console.log('Edit button clicked');
+    //console.log('Edit button clicked');
   };
 
   return (

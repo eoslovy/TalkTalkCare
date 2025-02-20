@@ -9,7 +9,7 @@ export interface GameEvent {
 }
 
 export const sendGameEvent = async (event: GameEvent): Promise<void> => {
-  console.log("게임 이벤트 AaPI 호출:", event);
+  //console.log("게임 이벤트 AaPI 호출:", event);
   try {
     const response = await fetch(`${BASE_URL}/games/event`, {
       method: 'POST',
@@ -18,12 +18,12 @@ export const sendGameEvent = async (event: GameEvent): Promise<void> => {
       credentials: 'include',
     });
     if (!response.ok) {
-      console.error('게임 이벤트 전송 실패:', response.status);
+      //console.error('게임 이벤트 전송 실패:', response.status);
     } else {
-      console.log("게임 이벤트 전송 성공");
+      //console.log("게임 이벤트 전송 성공");
     }
   } catch (error) {
-    console.error('게임 이벤트 전송 중 에러:', error);
+    //console.error('게임 이벤트 전송 중 에러:', error);
   }
 };
 

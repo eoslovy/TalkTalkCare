@@ -44,20 +44,20 @@ const WsGameListPage: React.FC = () => {
   onGameSelected((gameEvent: GameEvent) => {
     // 렌더링 사이클 이후에 업데이트하도록 지연 처리
     setTimeout(() => {
-      console.log('상대방으로부터 게임 이벤트 수신:', gameEvent);
+      //console.log('상대방으로부터 게임 이벤트 수신:', gameEvent);
       if (gameEvent.eventType === 'GAME_SELECTED' && gameEvent.gameId) {
         const game = games.find((g) => g.id === gameEvent.gameId);
         if (game) {
-          console.log("상대방이 선택한 게임:", game.id);
+          //console.log("상대방이 선택한 게임:", game.id);
           setActiveGame(game);
         }
       }
       if (gameEvent.eventType === 'GAME_DESELECTED') {
-        console.log("상대방이 목록으로 돌아갔습니다.");
+        //console.log("상대방이 목록으로 돌아갔습니다.");
         setActiveGame(null);
       }
       if (gameEvent.eventType === 'SKILL_CHANGED' && gameEvent.payload?.selectedSkill) {
-        console.log("상대방이 변경한 스킬 필터:", gameEvent.payload.selectedSkill);
+        //console.log("상대방이 변경한 스킬 필터:", gameEvent.payload.selectedSkill);
         setSelectedSkill(gameEvent.payload.selectedSkill);
       }
     }, 0);
@@ -66,7 +66,7 @@ const WsGameListPage: React.FC = () => {
 
 
   const handleGameClick = useCallback((game: Game) => {
-    console.log("handleGameClick 호출됨:", game.id);
+    //console.log("handleGameClick 호출됨:", game.id);
     setActiveGame(game);
     const currentUserId = Number(localStorage.getItem('userId'));
     const opponentUserId = Number(localStorage.getItem('opponentUserId'));
@@ -76,12 +76,12 @@ const WsGameListPage: React.FC = () => {
       senderId: currentUserId,
       opponentUserId,
     };
-    console.log("handleGameClick - 생성된 gameEvent:", gameEvent);
+    //console.log("handleGameClick - 생성된 gameEvent:", gameEvent);
     sendGameEventAPI(gameEvent);
   }, []);
 
   const handleBackToList = () => {
-    console.log("handleBackToList 호출됨");
+    //console.log("handleBackToList 호출됨");
     setActiveGame(null);
     const currentUserId = Number(localStorage.getItem('userId'));
     const opponentUserId = Number(localStorage.getItem('opponentUserId'));
@@ -90,12 +90,12 @@ const WsGameListPage: React.FC = () => {
       senderId: currentUserId,
       opponentUserId,
     };
-    console.log("handleBackToList - 생성된 gameEvent:", gameEvent);
+    //console.log("handleBackToList - 생성된 gameEvent:", gameEvent);
     sendGameEventAPI(gameEvent);
   };
 
   const handleSkillFilterChange = (newSkill: string) => {
-    console.log("handleSkillFilterChange 호출됨:", newSkill);
+    //console.log("handleSkillFilterChange 호출됨:", newSkill);
     setSelectedSkill(newSkill);
     const currentUserId = Number(localStorage.getItem('userId'));
     const opponentUserId = Number(localStorage.getItem('opponentUserId'));
@@ -105,7 +105,7 @@ const WsGameListPage: React.FC = () => {
       opponentUserId,
       payload: { selectedSkill: newSkill }
     };
-    console.log("handleSkillFilterChange - 생성된 gameEvent:", gameEvent);
+    //console.log("handleSkillFilterChange - 생성된 gameEvent:", gameEvent);
     sendGameEventAPI(gameEvent);
   };
 

@@ -37,15 +37,15 @@ const VideoCall: React.FC = () => {
         session.on('streamCreated', (event) => {
           try {
             const subscriber = session.subscribe(event.stream, undefined);
-            console.log('✅ 신규 스트림 추가됨:', event.stream.streamId);
+            //console.log('✅ 신규 스트림 추가됨:', event.stream.streamId);
             setSubscribers((prev) => [...prev, subscriber]);
           } catch (error) {
-            console.error('신규 스트림 구독 중 에러:', error);
+            //console.error('신규 스트림 구독 중 에러:', error);
           }
         });
 
         session.on('streamDestroyed', (event) => {
-          console.log('❌ 스트림 종료:', event.stream.streamId);
+          //console.log('❌ 스트림 종료:', event.stream.streamId);
           setSubscribers((prev) =>
             prev.filter((sub) => sub.stream?.streamId !== event.stream.streamId)
           );
@@ -54,16 +54,16 @@ const VideoCall: React.FC = () => {
         session.on('connectionDestroyed', (event) => {
           try {
             const destroyedId = event.connection.connectionId;
-            console.log('연결 종료됨:', destroyedId);
+            //console.log('연결 종료됨:', destroyedId);
             setSubscribers((prev) =>
               prev.filter((sub) => sub.stream?.connection?.connectionId !== destroyedId)
             );
           } catch (err) {
-            console.error('connectionDestroyed 처리 중 에러:', err);
+            //console.error('connectionDestroyed 처리 중 에러:', err);
           }
         });
       } catch (error) {
-        console.error('세션 접속 실패:', error);
+        //console.error('세션 접속 실패:', error);
         setModalMessage('일시적인 서버 오류가 발생했습니다.');
         setIsModalOpen(true);
         // navigate('/');
@@ -78,7 +78,7 @@ const VideoCall: React.FC = () => {
         try {
           sessionRef.current.disconnect();
         } catch (error) {
-          console.error('세션 종료 중 에러:', error);
+          //console.error('세션 종료 중 에러:', error);
         }
       }
     };
@@ -91,7 +91,7 @@ const VideoCall: React.FC = () => {
         await publisherRef.current.publishVideo(newState);
         setIsVideoEnabled(newState);
       } catch (error) {
-        console.error('카메라 토글 중 에러:', error);
+        //console.error('카메라 토글 중 에러:', error);
       }
     }
   };
@@ -101,7 +101,7 @@ const VideoCall: React.FC = () => {
       try {
         sessionRef.current.disconnect();
       } catch (error) {
-        console.error('세션 종료 중 에러:', error);
+        //console.error('세션 종료 중 에러:', error);
       }
       localStorage.removeItem('currentSessionId');
       localStorage.removeItem('opponentUserId');
@@ -122,9 +122,9 @@ const VideoCall: React.FC = () => {
         mirror: false
       });
       await sessionRef.current.publish(screenPublisher);
-      console.log('화면 공유 시작!');
+      //console.log('화면 공유 시작!');
     } catch (error) {
-      console.error('화면 공유 에러:', error);
+      //console.error('화면 공유 에러:', error);
     }
   };
 

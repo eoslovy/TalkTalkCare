@@ -39,7 +39,7 @@ const TalkTalk = () => {
       };
 
       recognitionRef.current.onerror = (event: any) => {
-        console.error('음성 인식 에러:', event.error);
+        //console.error('음성 인식 에러:', event.error);
         setIsListening(false);
       };
 
@@ -68,7 +68,7 @@ const TalkTalk = () => {
         recognitionRef.current.start();
         setIsListening(true);
       } catch (error) {
-        console.error('시작 에러:', error);
+        //console.error('시작 에러:', error);
       }
     }
   };

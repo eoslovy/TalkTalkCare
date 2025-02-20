@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoggedIn(false);
       setUserName('');
     } catch (error) {
-      console.error('로그아웃 실패:', error);
+      //console.error('로그아웃 실패:', error);
     }
   };
 

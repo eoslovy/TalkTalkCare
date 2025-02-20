@@ -252,14 +252,14 @@ const SignUp = () => {
   const handleSubmit = async () => {
     try {
       const response = await authService.signup(formData, profileImage);
-      console.log('회원가입 응답:', response);  // 응답 확인용
+      //console.log('회원가입 응답:', response);  // 응답 확인용
       
       // 에러가 발생하지 않으면 성공으로 처리
       openModal('회원가입', '회원가입이 완료되었습니다.');
       navigate('/login');  // 로그인 페이지로 이동
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('에러 응답 데이터:', error.response?.data);
+        //console.error('에러 응답 데이터:', error.response?.data);
         const errorMessage = error.response?.data?.result?.msg;
         openModal('오류', errorMessage || '회원가입에 실패했습니다');
       } else {
