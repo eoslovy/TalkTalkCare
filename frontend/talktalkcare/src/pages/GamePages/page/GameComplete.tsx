@@ -15,7 +15,11 @@ interface GameCompleteProps {
 const GameComplete: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isForceQuit = false, completedLevel = 0, previousGame } = location.state || {};
+  const { previousGame } = location.state || {};
+  // 항상 레벨 3으로 설정
+  const completedLevel = 3;
+  // 항상 false로 설정
+  const isForceQuit = false;
 
   const handleRestart = () => {
     navigate('/game', { 
@@ -54,9 +58,8 @@ const GameComplete: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow flex items-center justify-center py-8">
         <div className="complete-container rounded-lg p-12 shadow-xl max-w-2xl w-full text-center m-4">
-          <h2 className={`text-3xl font-bold mb-2 ${completedLevel === 3 && !isForceQuit ? 'animate-bounce' : ''}`}>
-            {isForceQuit ? "고생하셨습니다!" : 
-             completedLevel === 3 ? "축하합니다! 모든 단계를 클리어하셨습니다!" : "고생하셨습니다!"}
+        <h2 className="text-3xl font-bold mb-2 animate-bounce">
+            축하합니다! 모든 단계를 클리어하셨습니다!
           </h2>
           
           <div className=" flex justify-center gap-16">

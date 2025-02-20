@@ -238,3 +238,20 @@
   padding: 10px 0px;
   font: bold;
 }
+
+.message {
+  margin: 10px 0px 20px;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.message.correct {
+  background-color: #c8e6c9;
+  color: #2e7d32;
+}
+
+.message.wrong {
+  background-color: #ffcdd2;
+  color: #c62828;
+}

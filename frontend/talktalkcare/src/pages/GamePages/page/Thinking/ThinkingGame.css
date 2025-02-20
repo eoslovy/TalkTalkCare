@@ -60,24 +60,6 @@
   font-size: 16px;
 }
 
-.message {
-  padding: 15px;
-  border-radius: 8px;
-  text-align: center;
-  margin-top: 20px;
-  font-weight: bold;
-}
-
-.message.correct {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.message.wrong {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
 .condition {
   background-color: #e9ecef;
   padding: 15px 25px;

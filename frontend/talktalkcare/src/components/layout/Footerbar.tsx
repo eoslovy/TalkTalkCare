@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
             <p>톡톡케어</p>
             <p>서울특별시 강남구 테헤란로 212</p>
             {/* <p>대표이사: 김싸피</p> */}
-            <p className="email">E-mail: talktalkcarel@ssafy.ac.kr</p>
+            <p className="email">E-mail: talktalkcare12@gmail.com</p>
           </div>
           <div className="contact-info">
             <p>고객센터: 1544-9001</p>

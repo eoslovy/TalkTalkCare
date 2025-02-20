@@ -71,32 +71,6 @@
   transform: scale(1.1);
 }
 
-/* .game-info {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 20px;
-  font-size: 1.2em;
-  font-weight: bold;
-} */
-
-.message {
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 5px;
-  font-weight: bold;
-}
-
-.message.correct {
-  background-color: #c8e6c9;
-  color: #2e7d32;
-}
-
-.message.wrong {
-  background-color: #ffcdd2;
-  color: #c62828;
-}
-
 .square-buttons-layout {
   display: flex;
   flex-direction: column;

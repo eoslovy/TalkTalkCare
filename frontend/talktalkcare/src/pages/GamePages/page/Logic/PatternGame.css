@@ -25,30 +25,12 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-.input-section {
+.input-box {
   padding: 10px;
   font-size: 1.2em;
-  margin-right: 10px;
-  width: 300px;
+  width: auto;
   border: 2px solid #c8e6c9;
   border-radius: 5px;
-}
-
-.message {
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 5px;
-  font-weight: bold;
-}
-
-.message.correct {
-  background-color: #c8e6c9;
-  color: #2e7d32;
-}
-
-.message.wrong {
-  background-color: #ffcdd2;
-  color: #c62828;
 }
 
 .final-score {

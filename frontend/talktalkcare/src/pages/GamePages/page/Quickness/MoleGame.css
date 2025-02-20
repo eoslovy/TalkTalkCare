@@ -8,16 +8,6 @@
   margin: 0 auto;
 }
 
-.time {
-  font-size: 1em;  /* 폰트 크기 더 줄임 */
-  font-weight: bold;
-  color: #4a148c;
-  background-color: #f8f9fa;
-  padding: 3px 10px;  /* 패딩 더 줄임 */
-  border-radius: 4px;  /* 모서리 둥글기 더 줄임 */
-  min-width: auto;  /* 최소 너비 제한 제거 */
-}
-
 /* 3x3 두더지 구멍 게임판 */
 .mole-game-board {
   display: grid;
@@ -33,13 +23,15 @@
 
 /* 개별 두더지 구멍 */
 .hole {
-  width: 30%;  /* 부모 그리드 셀에 맞춤 */
+  width: 100%;  /* 부모 그리드 셀에 맞춤 */
   aspect-ratio: 1;
   position: relative;
   cursor: pointer;
   background-color: #3e2723;
   border-radius: 50%;
   box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.5);
+  font-size: 3rem;
+  align-items: center;
 }
 
 .hole::before {
@@ -65,7 +57,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -45%);
   width: 80%;
   height: 80%;
   display: flex;

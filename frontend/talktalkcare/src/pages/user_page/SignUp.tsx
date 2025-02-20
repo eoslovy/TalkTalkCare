@@ -5,6 +5,7 @@ import { authService } from '../../services/authService';
 import { UserSignupRequest } from '../../types/user';
 import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
+
 const pwCondition = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/;
 const loginIdPattern = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{6,}$/;
 
@@ -14,6 +15,8 @@ const SignUp = () => {
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoginIdConfirmed, setIsLoginIdConfirmed] = useState(false);
+  const [isNameConfirmed, setIsNameConfirmed] = useState(false);
+  const [isPhoneNumberConfirmed, setIsPhoneNumberConfirmed] = useState(false);
   const [formData, setFormData] = useState<UserSignupRequest>({
     name: '',
     loginId: '',
@@ -34,6 +37,30 @@ const SignUp = () => {
   const [passwordError, setPasswordError] = useState('');
   const [isLoginIdDuplicate, setIsLoginIdDuplicate] = useState(false);
 
+  const validateName = (name: string): { isValid: boolean; message: string } => {
+    // 이름 공백 제거
+    const trimmedName = name.trim();
+  
+    // 빈 값 체크
+    if (!trimmedName) {
+      return { isValid: false, message: '이름을 입력해주세요.' };
+    }
+  
+    // 한글 이름 정규식
+    // 1-2자의 성, 1-2자의 이름 허용
+    const koreanNameRegex = /^[가-힣]{2,5}$/;
+  
+    if (!koreanNameRegex.test(trimmedName)) {
+      return { 
+        isValid: false, 
+        message: '유효한 한국식 이름을 입력해주세요. (2-5자의 한글 이름)' 
+      };
+    }
+  
+    return { isValid: true, message: '유효한 이름입니다.' };
+  };
+
+
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
@@ -49,33 +76,40 @@ const SignUp = () => {
       reader.readAsDataURL(file);
     }
   };
+
   const openModal = (title: string, message: string) => {
     setModalTitle(title);
     setModalMessage(message);
     setModalOpen(true);
   };
+
   const validateLoginId = (id: string): { isValid: boolean; message: string } => {
     if (!id) {
-      return { isValid: false, message: '아이디를 입력해주세요.' };
+      return { isValid: false, message: '아이디를 입력해주세요' };
+    }
+  
+    // 한글 포함 여부 확인
+    if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(id)) {
+      return { isValid: false, message: '아이디에 한글을 포함할 수 없습니다' };
     }
   
     if (id.length < 6) {
-      return { isValid: false, message: '아이디는 최소 6자 이상이어야 합니다.' };
+      return { isValid: false, message: '아이디는 최소 6자 이상이어야 합니다' };
     }
   
     if (!/[a-zA-Z]/.test(id)) {
-      return { isValid: false, message: '아이디는 최소 1개 이상의 영문자를 포함해야 합니다.' };
+      return { isValid: false, message: '아이디는 최소 1개 이상의 영문자를 포함해야 합니다' };
     }
   
     if (!/[0-9]/.test(id)) {
-      return { isValid: false, message: '아이디는 최소 1개 이상의 숫자를 포함해야 합니다.' };
+      return { isValid: false, message: '아이디는 최소 1개 이상의 숫자를 포함해야 합니다' };
     }
   
     if (!/^[a-zA-Z0-9]+$/.test(id)) {
-      return { isValid: false, message: '아이디는 영문자와 숫자만 포함할 수 있습니다.' };
+      return { isValid: false, message: '아이디는 영문자와 숫자만 포함할 수 있습니다' };
     }
   
-    return { isValid: true, message: '사용 가능한 아이디 형식입니다.' };
+    return { isValid: true, message: '사용 가능한 아이디 형식입니다' };
   };
 
   const [loginIdValidation, setLoginIdValidation] = useState<{ isValid: boolean; message: string }>({
@@ -85,21 +119,28 @@ const SignUp = () => {
   
   // 아이디 중복 확인
   const checkLoginId = async () => {
+    const validationResult = validateLoginId(formData.loginId);
+    
+    if (!validationResult.isValid) {
+      // 유효성 검증 실패 시 모달로 메시지 표시
+      openModal('아이디 형식 오류', validationResult.message);
+      return;
+    }
     try {
       const isAvailable = await authService.checkIdDuplicate(formData.loginId);
       if (isAvailable) {
-        openModal('아이디 중복 확인', '사용 가능한 아이디입니다.');
+        openModal('아이디 중복 확인', '사용 가능한 아이디입니다');
         setIsLoginIdDuplicate(false);
         setIsLoginIdConfirmed(true); 
   
         // ✅ 아이디 중복 확인 후 "이름 입력 단계(step 2)"로 이동
         setStep(2);
       } else {
-        openModal('아이디 중복 확인', '이미 가입된 사용자입니다.');
+        openModal('아이디 중복 확인', '이미 가입된 사용자입니다');
         setIsLoginIdDuplicate(true);
       }
     } catch (error) {
-      openModal('오류', '아이디 중복 확인에 실패했습니다.');
+      openModal('오류', '아이디 중복 확인에 실패했습니다');
     }
   };
   
@@ -113,11 +154,12 @@ const SignUp = () => {
       );
       if(response) {
         setIsSmsVerificationSent(true);
-        openModal('SMS 인증', '인증번호가 전송되었습니다.');
+        setIsPhoneNumberConfirmed(true);
+        openModal('SMS 인증', '인증번호가 전송되었습니다');
         setStep(4);
       }
     } catch (error) {
-      openModal('오류', 'SMS 인증번호 요청에 실패했습니다.');
+      openModal('오류', 'SMS 인증번호 요청에 실패했습니다');
     }
   };
 
@@ -125,15 +167,28 @@ const SignUp = () => {
     try {
       await authService.verifySmsCode(formData.phoneNumber, smsVerificationCode);
       setIsSmsVerified(true);
-      openModal('SMS 인증', 'SMS 인증이 완료되었습니다.');
+      openModal('SMS 인증', 'SMS 인증이 완료되었습니다');
       setStep(5);
     } catch (error) {
-      openModal('오류', 'SMS 인증번호가 일치하지 않습니다.');
+      openModal('오류', 'SMS 인증번호가 일치하지 않습니다');
     }
   };
 
   const handleNext = (currentStep: number) => {
     if (validateCurrentStep(currentStep)) {
+      switch (currentStep) {
+        case 2:
+          const nameValidation = validateName(formData.name);
+          if (!nameValidation.isValid) {
+            openModal('이름 오류', nameValidation.message);
+            return;
+          }
+          setIsNameConfirmed(true);
+          break;
+        case 3:
+          setIsPhoneNumberConfirmed(true);
+          break;
+      }
       setStep(prev => prev + 1);
     }
   };
@@ -149,14 +204,30 @@ const SignUp = () => {
       case 4:
         return isSmsVerified;
         case 5:  // 비밀번호 검증
-        if (!pwCondition.test(formData.password)) {
-          setPasswordError('비밀번호는 영문자와 숫자를 포함하여 8자 이상이어야 합니다.');
+        // 영문자 포함 여부 확인
+        if (!/[a-zA-Z]/.test(formData.password)) {
+          setPasswordError('비밀번호에는 최소 1개 이상의 영문자를 포함해야 합니다.');
           return false;
         }
+        
+        // 숫자 포함 여부 확인
+        if (!/[0-9]/.test(formData.password)) {
+          setPasswordError('비밀번호에는 최소 1개 이상의 숫자를 포함해야 합니다.');
+          return false;
+        }
+        
+        // 비밀번호 길이 확인
+        if (formData.password.length < 8) {
+          setPasswordError('비밀번호는 최소 8자 이상이어야 합니다.');
+          return false;
+        }
+        
+        // 비밀번호 일치 확인
         if (formData.password !== formData.passwordConfirm) {
           setPasswordError('비밀번호가 일치하지 않습니다');
           return false;
         }
+        
         setPasswordError('');
         return true;
       case 6:  // 생년월일 검증
@@ -190,9 +261,9 @@ const SignUp = () => {
       if (axios.isAxiosError(error)) {
         console.error('에러 응답 데이터:', error.response?.data);
         const errorMessage = error.response?.data?.result?.msg;
-        openModal('오류', errorMessage || '회원가입에 실패했습니다.');
+        openModal('오류', errorMessage || '회원가입에 실패했습니다');
       } else {
-        openModal('오류', '회원가입에 실패했습니다.');
+        openModal('오류', '회원가입에 실패했습니다');
       }
     }
   };
@@ -276,28 +347,36 @@ const SignUp = () => {
 
           {/* 아이디 입력 */}
           {step >= 1 && (
-          <div className="input-group">
-            <input
-              type="text"
-              name="loginId"
-              value={formData.loginId}
-              onChange={handleChange}
-              placeholder="아이디를 입력하세요(영문, 숫자 포함 6자 이상)"
-              disabled={isLoginIdConfirmed}
-            />
-            {step === 1 && (
-              <div>
-                <button 
-                  onClick={checkLoginId}
-                  className="next-button"
-                  disabled={formData.loginId.length < 6}
-                >
-                  아이디 중복 확인
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+            <div className="input-group">
+              <input
+                type="text"
+                name="loginId"
+                value={formData.loginId}
+                onChange={handleChange}
+                placeholder="아이디를 입력하세요(영문, 숫자 포함 6자 이상)"
+                disabled={isLoginIdConfirmed}
+                onFocus={(e) => {
+                  // @ts-ignore 또는 any 타입 사용
+                  (e.target.style as any).imeMode = 'disabled';
+                }}
+                style={{ 
+                  // @ts-ignore
+                  imeMode: 'disabled'
+                }}
+              />
+              {step === 1 && (
+                <div>
+                  <button 
+                    onClick={checkLoginId}
+                    className="next-button"
+                    disabled={formData.loginId.length < 6}
+                  >
+                    아이디 중복 확인
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 이름 입력 */}
           {step >= 2 && (
@@ -308,6 +387,7 @@ const SignUp = () => {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="이름을 입력하세요"
+                disabled={isNameConfirmed}
                 autoFocus
               />
               {step === 2 && (
@@ -332,6 +412,7 @@ const SignUp = () => {
                 onChange={handleChange}
                 placeholder="전화번호를 입력하세요 (- 제외)"
                 maxLength={11}
+                disabled={isPhoneNumberConfirmed}
               />
               {step === 3 && (
                 <button 
@@ -384,11 +465,31 @@ const SignUp = () => {
           className="mt-2"
         />
         {passwordError && <p className="error-message">{passwordError}</p>}
-        {step === 5 && (  // step === 6을 step === 5로 수정
+        {step === 5 && (
           <button 
-            onClick={() => handleNext(5)}
+            onClick={() => {
+              // 영문자 포함 여부 확인
+              if (!/[a-zA-Z]/.test(formData.password)) {
+                openModal('비밀번호 오류', '비밀번호에는 최소 1개 이상의 영문자를 포함해야 합니다.');
+                return;
+              }
+              
+              // 숫자 포함 여부 확인
+              if (!/[0-9]/.test(formData.password)) {
+                openModal('비밀번호 오류', '비밀번호에는 최소 1개 이상의 숫자를 포함해야 합니다.');
+                return;
+              }
+              
+              // 비밀번호 길이 확인
+              if (formData.password.length < 8) {
+                openModal('비밀번호 오류', '비밀번호는 최소 8자 이상이어야 합니다.');
+                return;
+              }
+              
+              handleNext(5);
+            }}
             className="next-button"
-            disabled={!pwCondition.test(formData.password) || formData.password !== formData.passwordConfirm}
+            disabled={formData.password !== formData.passwordConfirm}
           >
             다음
           </button>

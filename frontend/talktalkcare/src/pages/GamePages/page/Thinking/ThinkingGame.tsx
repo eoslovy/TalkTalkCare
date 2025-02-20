@@ -3,6 +3,9 @@ import './ThinkingGame.css';
 import GamePage from '../GamePage';
 import { gameService } from '../../../../services/gameService';
 import { GAME_IDS } from '../../gameIds';
+import { useNavigate } from 'react-router-dom';
+
+// 가위바위보 게임
 
 interface Hand {
   name: string;
@@ -25,6 +28,7 @@ const ThinkingGame: React.FC = () => {
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(TOTAL_TIME);
   const [selectedButtonIndex, setSelectedButtonIndex] = useState<number>(0);
+  const navigate = useNavigate(); 
 
   const hands: Hand[] = [
     { name: '가위', value: 0, image: '✌️' },
@@ -92,9 +96,16 @@ const ThinkingGame: React.FC = () => {
     if (isCorrect) {
       setScore(prev => prev + 1);
       generateQuestion(); // 다음 문제 생성을 위해 함수 호출
+      
+      if (score >= 15) {
+        // 성공 페이지로 이동
+        navigate('/game/complete');
+        return; // 함수 종료
+      }
+    
     } else {
-      setMessage('틀렸습니다. 게임이 종료되었습니다.');
-      setGameOver(true);
+      setScore(prev => Math.max(0, prev - 1));
+      setMessage('틀렸습니다. 점수가 감점되었습니다.');
     }
   }, [currentImage, currentCondition, gameOver, generateQuestion]);
 
@@ -209,7 +220,7 @@ const ThinkingGame: React.FC = () => {
               <p style={{ fontSize: '14px' }}>{currentCondition?.text || '문제 로딩 중...'}</p>
             </div>
             <div className="game-info">
-              <div className="score">점수: {score}</div>
+              <div className="score">{score}개 맞게 생각했어요</div>
             </div>
           </div>
 
@@ -217,7 +228,6 @@ const ThinkingGame: React.FC = () => {
             <div className="image-display">
               {currentImage?.image || ''}
             </div>
-            <p style={{ fontSize: '14px' }}>현재 이미지</p>
           </div>
 
           <div className="choices">

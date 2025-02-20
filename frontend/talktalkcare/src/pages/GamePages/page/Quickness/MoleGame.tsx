@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './MoleGame.css';
 import GamePage from '../GamePage';
+import { useNavigate } from 'react-router-dom';
 
 //두더지 잡기 게임
 interface GameState {
@@ -22,6 +23,7 @@ const MoleGame: React.FC = () => {
   const [moles, setMoles] = useState<boolean[]>(Array(9).fill(false));
   const [gameOver, setGameOver] = useState<boolean>(false);
   const MOLE_GAME_TIME = 30; // 두더지 게임의 기본 시간
+  const navigate = useNavigate(); 
 
   const getRandomHole = useCallback((): number => {
     const randomHole = Math.floor(Math.random() * 9);
@@ -79,6 +81,14 @@ const MoleGame: React.FC = () => {
     setScore(prev => prev + 1);
     setMoles(prev => prev.map(() => false));
     setActiveMole(null);
+
+    // 🔥 점수가 20 이상이면 성공 페이지로 이동
+    if (score >= 20) {
+      // 성공 페이지로 이동
+      navigate('/game/complete');
+      return; // 함수 종료
+    }
+
   };
 
   const startGame = (): void => {
@@ -108,7 +118,7 @@ const MoleGame: React.FC = () => {
         ) : (
           <>
             <div className="game-info">
-              <div className="score">점수: {score}</div>
+              <div className="score">{score}마리 잡았어요</div>
             </div>
             <div className="mole-game-board">
               {moles.map((isActive, index) => (

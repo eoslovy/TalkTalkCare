@@ -299,11 +299,6 @@ const ColorWordGame: React.FC = () => {
             </div>
           ) : (
             <div className="game-box">
-              <div className="game-info">
-                <div className="game-level">레벨: {level}</div>
-              </div>
-              
-
               <div className="question">
                 <h3>{currentQuestion}</h3>
               </div>

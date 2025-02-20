@@ -4,6 +4,7 @@ import GamePage from '../GamePage';
 import GameMiddleTermModal from '../GameMiddleTermModal.tsx';
 import { gameService } from '../../../../services/gameService';
 import { GAME_IDS } from '../../gameIds';
+import { useNavigate } from 'react-router-dom'; // 🔥 네비게이션 훅 추가
 
 interface Pattern {
   generate: (start: number) => {
@@ -32,6 +33,8 @@ const PatternGame: React.FC = () => {
   const [showMiddleTermModal, setShowMiddleTermModal] = useState<boolean>(false);
   const [correctCount, setCorrectCount] = useState(0); // 정답 맞힌 횟수 추가
   const [stageResults, setStageResults] = useState<{ stage: number; timeLeft: number }[]>([]);
+  const navigate = useNavigate(); // 🔥 네비게이션 인스턴스 생성
+
 
   const patterns: Pattern[] = [
     {
@@ -199,9 +202,16 @@ const PatternGame: React.FC = () => {
     }
 
     if(currentPattern && answer === currentPattern.answer) {
-      const newScore = score + 1;
+      let newScore = score + 1;
       setScore(newScore);
       setCorrectCount(prev => prev + 1); // 정답 횟수 증가
+  
+      // 🔥 레벨이 5 이상이면 성공 페이지로 이동
+      if (level >= 5) {
+        // 성공 페이지로 이동
+        navigate('/game/complete');
+        return; // 함수 종료
+      }
 
       if (correctCount + 1 >= 5) { // 5번 맞혔을 때만 레벨 증가
         // 5번 맞혔을 때 현재 stage와 남은 시간을 기록
@@ -258,7 +268,7 @@ const PatternGame: React.FC = () => {
             ))}
           </div>
 
-          <div className="input-section">
+          <div className="input-box">
             <input
               type="text"
               value={userAnswer}
