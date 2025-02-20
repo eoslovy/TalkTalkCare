@@ -3,7 +3,7 @@ import '../../../styles/components/WsGameList.css';
 import { sendGameEvent as sendGameEventAPI, GameEvent } from '../../../services/gameEventService';
 import { useWebSocket } from '../../../contexts/WebSocketContext';
 import logicGames from '../page/Logic/LogicalGame';
-import concentrationGames from '../page/Concentration/WsConcentration';
+import concentrationGames from '../page/Concentration/Concentration';
 import thinkingGames from '../page/Thinking/Thinking';
 import quicknessGames from '../page/Quickness/Quickness';
 import memoryGames from '../page/Memory/WsMemory';
