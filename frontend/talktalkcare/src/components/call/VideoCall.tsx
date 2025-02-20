@@ -57,25 +57,45 @@ const VideoCall: React.FC = () => {
     videoRefs.current.delete(streamId);
   };
 
-  const handleSessionException = (exception: any) => {
-    console.warn('⚠️ 세션 예외 발생:', exception);
+  const handleSessionException = async (exception: any) => {
+    console.warn('⚠️ WebRTC 예외 발생:', exception);
     let message = '알 수 없는 오류가 발생했습니다.';
+    let retryCount = 0;
+
     switch (exception.name) {
-      case 'ICE_CONNECTION_FAILED':
-        message = '네트워크 연결에 문제가 발생했습니다.';
-        break;
-      case 'networkDisconnected':
-        message = '네트워크가 끊겼습니다. 다시 연결해 주세요.';
-        break;
-      case 'tokenExpired':
-        message = '세션 토큰이 만료되었습니다. 다시 로그인해 주세요.';
-        break;
-      default:
-        break;
+        case 'ICE_CONNECTION_FAILED':
+            message = 'TURN 서버 연결에 실패했습니다. 네트워크 상태를 확인해주세요.';
+            console.log("🔄 ICE Candidate 재시도 중...");
+
+            const retryIceConnection = setInterval(async () => {
+                if (retryCount >= 5) {  // 5번까지 재시도
+                    clearInterval(retryIceConnection);
+                    console.log("❌ ICE Candidate 재시도 실패");
+                } else {
+                    retryCount++;
+                    console.log(`🔄 ICE Candidate 재시도 ${retryCount}회`);
+                    
+                    await handleLeaveSession();
+                    await openviduService.joinSession(sessionId);
+                }
+            }, 5000);  // 5초 간격으로 수정
+            break;
+
+        case 'ICE_CANDIDATE_ERROR':
+            message = 'TURN 서버 인증에 실패했습니다. 잠시 후 다시 시도해주세요.';
+            break;
+
+        case 'PEER_CONNECTION_ERROR':
+            message = 'WebRTC 연결에 문제가 발생했습니다.';
+            break;
+
+        default:
+            break;
     }
     setModalMessage(message);
     setIsModalOpen(true);
-  };
+};
+
 
   const handleSessionDisconnected = () => {
     console.log('🧹 세션 종료: 리소스 정리');
@@ -114,9 +134,10 @@ const VideoCall: React.FC = () => {
   const handleInitPublisher = async () => {
     try {
       if (publisherRef.current) {
-        console.log('Publisher가 이미 초기화되어 있음. 재초기화 생략');
+        console.log('⚠️ Publisher가 이미 존재함. 재사용');
         return;
       }
+
       const OV = sessionRef.current!.openvidu;
       const publisher = await OV.initPublisherAsync(undefined, {
         audioSource: undefined,
@@ -125,19 +146,36 @@ const VideoCall: React.FC = () => {
         publishVideo: true,
         mirror: true,
       });
-      publisherRef.current = publisher;
 
-      // 로컬 비디오 즉시 바인딩
-      if (localVideoRef.current) {
-        publisher.addVideoElement(localVideoRef.current);
-        console.log('🎥 로컬 비디오 즉시 바인딩 완료');
+      // WebRTC 상태 체크
+      const rtcPeerConnection = publisher.stream?.getRTCPeerConnection();
+      if (rtcPeerConnection) {
+        console.log(`📡 Publisher ICE Connection State: ${rtcPeerConnection.iceConnectionState}`);
+
+        rtcPeerConnection.oniceconnectionstatechange = () => {
+          console.log(`📡 ICE 상태 변경: ${rtcPeerConnection.iceConnectionState}`);
+          if (rtcPeerConnection.iceConnectionState === 'failed') {
+            console.warn("❌ ICE Connection 실패! 5초 후 재시도...");
+            setTimeout(async () => {
+              await handleLeaveSession();
+              await openviduService.joinSession(sessionId);
+            }, 5000);
+          }
+        };
       }
 
-      // Publisher 등록 (중복 등록 방지)
+      if (localVideoRef.current) {
+        publisher.addVideoElement(localVideoRef.current);
+        console.log('🎥 로컬 비디오 바인딩 완료');
+      }
+
       await sessionRef.current!.publish(publisher);
+      publisherRef.current = publisher;
       console.log('✅ Publisher 세션 등록 완료');
     } catch (error) {
       console.error('🚨 Publisher 초기화 실패:', error);
+      setModalMessage('카메라 초기화 중 오류가 발생했습니다.');
+      setIsModalOpen(true);
     }
   };
 
@@ -154,20 +192,24 @@ const VideoCall: React.FC = () => {
   };
 
   // --- 세션 나가기 ---
-  const handleLeaveSession = () => {
+  const handleLeaveSession = async () => {
     if (sessionRef.current) {
-      try {
-        if (publisherRef.current) {
-          publisherRef.current.stream.disposeWebRtcPeer();
-          publisherRef.current = null;
-          console.log('🧹 Publisher 리소스 정리 완료');
+        try {
+            if (publisherRef.current) {
+                await sessionRef.current.unpublish(publisherRef.current);  
+                publisherRef.current = null;
+                console.log('🧹 Publisher 스트림 정리 완료');
+            }
+            
+            // disconnect는 마지막에 실행하고 완료될 때까지 대기
+            await sessionRef.current.disconnect();  
+            sessionRef.current = null;
+            console.log('✅ 세션 연결 종료 완료');
+        } catch (error) {
+            console.error('🚨 세션 종료 중 에러:', error);
         }
-        sessionRef.current.disconnect();
-      } catch (error) {
-        console.error('🚨 세션 종료 중 에러:', error);
-      }
-      localStorage.removeItem('currentSessionId');
-      navigate('/');
+        localStorage.removeItem('currentSessionId');
+        navigate('/');
     }
   };
 
