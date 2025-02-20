@@ -113,6 +113,7 @@ const VideoCall: React.FC = () => {
   // --- Publisher 초기화 ---
   const handleInitPublisher = async () => {
     try {
+      // 이미 Publisher가 초기화되어 있다면 재초기화 건너뛰기
       if (publisherRef.current) {
         console.log('Publisher가 이미 초기화되어 있음. 재초기화 생략');
         return;
@@ -126,13 +127,13 @@ const VideoCall: React.FC = () => {
         mirror: true,
       });
       publisherRef.current = publisher;
-
+  
       // 로컬 비디오 즉시 바인딩
       if (localVideoRef.current) {
         publisher.addVideoElement(localVideoRef.current);
         console.log('🎥 로컬 비디오 즉시 바인딩 완료');
       }
-
+  
       // 세션에 Publisher 등록 (중복 등록 방지)
       await sessionRef.current!.publish(publisher);
       console.log('✅ Publisher 세션 등록 완료');
@@ -196,6 +197,8 @@ const VideoCall: React.FC = () => {
       try {
         if (sessionRef.current) {
           sessionRef.current.disconnect();
+          sessionRef.current = null;
+          publisherRef.current = null;
         }
         const { session } = await openviduService.joinSession(sessionId);
         if (!mounted) return;
@@ -222,6 +225,7 @@ const VideoCall: React.FC = () => {
             publisherRef.current = null;
           }
           sessionRef.current.disconnect();
+          sessionRef.current = null;
         } catch (error) {
           console.error('세션 종료 중 에러:', error);
         }
@@ -260,7 +264,8 @@ const VideoCall: React.FC = () => {
                         videoRefs.current.set(subscriber.stream.streamId, el);
                       }
                     }}
-                    autoPlay playsInline
+                    autoPlay
+                    playsInline
                   />
                   <p>상대방</p>
                 </div>
