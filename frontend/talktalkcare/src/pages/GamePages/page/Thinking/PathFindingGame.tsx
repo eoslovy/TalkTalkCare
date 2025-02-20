@@ -434,7 +434,7 @@ const PathFindingGame: React.FC = () => {
                     key={x} 
                     className={`grid-cell ${
                       x === currentPosition.x && y === currentPosition.y ? 'active' : ''
-                    }`}
+                    } ${x === 2 && y === 2 ? 'center-cell' : ''}`}
                   >
                     {x === currentPosition.x && y === currentPosition.y && (
                       <div className="robot">🤖</div>

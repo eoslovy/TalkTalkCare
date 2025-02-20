@@ -12,6 +12,7 @@ const Login: React.FC = () => {
   const { setIsLoggedIn: setWsLoggedIn } = useWebSocket();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string>('');
+  const [modalTitle, setModalTitle] = useState<string>('알림');
   const [formData, setFormData] = useState({
     userLoginId: '',
     password: '',
@@ -19,6 +20,7 @@ const Login: React.FC = () => {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -28,7 +30,6 @@ const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // try {
       const response = await authService.login(formData);
       
       if (response.result.msg === 'success') {
@@ -47,11 +48,12 @@ const Login: React.FC = () => {
         setModalMessage(response.result.msg || '로그인에 실패했습니다.');
         setIsModalOpen(true);
       }
-    // } catch (error) {
-      // console.error('로그인 실패:', error);
-      // setModalMessage('일시적인 서버 오류가 발생했습니다.');
-      // setIsModalOpen(true);
-    // }
+  };
+
+  const handleUnsupportedFeature = (featureName: string) => {
+    setModalTitle('서비스 안내');
+    setModalMessage(`아직 지원되지 않는 서비스입니다.`);
+    setIsModalOpen(true);
   };
 
   return (
@@ -106,9 +108,9 @@ const Login: React.FC = () => {
         </form>
 
         <div className="bottom-links">
-          <span onClick={() => navigate('/find-id')}>아이디 찾기</span>
+          <span onClick={() => handleUnsupportedFeature('')}>아이디 찾기</span>
           <span className="divider">|</span>
-          <span onClick={() => navigate('/find-password')}>비밀번호 찾기</span>
+          <span onClick={() => handleUnsupportedFeature('')}>비밀번호 찾기</span>
           <span className="divider">|</span>
           <span onClick={() => navigate('/sign-up')}>회원가입</span>
         </div>

@@ -6,6 +6,7 @@ import { UserSignupRequest } from '../../types/user';
 import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 const pwCondition = /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/;
+const loginIdPattern = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{6,}$/;
 
 const SignUp = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +54,35 @@ const SignUp = () => {
     setModalMessage(message);
     setModalOpen(true);
   };
+  const validateLoginId = (id: string): { isValid: boolean; message: string } => {
+    if (!id) {
+      return { isValid: false, message: '아이디를 입력해주세요.' };
+    }
+  
+    if (id.length < 6) {
+      return { isValid: false, message: '아이디는 최소 6자 이상이어야 합니다.' };
+    }
+  
+    if (!/[a-zA-Z]/.test(id)) {
+      return { isValid: false, message: '아이디는 최소 1개 이상의 영문자를 포함해야 합니다.' };
+    }
+  
+    if (!/[0-9]/.test(id)) {
+      return { isValid: false, message: '아이디는 최소 1개 이상의 숫자를 포함해야 합니다.' };
+    }
+  
+    if (!/^[a-zA-Z0-9]+$/.test(id)) {
+      return { isValid: false, message: '아이디는 영문자와 숫자만 포함할 수 있습니다.' };
+    }
+  
+    return { isValid: true, message: '사용 가능한 아이디 형식입니다.' };
+  };
 
+  const [loginIdValidation, setLoginIdValidation] = useState<{ isValid: boolean; message: string }>({
+    isValid: false,
+    message: ''
+  });
+  
   // 아이디 중복 확인
   const checkLoginId = async () => {
     try {
@@ -253,7 +282,7 @@ const SignUp = () => {
               name="loginId"
               value={formData.loginId}
               onChange={handleChange}
-              placeholder="아이디를 입력하세요 (영문, 숫자, 6자 이상)"
+              placeholder="아이디를 입력하세요(영문, 숫자 포함 6자 이상)"
               disabled={isLoginIdConfirmed}
             />
             {step === 1 && (

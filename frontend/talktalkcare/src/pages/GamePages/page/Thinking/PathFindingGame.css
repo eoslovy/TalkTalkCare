@@ -187,3 +187,11 @@
   background-color: #4a90e2;
   color: white;
 }
+
+.center-cell {
+  background-color: rgba(144, 238, 144, 0.5); /* 연한 하늘색 배경 */
+}
+
+.grid-cell.active.center-cell {
+  background-color: rgba(144, 238, 144, 0.5); /* active 상태일 때 색상 유지 */
+}

@@ -44,9 +44,7 @@ const MyPage = () => {
   }, [isLoggedIn]);
 
   const handleUserInfoClick = () => {
-    console.log('회원 정보 버튼 클릭됨'); // 로그 확인용
     if (userInfo) {
-      console.log('이동할 userInfo:', userInfo); // userInfo 값 확인
       navigate('/userinfopage', { state: { userInfo } });
     }
   };  
@@ -180,6 +178,7 @@ const MyPage = () => {
           className="profile-title"
           onClick={handleUserInfoClick}
           style={{ cursor: 'pointer' }}
+          
         >
           회원 정보
         </h2>

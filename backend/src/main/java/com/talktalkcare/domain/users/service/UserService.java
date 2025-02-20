@@ -10,6 +10,7 @@ import com.talktalkcare.domain.users.exception.UserException;
 import com.talktalkcare.domain.users.repository.UserRepository;
 import com.talktalkcare.domain.users.repository.UserSecurityRepository;
 import com.talktalkcare.domain.users.utils.PasswordEncryptor;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,12 +34,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserSecurityRepository userSecurityRepository;
 
-    @Value("${aws.s3.bucket}")
+    @Value("${AWS_BUCKET_NAME}")
     private String bucketName;
-    @Value("${aws.s3.region}")
-    private String region;
-    private String baseUrl = String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region);
 
+    @Value("${AWS_REGION}")
+    private String region;
+
+    private String baseUrl;
+
+    @PostConstruct
+    private void init() {
+        this.baseUrl = String.format("https://%s.s3.%s.amazonaws.com/",bucketName,region);
+    }
     public void checkUserId(String userLoginId) {
         if(userRepository.existsByLoginId(userLoginId)) {
             throw new UserException(UserErrorCode.USER_ALREADY_EXISTS);
